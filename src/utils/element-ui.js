@@ -1,4 +1,5 @@
 import Vue from 'vue'
-import { Button } from 'element-ui'
+import { Container, Tabs } from 'element-ui'
 
-Vue.use(Button)
+Vue.use(Container)
+Vue.use(Tabs)

@@ -1,0 +1,56 @@
+// 重置默认样式
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+@font-face {
+  font-family: "PingFang SC";
+  src: url("@/style/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Medium.ttf")
+}
+
+
+@media only screen and (max-width: 800px) {
+  html {
+    font-size: 10px;
+  }
+}
+@media only screen and (min-width: 1200px) {
+  html {
+    font-size: 14px;
+  }
+}
+
+
+html{
+  font-family: PingFang SC;
+  //font-size: 14px;
+}
+
+button{
+  border: 0;  // 去除未选中状态边框
+  outline: none; // 去掉外边的蓝色边框
+}
+
+a{
+  text-decoration: none;
+  color: #000000;
+  font-family: PingFang SC;
+  cursor: pointer;
+
+}
+
+span,button{
+  cursor: pointer;
+}
+
+img{
+  cursor: pointer;
+  pointer-events: none;
+}
+
+i{
+  font-style:normal;
+  cursor: pointer;
+}
