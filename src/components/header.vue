@@ -1,10 +1,10 @@
 <template>
   <div class="header">
     <div class="header-left">
-      <button class="left-btn">
-        <svg t="1715699713789" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10561" width="15" height="15"><path d="M631.168 183.168a42.666667 42.666667 0 0 1 62.826667 57.621333l-2.496 2.709334L423.04 512l268.48 268.501333a42.666667 42.666667 0 0 1 2.496 57.621334l-2.496 2.709333a42.666667 42.666667 0 0 1-57.621333 2.496l-2.709334-2.496-298.666666-298.666667a42.666667 42.666667 0 0 1-2.496-57.621333l2.496-2.709333 298.666666-298.666667z" fill="#000000" p-id="10562"></path></svg>
+      <button class="left-btn" @click="$router.go(-1)">
+        <svg t="1715699713789" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="10561" width="15" height="15"><path d="M631.168 183.168a42.666667 42.666667 0 0 1 62.826667 57.621333l-2.496 2.709334L423.04 512l268.48 268.501333a42.666667 42.666667 0 0 1 2.496 57.621334l-2.496 2.709333a42.666667 42.666667 0 0 1-57.621333 2.496l-2.709334-2.496-298.666666-298.666667a42.666667 42.666667 0 0 1-2.496-57.621333l2.496-2.709333 298.666666-298.666667z" p-id="10562"></path></svg>
       </button>
-      <div class="header-option">
+      <div class="header-option" v-if="false">
         <div class="item item-active">
           <span>推荐</span>
         </div>
@@ -33,10 +33,15 @@ export default {
 
 <style scoped lang="less">
 .header{
+  padding-left: 20px;
+  z-index: 200;
+  position: fixed;
   height: 60px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  //opacity: .9;
   .header-left{
     display: flex;
     align-items: center;
@@ -50,9 +55,10 @@ export default {
       width: 36px;
       border-radius: 50%;
       margin-right: 8px;
+      //fill: #ffffff;
     }
     .header-option{
-      display: inline-flex;
+      display: flex;
       height: 100%;
       padding:12px 0;
       .item{
@@ -72,7 +78,7 @@ export default {
       .item-nav-slip{
         position: absolute;
         bottom: 0;
-        height: 2px;
+        height: 3px;
         background-color: rgb(22,93,255);
         right: auto;
         top: auto;

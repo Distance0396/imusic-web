@@ -1,11 +1,15 @@
+import { setUserInfo, getUserInfo } from '@/utils/storage'
 export default {
   namespaced: true,
-  data () {
+  state () {
     return {
-      userInfo: {
-        userId: '',
-        token: ''
-      }
+      userInfo: getUserInfo()
+    }
+  },
+  mutations: {
+    setUser (state, obj) {
+      state.userInfo = obj
+      setUserInfo(obj)
     }
   },
   methods: {

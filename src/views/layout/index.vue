@@ -1,17 +1,15 @@
 <template>
   <el-container>
-    <el-container>
-      <el-aside width="250px">
+    <el-container id="container">
+      <el-aside width="250px" id="el-aside" style="height: 100vh">
         <Navbar></Navbar>
       </el-aside>
-      <el-main width="1000px">
-        <div class="header">
-          <Header></Header>
-        </div>
+      <el-main style="overflow:hidden; z-index: 1">
+        <Header></Header>
         <router-view></router-view>
       </el-main>
     </el-container>
-    <el-footer>Footer</el-footer>
+    <el-footer id="el-footer" >Footer</el-footer>
   </el-container>
 </template>
 
@@ -23,34 +21,47 @@ export default {
   components: {
     Header,
     Navbar
+  },
+  data () {
+    return {
+    }
+  },
+  methods: {
+
+  },
+  created () {
+
+  },
+  computed: {
+
   }
 }
 </script>
 
 <style scoped lang="less">
-el-aside{
+#el-aside{
   display: flex;
   flex-direction: column;
   background-color: rgb(242,243,245);
-  height: 100%;
-  width: 250px;
-  border-right-width: 1px;
+  border-right: #d0d0d0 2px solid;
   position: fixed;
-  left: 0;
-  top: 0;
-
 }
-el-main{
-  padding: 0 20px 0 20px;
-  //width: 1000px;
-}
-
-el-main{
-  max-width: 86rem;
+el-footer{
   position: fixed;
-  left: 250px;
+  bottom: 0;
+}
+.el-main{
+  padding: 0 0 0 0;
+  width: 100%;
+    //max-width: 86rem;
+  margin-left: 250px;
   .header{
     padding-right: 5px;
   }
+}
+#el-footer{
+  position: fixed;
+  bottom: 0;
+  width: 100%;
 }
 </style>
