@@ -1,5 +1,5 @@
 <script>
-import { login, register } from '@/api/login'
+import { login, register } from '@/api/user'
 import { Notification } from 'element-ui'
 export default {
   name: 'LoginIndex',
@@ -44,9 +44,6 @@ export default {
           // 判断有无回调地址
           const url = this.$route.query.backUrl || '/'
           this.$router.replace(url)
-        })
-        .catch(err => {
-          console.log(err)
         })
     },
     // 注册账号

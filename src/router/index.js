@@ -6,8 +6,14 @@ import Explore from '@/views/layout/explore.vue'
 import Login from '@/views/login/index.vue'
 import Singer from '@/views/detail/singer.vue'
 import Album from '@/views/detail/album.vue'
+import MusicForm from '@/views/detail/musicForm.vue'
 
 Vue.use(VueRouter)
+
+const VueRouterPush = VueRouter.prototype.push
+VueRouter.prototype.push = function push (to) {
+  return VueRouterPush.call(this, to).catch(err => err)
+}
 
 const router = new VueRouter({
   routes: [
@@ -31,6 +37,10 @@ const router = new VueRouter({
         {
           path: '/album/detail/:id',
           component: Album
+        },
+        {
+          path: '/music-form/detail/:id',
+          component: MusicForm
         }
       ]
     },

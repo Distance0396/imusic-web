@@ -13,7 +13,7 @@ export default {
     changeLoad () {
       setTimeout(() => {
         this.loading = false
-      }, 500)
+      }, 1000)
     }
   },
   mounted () {
@@ -76,8 +76,10 @@ export default {
     }
   }
   .public{
-    width: 23vh;
-    height: 23vh;
+    width: 20vh;
+    height: 20vh;
+    max-width: 300px;
+    max-height: 300px;
     min-width: 120px;
     min-height: 120px;
   }

@@ -1,7 +1,7 @@
 <script xmlns:crossOrigin="http://www.w3.org/1999/xhtml">
 import ColorThief from 'colorthief'
-import MusicItem from '@/components/musicItem.vue'
-import BlockItem from '@/components/blockItem.vue'
+import MusicItem from '@/components/MusicItem.vue'
+import BlockItem from '@/components/BlockItem.vue'
 import { findSingerById } from '@/api/singer'
 import { getAlbumBySingerId } from '@/api/album'
 export default {
@@ -60,6 +60,7 @@ export default {
       const scrollTop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop
       // 计算绑定div位置
       const offsetTop = document.querySelector('.cont-info .count').offsetTop
+      // console.log(offsetTop)
       // 进行比较设置位置fixed
       if (scrollTop > offsetTop) {
         document.querySelector('.header').style.backgroundColor = 'rgb(' + this.backgroundColor[0] + ',' + this.backgroundColor[1] + ', ' + this.backgroundColor[2] + ')'
@@ -132,7 +133,7 @@ export default {
               <div class="cont-hot-music">
                 <h2 :class="{dark : this.isDark}" class="title">热门</h2>
                 <div class="target">
-                  <MusicItem v-for="(item,index) in music.slice(0,this.controlMusicNumber)" :key="item" :music="item" :index="index+1"></MusicItem>
+                  <MusicItem v-for="(item,index) in music.slice(0,this.controlMusicNumber)" :key="item" :music="item" :index="index+1" :avatar="singer.avatar"></MusicItem>
                 </div>
                 <div class="more" >
                   <span v-if="controlMusicNumber === 5" @click="controlMusicNumber = 10">查看更多</span>
@@ -145,15 +146,8 @@ export default {
                   <BlockItem v-for="item in album" :key="item.id" :detail="item"></BlockItem>
                 </div>
               </div>
-<!--              <div class="cont-introduce">-->
-<!--                <h2 :class="{dark : this.isDark}" class="title">歌手介绍</h2>-->
-<!--                <div class="introduce-target">-->
-<!--                  <el-card :body-style="{ padding: '0px', width: '100%', height: '100%' }" shadow="hover">-->
-<!--                    <img :src="singer.image" class="img"  alt=""/>-->
-<!--                      <i class="i">{{singer.description}}</i>-->
-<!--                  </el-card>-->
-<!--                </div>-->
-<!--              </div>-->
+              <div class="cont-introduce">
+              </div>
             </div>
           </div>
         </div>
@@ -288,7 +282,7 @@ export default {
           .cont-hot-music{
             position: relative;
             margin-right: 20px;
-            width: 40rem;
+            width: 70rem;
             .dark{
               color: black;
             }
@@ -296,7 +290,7 @@ export default {
               color: #ffffff;
             }
             .target{
-              width: 40rem;
+              width: 100%
             }
             .more{
               z-index: 10;

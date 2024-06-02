@@ -3,7 +3,8 @@ export default {
   name: 'musicItem',
   props: {
     music: Object,
-    index: Number
+    index: Number,
+    avatar: String
   }
 }
 </script>
@@ -24,12 +25,13 @@ export default {
       </div>
     </div>
     <div class="music-info public">
-      <el-image :src="music.albumImage" alt="" style="width: 40px; height: 40px;" class="img"></el-image>
-      <a href="">{{music.name}}</a>
+      <el-image :src="music.albumImage || avatar" alt="" style="width: 40px; height: 40px;" class="img" v-if="music.albumImage || avatar"></el-image>
+      <i>{{music.name}}</i>
+<!--      <i>{{music.singerName}}</i>-->
     </div>
     <div class="music-num public">
       <div class="num">
-        {{music.count}}
+        {{music.count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}}
       </div>
     </div>
     <div class="music-more public">
@@ -66,17 +68,16 @@ export default {
 }
 
 .musicItem{
-  //width: 100%;
+  width: 100%;
   padding: 8px;
   display: grid;
-  grid-template-columns: 3rem 22rem 120px 110px;
+  grid-template-columns: 3rem 36rem 8rem 22rem;
   .public{
     display: flex;
     align-items: center;
   }
   .music-index{
-    padding: 0px 15px;
-    //justify-self: end;
+    padding: 0 15px;
     .player{
       background-color: #FFFFFF00;
       display: flex;
@@ -92,19 +93,23 @@ export default {
   }
   .music-info{
     margin-left: 10px;
+    display: flex;
+    //flex-direction: row;
     //padding-right: 15rem;
+    //white-space: nowrap;
     .img{
       border-radius: 5px;
       margin-right: 10px;
     }
-    a{
+    i{
       overflow: hidden;
       text-overflow: ellipsis;
-      white-space: nowrap;
+      //white-space: nowrap;
     }
   }
   .music-num{
     text-align: right;
+    justify-self: end;
     .num{
       text-align: right;
       font-variant-numeric: tabular-nums;

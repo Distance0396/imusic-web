@@ -1,30 +1,40 @@
 <script>
-import { getAlbumById } from '@/api/album'
-import ColorThief from 'colorthief'
-import ActionBar from '@/components/ActionBar.vue'
 import MusicItem from '@/components/MusicItem.vue'
+import ActionBar from '@/components/ActionBar.vue'
+import { getMusicFormById } from '@/api/muiscForm'
+import ColorThief from 'colorthief'
+import { getSimpleUserById } from '@/api/user'
 export default {
-  name: 'albumDetail',
+  name: 'musicForm',
   components: {
-    ActionBar, MusicItem
+    ActionBar,
+    MusicItem
   },
   data () {
     return {
-      album: {
-        image: ''
-      },
+      musicForm: {},
       backgroundColor: [],
-      musicList: []
+      musicList: [],
+      musicFormName: ''
     }
   },
   methods: {
+    async getMusicFormById () {
+      await getMusicFormById(this.getMusicFormId).then(res => {
+        this.musicForm = res.data
+        this.musicList = res.data.musicList
+        getSimpleUserById(this.musicForm.userId).then(res => {
+          this.musicFormName = res.data.name
+        })
+      })
+    },
     // 读取图片颜色
     loadImage () {
       const img = new Image()
 
       const colorThief = new ColorThief()
       img.setAttribute('crossOrigin', 'anonymous')
-      img.src = this.album.image + '?time=' + new Date().valueOf()
+      img.src = this.musicForm.image + '?time=' + new Date().valueOf()
 
       setTimeout(() => {
         // const baColor = colorThief.getColor(img)
@@ -39,42 +49,36 @@ export default {
           })
         } catch (e) {
         }
-        //  小于100 就是深色
-        // if (this.backgroundColor[0] * 0.299 + this.backgroundColor[1] * 0.587 + this.backgroundColor[2] * 0.114 > 100) {
-        //   console.log('小于100 就是深色' + this.backgroundColor[0] * 0.299 + this.backgroundColor[1] * 0.587 + this.backgroundColor[2] * 0.114)
-        //   this.isDark = true
-        // }
       }, 500)
     },
-    async getAlbumById (id) {
-      await getAlbumById(id).then(res => {
-        this.album = res.data
-        this.musicList = res.data.musicList
-        // this.album.image = res.data.image + '?time=' + new Date().valueOf()
+    async getSimpleUserById () {
+      await getSimpleUserById(this.musicForm.userId).then(res => {
+        this.musicFormName = res.data.name
       })
     }
   },
-  created () {
-    this.getAlbumById(this.getAlbumId)
-  },
   computed: {
-    getAlbumId () {
+    getMusicFormId () {
       return this.$route.params.id
     }
+  },
+  created () {
+    this.getMusicFormById()
+    // this.getSimpleUserById()
   }
 }
 </script>
 
 <template>
-  <div class="album">
+  <div class="music-form">
     <div class="head">
       <div class="background-color" :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}"></div>
       <div class="background-color shade"></div>
-      <el-image class="img" :src="album.image"  @load="loadImage" alt="" />
+      <el-image class="img" :src="musicForm.image"  @load="loadImage" alt="" />
       <div class="album-detail">
         <span>专辑</span>
-        <span style="font-size: 5rem; font-weight: bold">{{album.name}}</span>
-        <span>{{album.singerName}}</span>
+        <span style="font-size: 5rem; font-weight: bold">{{musicForm.name}}</span>
+        <span>{{musicFormName}}·{{musicList.length}}首歌曲</span>
       </div>
     </div>
     <div class="gradual-block" :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}"></div>
@@ -88,7 +92,7 @@ export default {
 </template>
 
 <style scoped lang="less">
-.album{
+.music-form{
   position: relative;
   z-index: 1;
   overflow: hidden;
