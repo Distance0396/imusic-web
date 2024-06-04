@@ -20,9 +20,9 @@
 </template>
 
 <script>
-import Block from '@/components/BlockItem.vue'
-import loop from '@/components/LoopItem.vue'
-import scrollBar from '@/components/ScrollBar.vue'
+import Block from '@/components/bolck/BlockItem.vue'
+import loop from '@/components/bolck/LoopItem.vue'
+import scrollBar from '@/components/layout/ScrollBar.vue'
 import { getRandomSinger } from '@/api/singer'
 import { getRandomAlbum } from '@/api/album'
 export default {
@@ -45,7 +45,6 @@ export default {
     async getRandomSinger () {
       const { data } = await getRandomSinger()
       this.singer = data
-      console.log(this.singer)
     },
     // 随机获取专辑
     async getRandomAlbum () {

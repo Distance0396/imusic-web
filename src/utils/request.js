@@ -31,7 +31,6 @@ request.interceptors.response.use((response) => {
 // 请求拦截器
 request.interceptors.request.use((config) => {
   const token = store.getters.token
-  console.log(token)
   if (token) {
     config.headers.token = token
   }

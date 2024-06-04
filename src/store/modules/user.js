@@ -16,9 +16,11 @@ export default {
 
   },
   actions: {
-
+    logout (context) {
+      // 用户信息重置
+      context.commit('setUser', {})
+    }
   },
   getters: {
-
   }
 }

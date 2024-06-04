@@ -1,7 +1,7 @@
 import request from '@/utils/request'
 
 // 获取用户信息
-export const getUser = () => {
+export const getUserInfo = () => {
   return request.get('/user/info')
 }
 

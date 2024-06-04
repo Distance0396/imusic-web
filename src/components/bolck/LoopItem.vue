@@ -40,10 +40,10 @@ export default {
       </div>
     </template>
     <template>
-      <span class="block-img-garden public"  @click="$router.push(`/singer/detail/${detail.id}`)">
+      <span class="block-img-garden public"  @click="$router.push(`/detail/singer/${detail.id}`)">
         <img :src="detail.avatar || detail.image" alt="">
       </span>
-      <span class="block-name" @click="$router.push(`/singer/detail/${detail.id}`)">
+      <span class="block-name" @click="$router.push(`/detail/singer/${detail.id}`)">
         <i>{{detail.name}}</i>
       </span>
       <span style="font-size: 0.75rem">艺人</span>

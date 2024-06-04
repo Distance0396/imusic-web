@@ -41,13 +41,13 @@ export default {
         </div>
       </template>
       <template>
-        <span class="block-img" @click="$router.push(`/album/detail/${detail.id}`)">
+        <span class="block-img" @click="$router.push(`/detail/album/${detail.id}`)">
           <img :src="detail.image" alt="" class="img">
         </span>
         <span class="block-name">
           <i>{{detail.name}}</i>
         </span>
-        <span @click="$router.push(`/singer/detail/${detail.singerId}`)" class="blockSingerName" style="font-size: 0.75rem">{{detail.singerName}}</span>
+        <span @click="$router.push(`/detail/singer/${detail.singerId}`)" class="blockSingerName" style="font-size: 0.75rem">{{detail.singerName}}</span>
       </template>
     </el-skeleton>
 </template>

@@ -1,6 +1,50 @@
 <script>
 export default {
-  name: 'playerItem'
+  name: 'playerItem',
+  data () {
+    return {
+      audio: require('@/style/audio/宇多田ヒカル椎名林檎-二時間だけのバカンス (只有两小时的假期).mp3'),
+      isPlay: false,
+      playback: true,
+      endTime: 0,
+      firstTime: 0,
+      sliderValue: 0,
+      maxValue: 0
+    }
+  },
+  methods: {
+    play () {
+      this.isPlay = !this.isPlay
+      if (this.isPlay) {
+        // 总时长
+        this.$refs.audio.play()
+      } else {
+        this.$refs.audio.pause()
+      }
+    },
+    current (e) {
+      this.firstTime = e.target.currentTime
+      this.sliderValue = (this.firstTime / this.maxValue) * 100
+    },
+    formatTime (seconds) {
+      const minutes = Math.floor(seconds / 60)
+      const secs = Math.floor(seconds % 60)
+      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`
+    },
+    dragChange (value) {
+      const audio = this.$refs.audio
+      audio.currentTime = (value / 100) * this.maxValue
+    },
+    loadMetadata (e) {
+      this.endTime = e.target.duration
+      this.maxValue = e.target.duration
+    }
+  },
+  mounted () {
+    const element = document.querySelector('.progress-bar .el-slider__runway .el-slider__button-wrapper .el-slider__button')
+    element.style.backgroundColor = 'transparent'
+    element.style.border = '2px solid transparent'
+  }
 }
 </script>
 
@@ -15,6 +59,13 @@ export default {
     </div>
     <div class="play-controller">
       <div class="contr-top">
+        <audio
+          ref="audio"
+          :src="audio"
+          @loadedmetadata="loadMetadata"
+          @timeupdate="current"
+          style="width: 100%"
+        />
         <div class="contr-top-left direction">
           <button class="btn">
             <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M753.564731 337.471035c-45.8697 0-160.259984 113.849978-243.789399 194.548928C383.134027 654.383848 263.508509 773.284865 167.764911 773.284865l-58.892295 0c-24.068162 0-43.581588-19.526729-43.581588-43.581588s19.513426-43.581588 43.581588-43.581588l58.892295 0c60.504002 0 183.002964-121.68134 281.432741-216.784348 119.79641-115.744117 223.254713-219.029482 304.368102-219.029482l56.209186 0-59.641355-57.828057c-17.033955-16.993023-17.060561-42.902112-0.057305-59.927881 17.002232-17.030885 44.596707-17.064654 61.631686-0.065492l134.207631 133.874033c8.192589 8.172123 12.794397 19.238157 12.794397 30.803563 0 11.564383-4.601808 22.604834-12.794397 30.776957L811.706943 461.72599c-8.505721 8.486278-19.646456 12.522198-30.78719 12.522198-11.166317 0-22.333658-4.676509-30.844495-13.199627-17.003256-17.025769-16.975627-45.432749 0.057305-62.425771l59.641355-61.151755L753.564731 337.471035zM811.706943 561.66105c-17.034978-16.999163-44.629453-16.972557-61.631686 0.058328-17.003256 17.024745-16.975627 46.257533 0.057305 63.250556l59.641355 61.150732-56.209186 0c-35.793204 0-95.590102-52.946886-154.87637-108.373243-17.576307-16.435321-45.161572-16.3422-61.594847 1.226944-16.444531 17.568121-15.523555 46.393633 2.053776 62.823837 90.322122 84.458577 151.246703 131.484613 214.417441 131.484613l56.209186 0-59.641355 57.824987c-17.033955 16.993023-17.060561 43.736107-0.057305 60.761875 8.511861 8.523117 19.678178 12.369725 30.844495 12.369725 11.140735 0 22.281469-4.453429 30.78719-12.939707L945.914574 757.311055c8.192589-8.173147 12.794397-19.315928 12.794397-30.881334 0-11.564383-4.601808-22.682605-12.794397-30.855752L811.706943 561.66105zM108.871593 337.471035l58.892295 0c45.932122 0 114.40154 58.455343 168.915108 107.942431 8.352225 7.576559 18.832927 12.140505 29.29214 12.140505 11.852956 0 23.673166-4.394077 32.270984-13.857613 16.182564-17.807574 14.859429-46.823422-2.958378-62.998823-85.247546-77.381391-156.561755-130.388652-227.519854-130.388652l-58.892295 0c-24.068162 0-43.581588 19.526729-43.581588 43.581588S84.804455 337.471035 108.871593 337.471035z"></path></svg>
@@ -23,8 +74,9 @@ export default {
             <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M101.930375 546.0659L551.347379 872.910689a43.342807 43.342807 0 0 0 68.847075-35.055725L620.194454 695.334509 864.36350799 872.910689a43.364482 43.364482 0 0 0 68.84707601-35.055725l0-653.682354a43.350032 43.350032 0 0 0-68.847076-35.062951L620.194454 326.67138899l0-142.49877899a43.364482 43.364482 0 0 0-68.847075-35.062951l-449.41700401 326.837565a43.342807 43.342807 0 0 0 1e-8 70.118676z" fill=""></path></svg>
           </button>
         </div>
-        <button class="contr-play">
-          <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z" fill="#000000" ></path></svg>
+        <button class="contr-play" @click="play">
+          <svg v-if="isPlay" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M426.666667 138.666667v746.666666a53.393333 53.393333 0 0 1-53.333334 53.333334H266.666667a53.393333 53.393333 0 0 1-53.333334-53.333334V138.666667a53.393333 53.393333 0 0 1 53.333334-53.333334h106.666666a53.393333 53.393333 0 0 1 53.333334 53.333334z m330.666666-53.333334H650.666667a53.393333 53.393333 0 0 0-53.333334 53.333334v746.666666a53.393333 53.393333 0 0 0 53.333334 53.333334h106.666666a53.393333 53.393333 0 0 0 53.333334-53.333334V138.666667a53.393333 53.393333 0 0 0-53.333334-53.333334z" fill="#000000"></path></svg>
+          <svg v-if="!isPlay" style="margin-left: 3px" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z" fill="#000000" ></path></svg>
         </button>
         <div class="contr-top-right direction">
           <button class="next btn">
@@ -36,11 +88,15 @@ export default {
         </div>
       </div>
       <div class="contr-bottom">
-        <div class="play-first">0:00</div>
-        <div class="progress-bar">
-          <el-progress :percentage="50" :text-inside="true"></el-progress>
-        </div>
-        <div class="play-end">4:32</div>
+        <div class="play-first" style="width: 40px; color: #b3b3b3;">{{this.formatTime(firstTime) || '00:00'}}</div>
+        <el-slider
+          class="progress-bar"
+          v-model="sliderValue"
+
+          :show-tooltip="false"
+          @change="dragChange"
+        />
+        <div class="play-end" style="width: 40px; color: #b3b3b3;">{{ this.formatTime(endTime) || '00:00'}}</div>
       </div>
     </div>
     <div class="player-right">
@@ -62,15 +118,21 @@ export default {
 
 <style scoped lang="less">
 .player{
+  position: fixed;
+  //top: 0;
+  bottom: 0;
   width: 100%;
   z-index: 10;
-  padding: 10px 0 10px 0;
+  //min-width: 800px;
+  background-color: #303133;
+  padding: 10px 20px 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   .player-left{
     display: flex;
     align-items: center;
+    margin-bottom: 10px;
     .image{
       border-radius: 5px;
       width: 50px;
@@ -82,10 +144,10 @@ export default {
       flex-direction: column;
       i{
         color: #FFFFFF;
-        font-size: 1rem;
+        font-size: 16px;
       }
       i:nth-child(2){
-        font-size: 0.7rem;
+        font-size: 13px;
         color: #EBEEF5;
       }
     }
@@ -108,9 +170,6 @@ export default {
         height: 35px;
         border-radius: 50%;
         background-color: #FFFFFF;
-        svg{
-          margin-left: 3px;
-        }
       }
       .next{
         margin: 0 30px 0 30px;
@@ -127,12 +186,19 @@ export default {
     .contr-bottom{
       display: flex;
       align-items: center;
-      justify-content: center;
+      //justify-content: center;
+      justify-content: space-around;
       //flex-wrap: nowrap;
       width: 100%;
       .progress-bar{
-        margin: 0 10px 0 10px;
+        //margin: 0 10px 0 10px;
         width: 350px;
+        height: 20px;
+        display: flex;
+        align-items: center;
+        //.el-slider__runway{
+        //  margin: 0;
+        //}
       }
     }
   }

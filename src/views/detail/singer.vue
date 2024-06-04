@@ -1,53 +1,66 @@
-<script xmlns:crossOrigin="http://www.w3.org/1999/xhtml">
+<script>
 import ColorThief from 'colorthief'
-import MusicItem from '@/components/MusicItem.vue'
-import BlockItem from '@/components/BlockItem.vue'
+import MusicItem from '@/components/bolck/MusicItem.vue'
+import BlockItem from '@/components/bolck/BlockItem.vue'
+import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import { findSingerById } from '@/api/singer'
 import { getAlbumBySingerId } from '@/api/album'
+import { mapState } from 'vuex'
+
 export default {
   name: 'DetailIndex',
   computed: {
     //  获取路由歌手id
     getSingerId () {
       return this.$route.params.id
-    }
+    },
+    ...mapState('music', ['musicFormList'])
   },
   components: {
     MusicItem,
-    BlockItem
-  },
-  props: {
-
+    BlockItem,
+    ContextMenu
   },
   data () {
     return {
+      menu: [
+        {
+          id: 1,
+          label: '加入歌单',
+          icon: 'el-icon-folder-checked'
+          // menu: [
+          //   { id: 100, label: '测试歌单1' },
+          //   { id: 101, label: '测试歌单2' }
+          // ]
+        },
+        { id: 2, label: '加入队列', icon: 'el-icon-menu' },
+        { id: 3, label: '删除', icon: 'el-icon-delete' },
+        { id: 4, label: '跳转至歌手', icon: 'el-icon-s-promotion' },
+        { id: 5, label: '分享给好友', icon: 'el-icon-info' }
+      ],
+      // 背景渐变
       backgroundColor: [],
-      isColor: null,
+      // isColor: null,
       isDark: false,
+      // 歌手信息
       singer: {},
+      // 歌手
       music: [],
+      // 专辑
       album: [],
       // 控制音乐渲染数量
-      controlMusicNumber: 5
+      controlMusicNumber: 5,
+      // 加载
+      loading: true
     }
   },
   methods: {
     // 读取图片颜色
     async loadImage () {
-      const img = new Image()
-      // const img = document.querySelector('.background-img')
       const colorThief = new ColorThief()
-
-      img.setAttribute('crossOrigin', 'anonymous')
-      img.src = this.singer.image + '?time=' + new Date().valueOf()
-
-      setTimeout(() => {
-        const baColor = colorThief.getColor(img)
-        // const baColor = colorThief.getPalette(img)[0]
-        console.log('颜色提取' + baColor)
-        this.backgroundColor = baColor
-      }, 500)
-      console.log(this.backgroundColor) // 主颜色
+      // const baColor = colorThief.getPalette(this.$refs.image)[0]
+      this.backgroundColor = colorThief.getColor(this.$refs.image)
+      // console.log(this.backgroundColor) // 主颜色
       //  小于100 就是深色
       if (this.backgroundColor[0] * 0.299 + this.backgroundColor[1] * 0.587 + this.backgroundColor[2] * 0.114 > 100) {
         console.log(this.backgroundColor[0] * 0.299 + this.backgroundColor[1] * 0.587 + this.backgroundColor[2] * 0.114)
@@ -59,8 +72,7 @@ export default {
       // 计算滚动条位置
       const scrollTop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop
       // 计算绑定div位置
-      const offsetTop = document.querySelector('.cont-info .count').offsetTop
-      // console.log(offsetTop)
+      const offsetTop = this.$refs.top.offsetTop
       // 进行比较设置位置fixed
       if (scrollTop > offsetTop) {
         document.querySelector('.header').style.backgroundColor = 'rgb(' + this.backgroundColor[0] + ',' + this.backgroundColor[1] + ', ' + this.backgroundColor[2] + ')'
@@ -70,37 +82,51 @@ export default {
     },
     // 根据id查询歌手
     async getSinger () {
-      const { data } = await findSingerById(this.getSingerId)
-      this.singer = data
-      this.music = data.musicList
-      this.singer.image = this.singer.image + '?time=' + new Date().valueOf()
+      await findSingerById(this.getSingerId).then(res => {
+        this.singer = res.data
+        this.music = res.data.musicList
+
+        this.$refs.image.crossOrigin = 'anonymous'
+        this.$refs.image.src = this.singer.image + '?time=' + new Date().valueOf()
+      })
     },
     // 根据id查询专辑
     async getAlbum () {
-      const { data } = await getAlbumBySingerId(this.getSingerId)
-      this.album = data
+      await getAlbumBySingerId(this.getSingerId).then(res => {
+        this.album = res.data
+      })
+    },
+    select (e) {
+      console.log(e)
+    },
+    pickMusicItem (e) {
+      console.log(e)
     }
   },
-  async created () {
-    await this.getSinger()
-    await this.getAlbum()
+  created () {
+    this.getSinger()
+    this.getAlbum()
+    setTimeout(() => {
+      this.loading = false
+    }, 1000)
   },
   mounted () {
+    this.menu[0].menu = this.musicFormList
+    console.log(this.musicFormList)
     window.addEventListener('scroll', this.handleScroll)
   },
-  destroyed () {
+  beforeDestroy () {
     window.removeEventListener('scroll', this.handleScroll)
   }
 }
 </script>
 
 <template>
-  <div class="detail">
-<!--    <Header></Header>-->
-    <div class="main" >
+  <div class="detail" v-loading="loading">
+    <div class="main">
       <div class="background">
         <div class=" public">
-          <el-image class="background-img" fit="cover" :src="singer.image" crossorigin="anonymous" alt="" @load="loadImage" style="width: 100%;"></el-image>
+          <img ref="image" class="background-img" src="" alt="" @load="loadImage" style="width: 100%;"/>
         </div>
         <div class="background-black public"></div>
       </div>
@@ -110,7 +136,7 @@ export default {
           <span>
             <i class="name">{{singer.name}}</i>
           </span>
-          <span class="count">每月有 1,697,783 名听众</span>
+          <span class="count" ref="top">每月有 1,697,783 名听众</span>
         </div>
         <div class="cont-center">
           <div class="background-active"
@@ -132,9 +158,19 @@ export default {
             <div style="display: flex; flex-wrap: wrap; flex-direction: column">
               <div class="cont-hot-music">
                 <h2 :class="{dark : this.isDark}" class="title">热门</h2>
-                <div class="target">
-                  <MusicItem v-for="(item,index) in music.slice(0,this.controlMusicNumber)" :key="item" :music="item" :index="index+1" :avatar="singer.avatar"></MusicItem>
-                </div>
+                  <ContextMenu
+                    :menu="menu"
+                    @select="select"
+                  >
+                    <div class="target">
+                      <MusicItem
+                        v-for="(item,index) in music.slice(0,this.controlMusicNumber)"
+                        @select="pickMusicItem"
+                        :key="item.id" :music="item" :index="index+1"
+                        :avatar="singer.avatar"
+                      />
+                    </div>
+                  </ContextMenu>
                 <div class="more" >
                   <span v-if="controlMusicNumber === 5" @click="controlMusicNumber = 10">查看更多</span>
                   <span v-else @click="controlMusicNumber = 5">收起</span>
@@ -168,8 +204,8 @@ export default {
   overflow: hidden;
   margin-bottom: 40px;
   .main {
-    position: relative;
-    width: 100%;
+    //position: relative;
+    //width: 100%;
     .background {
       height: 40vh;
       max-height: 700px;

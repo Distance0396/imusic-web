@@ -1,6 +1,6 @@
 <script>
-import MusicItem from '@/components/MusicItem.vue'
-import ActionBar from '@/components/ActionBar.vue'
+import MusicItem from '@/components/bolck/MusicItem.vue'
+import ActionBar from '@/components/layout/ActionBar.vue'
 import { getMusicFormById } from '@/api/muiscForm'
 import ColorThief from 'colorthief'
 import { getSimpleUserById } from '@/api/user'
@@ -15,7 +15,8 @@ export default {
       musicForm: {},
       backgroundColor: [],
       musicList: [],
-      musicFormName: ''
+      musicFormName: '',
+      image: ''
     }
   },
   methods: {
@@ -23,6 +24,10 @@ export default {
       await getMusicFormById(this.getMusicFormId).then(res => {
         this.musicForm = res.data
         this.musicList = res.data.musicList
+
+        this.$refs.image.crossOrigin = 'anonymous'
+        this.$refs.image.src = this.musicForm.image + '?time=' + new Date().valueOf()
+        // 获取专辑创建人
         getSimpleUserById(this.musicForm.userId).then(res => {
           this.musicFormName = res.data.name
         })
@@ -30,15 +35,10 @@ export default {
     },
     // 读取图片颜色
     loadImage () {
-      const img = new Image()
-
       const colorThief = new ColorThief()
-      img.setAttribute('crossOrigin', 'anonymous')
-      img.src = this.musicForm.image + '?time=' + new Date().valueOf()
-
       setTimeout(() => {
         // const baColor = colorThief.getColor(img)
-        const baColor = colorThief.getPalette(img)
+        const baColor = colorThief.getPalette(this.$refs.image)
         try {
           baColor.forEach(x => {
             if (Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114) > 100) {
@@ -50,11 +50,6 @@ export default {
         } catch (e) {
         }
       }, 500)
-    },
-    async getSimpleUserById () {
-      await getSimpleUserById(this.musicForm.userId).then(res => {
-        this.musicFormName = res.data.name
-      })
     }
   },
   computed: {
@@ -64,7 +59,6 @@ export default {
   },
   created () {
     this.getMusicFormById()
-    // this.getSimpleUserById()
   }
 }
 </script>
@@ -74,7 +68,7 @@ export default {
     <div class="head">
       <div class="background-color" :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}"></div>
       <div class="background-color shade"></div>
-      <el-image class="img" :src="musicForm.image"  @load="loadImage" alt="" />
+      <img ref="image" class="img"  src="" @load="loadImage"  alt="" />
       <div class="album-detail">
         <span>专辑</span>
         <span style="font-size: 5rem; font-weight: bold">{{musicForm.name}}</span>

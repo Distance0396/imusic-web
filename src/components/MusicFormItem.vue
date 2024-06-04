@@ -21,8 +21,7 @@ export default {
       }, 1000)
     },
     skip () {
-      console.log(this.musicForm.id)
-      this.$router.push(`/music-form/detail/${this.musicForm.id}`)
+      this.$router.push(`/detail/music-form/${this.musicForm.id}`)
     }
   },
   async created () {
@@ -75,6 +74,7 @@ export default {
   display: flex;
   align-items: center;
   cursor: pointer;
+  margin-bottom: 2px;
   &:hover{
     background-color: #E4E7ED;
     transition: background-color .2s linear;

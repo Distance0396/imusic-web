@@ -1,8 +1,8 @@
 <script>
 import { getAlbumById } from '@/api/album'
 import ColorThief from 'colorthief'
-import ActionBar from '@/components/ActionBar.vue'
-import MusicItem from '@/components/MusicItem.vue'
+import ActionBar from '@/components/layout/ActionBar.vue'
+import MusicItem from '@/components/bolck/MusicItem.vue'
 export default {
   name: 'albumDetail',
   components: {
@@ -20,37 +20,26 @@ export default {
   methods: {
     // 读取图片颜色
     loadImage () {
-      const img = new Image()
-
       const colorThief = new ColorThief()
-      img.setAttribute('crossOrigin', 'anonymous')
-      img.src = this.album.image + '?time=' + new Date().valueOf()
-
-      setTimeout(() => {
-        // const baColor = colorThief.getColor(img)
-        const baColor = colorThief.getPalette(img)
-        try {
-          baColor.forEach(x => {
-            if (Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114) > 100) {
-              console.log('小于100 就是深色' + Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114))
-              this.backgroundColor = x
-              throw new Error('获取颜色')
-            }
-          })
-        } catch (e) {
-        }
-        //  小于100 就是深色
-        // if (this.backgroundColor[0] * 0.299 + this.backgroundColor[1] * 0.587 + this.backgroundColor[2] * 0.114 > 100) {
-        //   console.log('小于100 就是深色' + this.backgroundColor[0] * 0.299 + this.backgroundColor[1] * 0.587 + this.backgroundColor[2] * 0.114)
-        //   this.isDark = true
-        // }
-      }, 500)
+      // const baColor = colorThief.getColor(this.$refs.image)
+      const baColor = colorThief.getPalette(this.$refs.image)
+      try {
+        baColor.forEach(x => {
+          if (Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114) > 140 && Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114) < 160) {
+            // console.log('小于100 就是深色' + Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114))
+            this.backgroundColor = x
+            throw new Error('获取颜色')
+          }
+        })
+      } catch (e) {}
     },
     async getAlbumById (id) {
       await getAlbumById(id).then(res => {
         this.album = res.data
         this.musicList = res.data.musicList
-        // this.album.image = res.data.image + '?time=' + new Date().valueOf()
+
+        this.$refs.image.crossOrigin = 'anonymous'
+        this.$refs.image.src = this.album.image + '?time=' + new Date().valueOf()
       })
     }
   },
@@ -70,7 +59,7 @@ export default {
     <div class="head">
       <div class="background-color" :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}"></div>
       <div class="background-color shade"></div>
-      <el-image class="img" :src="album.image"  @load="loadImage" alt="" />
+      <img ref="image" class="img" src=""  @load="loadImage" alt="" />
       <div class="album-detail">
         <span>专辑</span>
         <span style="font-size: 5rem; font-weight: bold">{{album.name}}</span>

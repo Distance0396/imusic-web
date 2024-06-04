@@ -1,33 +1,47 @@
 <script>
 export default {
   name: 'musicItem',
+  mounted () {
+    this.$refs.music.addEventListener('contextmenu', this.ContextMenu)
+  },
+  beforeDestroy () {
+    this.$refs.music.removeEventListener('contextmenu', this.ContextMenu)
+  },
   props: {
     music: Object,
     index: Number,
     avatar: String
+  },
+  methods: {
+    ContextMenu () {
+      this.$emit('select', this.music)
+    }
   }
 }
 </script>
 
 <template>
-  <div class="musicItem">
+  <div class="musicItem" ref="music">
     <div class="music-index public">
       <div class="public">
         <span class="index">
           {{index}}
         </span>
         <button class="player">
-          <svg t="1715863851135" class="icon" viewBox="0 0 1024 1024" version="1.1"
-               xmlns="http://www.w3.org/2000/svg" p-id="4289" width="15" height="15"><path
-            d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"
-            p-id="4290"></path></svg>
+          <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"></path></svg>
         </button>
       </div>
     </div>
-    <div class="music-info public">
-      <el-image :src="music.albumImage || avatar" alt="" style="width: 40px; height: 40px;" class="img" v-if="music.albumImage || avatar"></el-image>
+    <div class="music-info public" v-if="music.albumImage || avatar || music.image">
+      <el-image :src="music.albumImage || avatar || music.image" alt="" style="" class="img" ></el-image>
+      <div style="display: flex; flex-direction: column">
+        <i>{{music.name}}</i>
+        <i class="singer" @click="$router.push(`/singer/detail/${music.singerId}`)">{{music.singerName}}</i>
+      </div>
+    </div>
+    <div class="music-info" v-else style="display: flex; flex-direction: column;">
       <i>{{music.name}}</i>
-<!--      <i>{{music.singerName}}</i>-->
+      <i class="singer" @click="$router.push(`/singer/detail/${music.singerId}`)">{{music.singerName}}</i>
     </div>
     <div class="music-num public">
       <div class="num">
@@ -40,7 +54,7 @@ export default {
       </div>
       <div class="more">
         <span>
-          <svg t="1716099706353" class="icon" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" p-id="2625" width="15" height="15"><path d="M96 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z" p-id="2626"></path><path d="M512 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z" p-id="2627"></path><path d="M928 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z" p-id="2628"></path></svg>
+          <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M96 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z"></path><path d="M512 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z" ></path><path d="M928 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z" ></path></svg>
         </span>
       </div>
     </div>
@@ -94,17 +108,18 @@ export default {
   .music-info{
     margin-left: 10px;
     display: flex;
-    //flex-direction: row;
-    //padding-right: 15rem;
-    //white-space: nowrap;
     .img{
+      width: 40px; height: 40px;
       border-radius: 5px;
       margin-right: 10px;
     }
-    i{
-      overflow: hidden;
-      text-overflow: ellipsis;
-      //white-space: nowrap;
+    .singer{
+      width: 0;
+      font-size: 13px;
+      &:hover{
+        text-decoration: underline;
+        transition: text-decoration .5s linear;
+      }
     }
   }
   .music-num{

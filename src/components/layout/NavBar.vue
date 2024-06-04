@@ -1,5 +1,5 @@
 <script>
-import { getUser } from '@/api/user'
+import { getUserInfo } from '@/api/user'
 // import MusicFormItem from '@/components/MusicFormItem.vue'
 import collectItem from '@/components/collectItem.vue'
 export default {
@@ -15,8 +15,8 @@ export default {
     }
   },
   methods: {
-    getUserInfo () {
-      getUser()
+    getUser () {
+      getUserInfo()
         .then(res => {
           this.userInfo = res.data
         })
@@ -25,11 +25,14 @@ export default {
   computed: {
     isLogin () {
       return this.$store.getters.token
+    },
+    userName () {
+      return this.$store.getters.userName
     }
   },
   created () {
-    if (this.isLogin) {
-      this.getUserInfo()
+    if (!this.isLogin) {
+      this.getUser()
     }
   }
 }
@@ -55,7 +58,7 @@ export default {
           </span>
       </div>
       <div class="text">
-        {{userInfo.name}}
+        {{userName}}
       </div>
     </a>
 

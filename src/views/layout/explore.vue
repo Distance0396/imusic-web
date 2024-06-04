@@ -8,7 +8,7 @@
   </div>
 </template>
 <script>
-import loopItem from '@/components/LoopItem.vue'
+import loopItem from '@/components/bolck/LoopItem.vue'
 import { getSingerList } from '@/api/singer'
 export default {
   name: 'exploreIndex',

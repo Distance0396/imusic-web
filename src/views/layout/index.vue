@@ -4,40 +4,34 @@
       <el-aside width="250px" id="el-aside" style="height: 100vh">
         <Navbar></Navbar>
       </el-aside>
-      <el-main style="overflow:hidden; z-index: 1">
+      <el-main style="overflow:hidden; z-index: 1; padding: 0 0 60px 0">
         <Header></Header>
-        <router-view></router-view>
+        <keep-alive>
+          <router-view :key="key"></router-view>
+        </keep-alive>
       </el-main>
     </el-container>
-    <el-footer id="el-footer" style="height: 70px">
-      <Player></Player>
-    </el-footer>
+<!--    <el-footer id="el-footer" style="height: 70px">-->
+<!--      <Player></Player>-->
+<!--    </el-footer>-->
   </el-container>
 </template>
 
 <script>
-import Header from '@/components/Header.vue'
-import Navbar from '@/components/NavBar.vue'
-import Player from '@/components/player.vue'
+import Header from '@/components/layout/Header.vue'
+import Navbar from '@/components/layout/NavBar.vue'
+// import Player from '@/components/player.vue'
 export default {
   name: 'LayoutIndex',
   components: {
     Header,
-    Navbar,
-    Player
-  },
-  data () {
-    return {
-    }
-  },
-  methods: {
-
-  },
-  created () {
-
+    Navbar
+    // Player
   },
   computed: {
-
+    key () {
+      return this.$route.name !== undefined ? this.$route.name + +new Date() : this.$route + +new Date()
+    }
   }
 }
 </script>
