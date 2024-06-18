@@ -1,13 +1,10 @@
 <script>
 export default {
-  name: 'blockIndex',
+  name: 'BlockBlock',
   data () {
     return {
       loading: true
     }
-  },
-  props: {
-    album: Object
   },
   methods: {
     changeLoad () {
@@ -23,6 +20,7 @@ export default {
 </script>
 
 <template>
+  <div>
     <el-skeleton :loading="loading" animated class="block">
       <template slot="template">
         <div class="block-loading">
@@ -41,15 +39,20 @@ export default {
         </div>
       </template>
       <template>
-        <span class="block-img" @click="$router.push(`/detail/album/${album.id}`)">
-          <img :src="album.image" alt="" class="img">
+        <span class="block-img">
+          <slot name="img"></slot>
         </span>
         <span class="block-name">
-          <i>{{album.name}}</i>
+          <i>
+            <slot name="nameOne"></slot>
+          </i>
         </span>
-        <span @click="$router.push(`/detail/singer/${album.singerId}`)" class="blockSingerName" style="font-size: 0.75rem">{{album.singerName}}</span>
+        <span class="blockSingerName" style="font-size: 0.75rem">
+          <slot name="nameTwo"></slot>
+        </span>
       </template>
     </el-skeleton>
+  </div>
 </template>
 
 <style scoped lang="less">
@@ -61,6 +64,7 @@ export default {
   background-color: #f7f7f7;
   border-radius: 5px;
   justify-content: center;
+  cursor: pointer;
   .block-loading{
     display: inline-flex;
     flex-direction: column;
@@ -77,21 +81,10 @@ export default {
     transition: background-color .4s;
   }
   .block-img{
-    //width: 23vh;
-    //height: 23vh;
     width: 9rem;
     height: 9rem;
-    min-width: 120px;
-    min-height: 120px;
     margin-bottom: 10px;
-    .img{
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      border-radius: 5px;
-      cursor: pointer;
-    }
+    //overflow: hidden;
   }
   .block-name{
     font-size: 1rem;

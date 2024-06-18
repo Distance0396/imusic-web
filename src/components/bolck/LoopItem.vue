@@ -76,30 +76,22 @@ export default {
     }
   }
   .public{
-    width: 20vh;
-    height: 20vh;
-    max-width: 300px;
-    max-height: 300px;
+    //width: 20vh;
+    //height: 20vh;
+    width: 9rem;
+    height: 9rem;
+    //max-width: 300px;
+    //max-height: 300px;
     min-width: 120px;
     min-height: 120px;
   }
-  .block-img{
-    margin-bottom: 10px;
-    img{
-      display: flex;
-      justify-content: center;
-      width: 100%;
-      height: 100%;
-      border-radius: 5px;
-      cursor: pointer;
-    }
-  }
   .block-img-garden{
     margin-bottom: 10px;
+    border-radius: 50%;
+    overflow: hidden;
     img{
       width: 100%;
       height: 100%;
-      border-radius: 50%;
       cursor: pointer;
       object-fit: cover;
     }

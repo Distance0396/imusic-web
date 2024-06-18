@@ -4,11 +4,11 @@
       <el-aside width="250px" id="el-aside" style="height: 100vh">
         <Navbar></Navbar>
       </el-aside>
-      <el-main style="overflow:hidden; z-index: 1; padding: 0 0 60px 0">
-        <Header></Header>
-        <keep-alive>
-          <router-view :key="key"></router-view>
-        </keep-alive>
+      <el-main style="overflow:hidden; z-index: 1; padding: 0 0 90px 0">
+<!--        <Header></Header>-->
+<!--        <keep-alive>-->
+        <router-view :key="key"></router-view>
+<!--        </keep-alive>-->
       </el-main>
     </el-container>
 <!--    <el-footer id="el-footer" style="height: 70px">-->
@@ -18,13 +18,13 @@
 </template>
 
 <script>
-import Header from '@/components/layout/Header.vue'
+// import Header from '@/components/layout/Header.vue'
 import Navbar from '@/components/layout/NavBar.vue'
 // import Player from '@/components/player.vue'
 export default {
   name: 'LayoutIndex',
   components: {
-    Header,
+    // Header,
     Navbar
     // Player
   },

@@ -1,8 +1,8 @@
 import Vue from 'vue'
 import Vuex from 'vuex'
 import user from '@/store/modules/user'
-import music from '@/store/modules/musicForm'
-import queue from '@/store/modules/queue'
+import music from '@/store/modules/musicform'
+import playlist from '@/store/modules/playlist'
 
 Vue.use(Vuex)
 
@@ -22,6 +22,6 @@ export default new Vuex.Store({
   mutations: {},
   actions: {},
   modules: {
-    user, music, queue
+    user, music, playlist
   }
 })

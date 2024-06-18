@@ -33,19 +33,20 @@ export default {
       }
       // 计算可滑动距离
       this.maxTranslate = Math.max(0, items.length * this.itemWidth - this.scrollBarItemWidth)
-      console.log(this.maxTranslate)
     },
     rollingLeft () {
       this.updateDimensions()
       if (this.num <= 0) return
-      this.num = Math.max(0, this.num - this.itemWidth)
-      this.$refs.item.style.transform = 'translateX(-' + this.num + 'px)'
+      this.num = Math.max(0, this.num - (3 * this.itemWidth))
+      // this.$refs.item.style.transform = 'translateX(-' + this.num + 'px)'
+      this.$refs.item.scrollLeft = this.num
     },
     rollingRight () {
       this.updateDimensions()
       if (this.num >= this.maxTranslate) return
-      this.num = Math.min(this.maxTranslate, this.num + this.itemWidth)
-      this.$refs.item.style.transform = 'translateX(-' + this.num + 'px)'
+      this.num = Math.min(this.maxTranslate, this.num + (3 * this.itemWidth))
+      // this.$refs.item.style.transform = 'translateX(-' + this.num + 'px)'
+      this.$refs.item.scrollLeft = this.num
     }
   }
 }
@@ -73,7 +74,7 @@ export default {
       </div>
     </div>
     <div class="scroll-bar-item" ref="scrollBarItem">
-      <div class="item" ref="item">
+      <div class="item" ref="item" >
         <slot name="body"></slot>
       </div>
     </div>
@@ -116,17 +117,20 @@ export default {
 }
 
 .scroll-bar-item {
+  width: 100%;
   display: flex;
   flex-wrap: nowrap;
   scrollbar-width: none;
   align-items: center;
   margin-top: 10px;
-  //overflow: hidden;
   contain: paint;
   .item {
+    scrollbar-width: none;
+    overflow: scroll;
     display: inline-flex;
     flex-wrap: nowrap;
-    transition: transform 0.4s ease;
+    transition: all 0.1s linear;
+    scroll-behavior: smooth; /* 平滑滚动 */
   }
 }
 </style>

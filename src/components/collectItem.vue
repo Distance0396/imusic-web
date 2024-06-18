@@ -1,6 +1,7 @@
 <script>
 import MusicFormItem from '@/components/MusicFormItem.vue'
 import { mapState, mapActions } from 'vuex'
+import { addMusicForm } from '@/api/muiscForm'
 
 export default {
   name: 'collectItem',
@@ -10,13 +11,21 @@ export default {
     }
   },
   methods: {
-    ...mapActions('music', ['getMusicFormList']),
-    addMusicForm () {
-      if (!this.isLogin) this.$router.replace('/login')
+    ...mapActions('user', ['getCollectForm']),
+    // 添加歌单
+    async addMusicForm () {
+      if (!this.isLogin) await this.$router.replace('/login')
+      await addMusicForm().then(res => {
+        this.getCollectForm()
+      })
+    },
+    log () {
+      console.log('1231231ds')
     }
   },
   computed: {
-    ...mapState('music', ['musicFormList']),
+    ...mapState('user', ['collectForm']),
+    // 是否登录
     isLogin () {
       return this.$store.getters.token
     },
@@ -25,8 +34,8 @@ export default {
     }
   },
   created () {
-    if (this.isLogin && this.isMusicFormList.length <= 0) {
-      this.getMusicFormList()
+    if (this.isLogin) {
+      this.getCollectForm()
     }
   }
 }
@@ -40,9 +49,7 @@ export default {
       </span>
       <div class="title">音乐库
         <button class="item-add" @click="addMusicForm">
-          <span>
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M992 480H544V32c0-17.7-14.3-32-32-32s-32 14.3-32 32v448H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h448v448c0 17.7 14.3 32 32 32s32-14.3 32-32V544h448c17.7 0 32-14.3 32-32s-14.3-32-32-32z" fill="" ></path></svg>
-          </span>
+          <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M992 480H544V32c0-17.7-14.3-32-32-32s-32 14.3-32 32v448H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h448v448c0 17.7 14.3 32 32 32s32-14.3 32-32V544h448c17.7 0 32-14.3 32-32s-14.3-32-32-32z" fill="" ></path></svg>
         </button>
       </div>
     </div>
@@ -53,7 +60,30 @@ export default {
         <i class="setUp" @click="addMusicForm">创建歌单</i>
       </div>
       <div v-else >
-        <MusicFormItem :class="{active : `/detail/music-form/${item.id}` === $route.path}" v-for="item in musicFormList" :musicForm="item" :key="item.id"></MusicFormItem>
+        <MusicFormItem
+          :class="{active : `/detail/album/${item.id}` === $route.path}"
+          v-for="item in collectForm.albumList"
+          @click.native="$router.push(`/detail/album/${item.id}`)"
+          :album="item"
+          :key="item"
+        >
+        </MusicFormItem>
+        <MusicFormItem
+          :class="{active : `/detail/singer/${item.id}` === $route.path}"
+          v-for="item in collectForm.singerList"
+          @click.native="$router.push(`/detail/singer/${item.id}`)"
+          :singer="item"
+          :key="item.id"
+        >
+        </MusicFormItem>
+        <MusicFormItem
+          :class="{active : `/detail/music-form/${item.id}` === $route.path}"
+          v-for="item in collectForm.musicFormList"
+          @click.native="$router.push(`/detail/music-form/${item.id}`)"
+          :music-form="item"
+          :key="item"
+        >
+        </MusicFormItem>
       </div>
     </div>
   </div>
@@ -94,7 +124,14 @@ export default {
       }
     }
   }
+  .collect-content::-webkit-scrollbar{
+     //width: 10px;
+     display:none
+   }
   .collect-content{
+
+    height: 300px;
+    overflow-y: scroll;
     .active{
       background-color: #E4E7ED;
       //transition: background-color .2s linear;

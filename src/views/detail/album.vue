@@ -1,46 +1,42 @@
 <script>
 import { getAlbumById } from '@/api/album'
-import ColorThief from 'colorthief'
+// import ColorThief from 'colorthief'
+import { mapMutations } from 'vuex'
 import ActionBar from '@/components/layout/ActionBar.vue'
 import MusicItem from '@/components/bolck/MusicItem.vue'
+import Header from '@/components/layout/Header.vue'
 export default {
   name: 'albumDetail',
   components: {
-    ActionBar, MusicItem
+    ActionBar, MusicItem, Header
+  },
+  activated () {
+    this.getAlbumById(this.getAlbumId)
   },
   data () {
     return {
       album: {
-        image: ''
+        image: '',
+        singerName: ''
       },
       backgroundColor: [],
       musicList: []
     }
   },
   methods: {
-    // 读取图片颜色
-    loadImage () {
-      const colorThief = new ColorThief()
-      // const baColor = colorThief.getColor(this.$refs.image)
-      const baColor = colorThief.getPalette(this.$refs.image)
-      try {
-        baColor.forEach(x => {
-          if (Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114) > 140 && Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114) < 160) {
-            // console.log('小于100 就是深色' + Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114))
-            this.backgroundColor = x
-            throw new Error('获取颜色')
-          }
-        })
-      } catch (e) {}
-    },
+    ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
+    // 页面滚动顶栏变色
     async getAlbumById (id) {
       await getAlbumById(id).then(res => {
         this.album = res.data
         this.musicList = res.data.musicList
 
-        this.$refs.image.crossOrigin = 'anonymous'
-        this.$refs.image.src = this.album.image + '?time=' + new Date().valueOf()
+        // this.$refs.image.crossOrigin = 'anonymous'
+        // this.$refs.image.src = this.album.image + '?time=' + new Date().valueOf()
       })
+    },
+    submitPlay () {
+      this.setPlayList(this.musicList)
     }
   },
   created () {
@@ -56,19 +52,31 @@ export default {
 
 <template>
   <div class="album">
+    <Header :color="album.color">
+      <p>{{album.name}}</p>
+    </Header>
     <div class="head">
-      <div class="background-color" :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}"></div>
+      <div class="background-color" :style="{'background-color': album.color }"></div>
       <div class="background-color shade"></div>
-      <img ref="image" class="img" src=""  @load="loadImage" alt="" />
+      <el-image ref="image" style="min-width: 225px; min-height: 225px;"  class="img" :src="this.album.image + '?time=' + new Date().valueOf()" alt="">
+        <div slot="placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+          <i class="el-icon-picture-outline" style="font-size: 80px; color: #b3b3b3;"></i>
+        </div>
+        <div slot="error" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+          <i class="el-icon-picture-outline" style="font-size: 80px; color: #b3b3b3;"></i>
+        </div>
+      </el-image>
       <div class="album-detail">
         <span>专辑</span>
         <span style="font-size: 5rem; font-weight: bold">{{album.name}}</span>
         <span>{{album.singerName}}</span>
       </div>
     </div>
-    <div class="gradual-block" :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}"></div>
+    <div class="gradual-block" :style="{'background-color': album.color }"></div>
     <div class="album-plank">
-      <ActionBar></ActionBar>
+      <ActionBar
+        @submitPlay="submitPlay"
+      />
     </div>
     <div class="musicList">
       <MusicItem v-for="(item, index) in musicList" :key="item.id" :index="index+1" :music="item"></MusicItem>
@@ -109,8 +117,8 @@ export default {
       z-index: 10;
       width: 14rem;
       height: 14rem;
-      min-width: 180px;
-      min-height: 180px;
+      //min-width: 180px;
+      //min-height: 180px;
       border-radius: 5px;
       cursor: pointer;
       box-shadow: 0 4px 60px rgba(0, 0, 0, .5);

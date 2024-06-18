@@ -19,11 +19,7 @@ export const register = (user) => {
   })
 }
 
-// 根据id查询简单用户
-export const getSimpleUserById = (id) => {
-  return request.get('/user', {
-    params: {
-      id: id
-    }
-  })
+// 获取用户收藏
+export const getCollectForm = () => {
+  return request.get('/user/collectForm')
 }

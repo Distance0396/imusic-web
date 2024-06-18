@@ -1,36 +1,79 @@
 <template>
   <div class="home">
+<!--    <Header></Header>-->
     <scrollBar>
       <template #title>
         <i>专辑</i>
       </template>
       <template #body>
-        <Block v-for="item in album" :key="item.id" :detail="item"></Block>
+        <Block v-for="item in album" :key="item.id">
+          <template #img>
+            <el-image :src="item.image"
+              style="width: 100%;
+              height: 100%;
+              cursor: pointer;
+              border-radius: 5px;
+              object-fit: cover;"
+              fit="cover"
+              lazy="lazy"
+              alt=""
+              @click="$router.push(`/detail/album/${item.id}`)"
+            />
+          </template>
+          <template #nameOne>
+            <i @click="$router.push(`/detail/album/${item.id}`)">{{item.name}}</i>
+          </template>
+          <template #nameTwo>
+            <i @click="$router.push(`/detail/singer/${item.singerId}`)">{{item.singerName}}</i>
+          </template>
+        </Block>
       </template>
     </scrollBar>
-      <scrollBar>
-        <template #title>
-          <i>歌手</i>
-        </template>
-        <template #body>
-          <loop v-for="item in singer" :key="item.id" :detail="item"></loop>
-        </template>
-      </scrollBar>
+    <scrollBar>
+      <template #title>
+        <i>歌手</i>
+      </template>
+      <template #body>
+        <Block v-for="item in singer" :key="item.id">
+          <template #img>
+            <el-image
+               :src="item.avatar || item.image"
+               style="width: 100%;
+               height: 100%;
+               cursor: pointer;
+               border-radius: 50%;
+               object-fit: cover;"
+               fit="cover"
+               :lazy="true"
+               alt=""
+               @click="$router.push(`/detail/singer/${item.id}`)"
+            ></el-image>
+          </template>
+          <template #nameOne>
+            <i @click="$router.push(`/detail/singer/${item.id}`)">{{item.name}}</i>
+          </template>
+          <template #nameTwo>
+            艺人
+          </template>
+        </Block>
+      </template>
+    </scrollBar>
   </div>
 </template>
 
 <script>
-import Block from '@/components/bolck/BlockItem.vue'
-import loop from '@/components/bolck/LoopItem.vue'
+import Block from '@/components/bolck/Block.vue'
 import scrollBar from '@/components/layout/ScrollBar.vue'
+// import Header from '@/components/layout/Header.vue'
 import { getRandomSinger } from '@/api/singer'
 import { getRandomAlbum } from '@/api/album'
 export default {
   name: 'homeIndex',
   components: {
     Block,
-    loop,
+    // loop,
     scrollBar
+    // Header
   },
   data () {
     return {

@@ -4,9 +4,9 @@ import Request from '@/utils/request'
  * 根据用户id查询所属歌单
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-export const getMusicFormByUserId = () => {
-  return Request.get('/music-form/user')
-}
+// export const getMusicFormByUserId = () => {
+//   return Request.get('/music-form/user')
+// }
 
 /**
  * 根据歌单id查询歌单
@@ -15,4 +15,40 @@ export const getMusicFormByUserId = () => {
  */
 export const getMusicFormById = (id) => {
   return Request.get(`/music-form/${id}`)
+}
+
+/**
+ * 添加歌单
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
+export const addMusicForm = () => {
+  return Request.post('/music-form/save')
+}
+
+/**
+ * 添加歌曲至歌单
+ * @param musicId
+ * @param musicFormId
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
+export const appendMusicForm = (musicFormId, musicId) => {
+  return Request.post('/music-form', {
+    musicFormId: musicFormId,
+    musicId: musicId
+  })
+}
+
+/**
+ * 删除歌单歌曲
+ * @param musicFormId
+ * @param musicId
+ * @returns {Promise<axios.AxiosResponse<any>>}
+ */
+export const deleteMusic = (musicFormId, musicId) => {
+  return Request.delete('/music-form', {
+    data: {
+      musicFormId: musicFormId,
+      musicId: musicId
+    }
+  })
 }

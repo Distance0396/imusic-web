@@ -61,7 +61,7 @@ export default {
         <li class="menu"
              v-for="item in menu"
              :key="item.label"
-             @click="select"
+             @click="select(item.label)"
         >
           <i :class="item.icon"></i>
           {{ item.label }}
@@ -70,7 +70,11 @@ export default {
             left: x + 167 + 'px',
             top: y + 'px'
           }">
-            <li class="son-menu" v-for="sonItem in item.menu" :key="sonItem.id">{{ sonItem.name }}</li>
+            <li class="son-menu"
+                v-for="sonItem in item.menu"
+                :key="sonItem.id"
+                @click.stop="select(sonItem)"
+            >{{ sonItem.name }}</li>
           </ul>
         </li>
       </ul>
@@ -107,7 +111,8 @@ export default {
       }
       .son-context{
         opacity: 0;
-        width: 100px;
+        //width: 100%;
+        width: 150px;
         position: fixed;
         background-color: #303133;
         border-radius: 3px;
@@ -116,6 +121,7 @@ export default {
         overflow: hidden;
         z-index: 1000;
         .son-menu{
+          width: 100%;
           cursor: pointer;
           color: #C0C4CC;
           padding: 10px 10px 10px 10px;

@@ -1,14 +1,16 @@
 <script>
-import ColorThief from 'colorthief'
+// import ColorThief from 'colorthief'
 import MusicItem from '@/components/bolck/MusicItem.vue'
 import BlockItem from '@/components/bolck/BlockItem.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
+import Header from '@/components/layout/Header.vue'
 import { findSingerById } from '@/api/singer'
-import { getAlbumBySingerId } from '@/api/album'
-import { mapState } from 'vuex'
+import { mapMutations, mapState } from 'vuex'
+import { useContextMenu } from '@/utils/useContextMenu'
+import ActionBar from '@/components/layout/ActionBar.vue'
 
 export default {
-  name: 'DetailIndex',
+  name: 'singerDetail',
   computed: {
     //  获取路由歌手id
     getSingerId () {
@@ -17,9 +19,58 @@ export default {
     ...mapState('music', ['musicFormList'])
   },
   components: {
+    ActionBar,
     MusicItem,
     BlockItem,
-    ContextMenu
+    ContextMenu,
+    Header
+  },
+  beforeDestroy () {
+    // 关闭滚动事件
+    window.removeEventListener('scroll', this.handleScroll)
+  },
+  created () {
+    // 注册滚动事件
+    window.addEventListener('scroll', this.handleScroll)
+    //
+    this.getSinger()
+    setTimeout(() => {
+      this.loading = false
+    }, 1000)
+  },
+  mounted () {
+    // 将会话中的歌单数据赋值
+    this.menu[0].menu = this.musicFormList
+  },
+  methods: {
+    ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
+    handleScroll () {
+      // 获取滚动距离
+      const scrollTop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop
+      const maxScroll = 100 // 设置滚动的最大位置
+      const opacity = Math.min(1, scrollTop / maxScroll) // 计算透明度，最大不超过1
+      // 给膜层设置颜色和透明度
+      this.$refs.background.style.backgroundColor = this.singer.color
+      this.$refs.background.style.opacity = opacity.toString()
+    },
+    // 根据id查询歌手
+    async getSinger () {
+      await findSingerById(this.getSingerId).then(res => {
+        this.singer = res.data
+        this.musicList = res.data.musicList
+        this.albumList = res.data.albumList
+
+        this.$refs.image.crossOrigin = 'anonymous'
+        this.$refs.image.src = this.singer.image + '?time=' + new Date().valueOf()
+      })
+    },
+    // 选中的选项
+    pickMenu (e) {
+      useContextMenu(e, this.pickMusicItem)
+    },
+    submitPlay () {
+      this.setPlayList(this.musicList)
+    }
   },
   data () {
     return {
@@ -27,108 +78,45 @@ export default {
         {
           id: 1,
           label: '加入歌单',
-          icon: 'el-icon-folder-checked'
-          // menu: [
-          //   { id: 100, label: '测试歌单1' },
-          //   { id: 101, label: '测试歌单2' }
-          // ]
+          icon: 'el-icon-folder-checked',
+          menu: []
         },
         { id: 2, label: '加入队列', icon: 'el-icon-menu' },
-        { id: 3, label: '删除', icon: 'el-icon-delete' },
+        // { id: 3, label: '删除', icon: 'el-icon-delete' },
         { id: 4, label: '跳转至歌手', icon: 'el-icon-s-promotion' },
         { id: 5, label: '分享给好友', icon: 'el-icon-info' }
       ],
       // 背景渐变
       backgroundColor: [],
-      // isColor: null,
       isDark: false,
       // 歌手信息
       singer: {},
       // 歌手
-      music: [],
+      musicList: [],
       // 专辑
-      album: [],
+      albumList: [],
       // 控制音乐渲染数量
       controlMusicNumber: 5,
       // 加载
-      loading: true
+      loading: true,
+      // 选中的歌曲
+      pickMusicItem: {}
     }
-  },
-  methods: {
-    // 读取图片颜色
-    async loadImage () {
-      const colorThief = new ColorThief()
-      // const baColor = colorThief.getPalette(this.$refs.image)[0]
-      this.backgroundColor = colorThief.getColor(this.$refs.image)
-      // console.log(this.backgroundColor) // 主颜色
-      //  小于100 就是深色
-      if (this.backgroundColor[0] * 0.299 + this.backgroundColor[1] * 0.587 + this.backgroundColor[2] * 0.114 > 100) {
-        console.log(this.backgroundColor[0] * 0.299 + this.backgroundColor[1] * 0.587 + this.backgroundColor[2] * 0.114)
-        this.isDark = true
-      }
-    },
-    // 页面滚动顶栏变色
-    handleScroll () {
-      // 计算滚动条位置
-      const scrollTop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop
-      // 计算绑定div位置
-      const offsetTop = this.$refs.top.offsetTop
-      // 进行比较设置位置fixed
-      if (scrollTop > offsetTop) {
-        document.querySelector('.header').style.backgroundColor = 'rgb(' + this.backgroundColor[0] + ',' + this.backgroundColor[1] + ', ' + this.backgroundColor[2] + ')'
-      } else {
-        document.querySelector('.header').style.backgroundColor = '#FFFFFF00'
-      }
-    },
-    // 根据id查询歌手
-    async getSinger () {
-      await findSingerById(this.getSingerId).then(res => {
-        this.singer = res.data
-        this.music = res.data.musicList
-
-        this.$refs.image.crossOrigin = 'anonymous'
-        this.$refs.image.src = this.singer.image + '?time=' + new Date().valueOf()
-      })
-    },
-    // 根据id查询专辑
-    async getAlbum () {
-      await getAlbumBySingerId(this.getSingerId).then(res => {
-        this.album = res.data
-      })
-    },
-    select (e) {
-      console.log(e)
-    },
-    pickMusicItem (e) {
-      console.log(e)
-    }
-  },
-  created () {
-    this.getSinger()
-    this.getAlbum()
-    setTimeout(() => {
-      this.loading = false
-    }, 1000)
-  },
-  mounted () {
-    this.menu[0].menu = this.musicFormList
-    console.log(this.musicFormList)
-    window.addEventListener('scroll', this.handleScroll)
-  },
-  beforeDestroy () {
-    window.removeEventListener('scroll', this.handleScroll)
   }
 }
 </script>
 
 <template>
   <div class="detail" v-loading="loading">
+    <Header :color="singer.color">
+      <p>{{singer.name}}</p>
+    </Header>
     <div class="main">
       <div class="background">
-        <div class=" public">
-          <img ref="image" class="background-img" src="" alt="" @load="loadImage" style="width: 100%;"/>
+        <div class="public">
+          <img class="background-img" alt="" ref="image" src=""/>
         </div>
-        <div class="background-black public"></div>
+        <div class="background-black public" ref="background" ></div>
       </div>
       <div class="content">
         <div class="cont-info">
@@ -136,38 +124,30 @@ export default {
           <span>
             <i class="name">{{singer.name}}</i>
           </span>
-          <span class="count" ref="top">每月有 1,697,783 名听众</span>
+          <span class="count">每月有 1,697,783 名听众</span>
         </div>
         <div class="cont-center">
           <div class="background-active"
-            :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}">
+            :style="{'background-color': singer.color}">
           </div>
           <div class="cont-works">
-            <div class="follow-play">
-              <span class="play">
-                <svg class="icon" viewBox="0 0 1024 1024"
-                     xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path
-                  d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"
-                  ></path>
-                </svg>
-              </span>
-              <span class="follow">
-                <i>关注</i>
-              </span>
-            </div>
-            <div style="display: flex; flex-wrap: wrap; flex-direction: column">
+            <ActionBar
+              @submitPlay="submitPlay"
+            />
+            <div style="display: flex; flex-wrap: wrap; flex-direction: column; margin: 0 20px 0 20px;">
               <div class="cont-hot-music">
                 <h2 :class="{dark : this.isDark}" class="title">热门</h2>
                   <ContextMenu
                     :menu="menu"
-                    @select="select"
+                    @select="pickMenu"
                   >
                     <div class="target">
                       <MusicItem
-                        v-for="(item,index) in music.slice(0,this.controlMusicNumber)"
-                        @select="pickMusicItem"
-                        :key="item.id" :music="item" :index="index+1"
-                        :avatar="singer.avatar"
+                        v-for="(item,index) in musicList.slice(0,this.controlMusicNumber)"
+                        @select="pickMusicItem = $event"
+                        :key="item.id"
+                        :music="item"
+                        :index="index+1"
                       />
                     </div>
                   </ContextMenu>
@@ -179,7 +159,7 @@ export default {
               <div class="cont-album">
                 <h2 class="title">唱片专辑</h2>
                 <div class="target">
-                  <BlockItem v-for="item in album" :key="item.id" :detail="item"></BlockItem>
+                  <BlockItem v-for="item in albumList" :key="item.id" :album="item"></BlockItem>
                 </div>
               </div>
               <div class="cont-introduce">
@@ -195,7 +175,7 @@ export default {
 <style scoped lang="less">
 .title{
   margin-bottom: 10px;
-  margin-top: 40px;
+  //margin-top: 40px;
 }
 .detail {
   position: relative;
@@ -218,13 +198,12 @@ export default {
         .background-img {
           height: 100%;
           width: 100%;
+          z-index: -5;
           object-position: 50% 15%;
           object-fit: cover;
-          z-index: -5;
         }
       }
       .background-black {
-        z-index: 0;
         background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
       }
     }
@@ -271,54 +250,55 @@ export default {
           position: relative;
           top: 1vh;
           z-index: 100;
-          margin: 0 20px;
-          .follow-play {
-            position: relative;
-            z-index: 2;
-            top: 1.5rem;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            .play {
-              fill: #ffffff;
-              display: flex;
-              width: 56px;
-              height: 56px;
-              border-radius: 50%;
-              //opacity: .8;
-              background-color: #2e6aff;
-              justify-content: center;
-              align-items: center;
-              margin-right: 20px;
-            }
-
-            .play:hover {
-              background-color: #004dff;
-              transition: background-color .3s;
-            }
-
-            .follow {
-              font-size: 2vh;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              width: 56px;
-              height: 32px;
-              border-radius: 15px;
-              border: 1px solid #121212;
-              i{
-                font-size: 15px;
-              }
-            }
-          }
-          h2{
-            mix-blend-mode: difference;
-            font-size: 1.5rem;
-          }
+          //margin: 0 20px;
+          //padding: 0 20px 0 20px;
+          //.follow-play {
+          //  position: relative;
+          //  z-index: 2;
+          //  top: 1.5rem;
+          //  display: flex;
+          //  align-items: center;
+          //  width: 100%;
+          //  .play {
+          //    fill: #ffffff;
+          //    display: flex;
+          //    width: 56px;
+          //    height: 56px;
+          //    border-radius: 50%;
+          //    //opacity: .8;
+          //    background-color: #2e6aff;
+          //    justify-content: center;
+          //    align-items: center;
+          //    margin-right: 20px;
+          //  }
+          //
+          //  .play:hover {
+          //    background-color: #004dff;
+          //    transition: background-color .3s;
+          //  }
+          //
+          //  .follow {
+          //    font-size: 2vh;
+          //    display: flex;
+          //    align-items: center;
+          //    justify-content: center;
+          //    width: 56px;
+          //    height: 32px;
+          //    border-radius: 15px;
+          //    border: 1px solid #121212;
+          //    i{
+          //      font-size: 15px;
+          //    }
+          //  }
+          //}
+          //h2{
+          //  mix-blend-mode: difference;
+          //  font-size: 1.5rem;
+          //}
           .cont-hot-music{
             position: relative;
-            margin-right: 20px;
             width: 70rem;
+            margin-bottom: 20px;
             .dark{
               color: black;
             }

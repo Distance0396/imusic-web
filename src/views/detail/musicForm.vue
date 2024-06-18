@@ -1,86 +1,106 @@
 <script>
 import MusicItem from '@/components/bolck/MusicItem.vue'
 import ActionBar from '@/components/layout/ActionBar.vue'
-import { getMusicFormById } from '@/api/muiscForm'
-import ColorThief from 'colorthief'
-import { getSimpleUserById } from '@/api/user'
+import Header from '@/components/layout/Header.vue'
+// import ColorThief from 'colorthief'
+import ContextMenu from '@/components/contextMenu/contextMenu.vue'
+import { useContextMenu } from '@/utils/useContextMenu'
+import { mapState, mapActions, mapMutations } from 'vuex'
+// import { getSimpleUserById } from '@/api/user'
 export default {
   name: 'musicForm',
+  mounted () {
+    this.menu[0].menu = this.musicFormList
+  },
+  created () {
+    this.getMusicForm(this.getMusicFormId)
+  },
   components: {
     ActionBar,
-    MusicItem
+    MusicItem,
+    ContextMenu,
+    Header
   },
   data () {
     return {
-      musicForm: {},
       backgroundColor: [],
-      musicList: [],
-      musicFormName: '',
-      image: ''
+      image: '',
+      menu: [
+        {
+          id: 1,
+          label: '加入歌单',
+          icon: 'el-icon-folder-checked',
+          menu: []
+        },
+        { id: 2, label: '加入队列', icon: 'el-icon-menu' },
+        { id: 3, label: '删除', icon: 'el-icon-delete' },
+        { id: 4, label: '跳转至歌手', icon: 'el-icon-s-promotion' },
+        { id: 5, label: '分享给好友', icon: 'el-icon-info' }
+      ],
+      pickMusicItem: {}
     }
   },
   methods: {
-    async getMusicFormById () {
-      await getMusicFormById(this.getMusicFormId).then(res => {
-        this.musicForm = res.data
-        this.musicList = res.data.musicList
-
-        this.$refs.image.crossOrigin = 'anonymous'
-        this.$refs.image.src = this.musicForm.image + '?time=' + new Date().valueOf()
-        // 获取专辑创建人
-        getSimpleUserById(this.musicForm.userId).then(res => {
-          this.musicFormName = res.data.name
-        })
-      })
+    ...mapActions('music', ['getMusicForm']),
+    ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
+    pickMenu (e) {
+      useContextMenu(e, this.pickMusicItem, this.getMusicFormId)
     },
-    // 读取图片颜色
-    loadImage () {
-      const colorThief = new ColorThief()
-      setTimeout(() => {
-        // const baColor = colorThief.getColor(img)
-        const baColor = colorThief.getPalette(this.$refs.image)
-        try {
-          baColor.forEach(x => {
-            if (Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114) > 100) {
-              console.log('小于100 就是深色' + Number(x[0] * 0.299 + x[1] * 0.587 + x[2] * 0.114))
-              this.backgroundColor = x
-              throw new Error('获取颜色')
-            }
-          })
-        } catch (e) {
-        }
-      }, 500)
+    submitPlay () {
+      this.setPlayList(this.musicList)
     }
   },
   computed: {
+    ...mapState('music', ['musicFormList', 'musicForm', 'musicList']),
+    // 获取专辑id
     getMusicFormId () {
       return this.$route.params.id
     }
-  },
-  created () {
-    this.getMusicFormById()
   }
 }
 </script>
 
 <template>
   <div class="music-form">
+    <Header :color="musicForm.color">
+      <p>{{musicForm.name}}</p>
+    </Header>
     <div class="head">
-      <div class="background-color" :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}"></div>
+      <div class="background-color" :style="{'background-color': musicForm.color }"></div>
       <div class="background-color shade"></div>
-      <img ref="image" class="img"  src="" @load="loadImage"  alt="" />
+      <el-image ref="image" style="min-width: 225px; min-height: 225px;"  class="img" :src="this.musicForm.image + '?time=' + new Date().valueOf()" alt="">
+        <div slot="placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+          <i class="el-icon-picture-outline" style="font-size: 80px; color: #b3b3b3;"></i>
+        </div>
+        <div slot="error" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
+          <i class="el-icon-picture-outline" style="font-size: 80px; color: #b3b3b3;"></i>
+        </div>
+      </el-image>
       <div class="album-detail">
         <span>专辑</span>
         <span style="font-size: 5rem; font-weight: bold">{{musicForm.name}}</span>
-        <span>{{musicFormName}}·{{musicList.length}}首歌曲</span>
+        <span>{{musicForm.architect}}·{{musicList.length}}首歌曲</span>
       </div>
     </div>
-    <div class="gradual-block" :style="{'background-color': 'rgb(' + backgroundColor[0] + ',' + backgroundColor[1] + ', ' +  backgroundColor[2] + ')'}"></div>
+    <div class="gradual-block" :style="{'background-color': musicForm.color }"></div>
     <div class="album-plank">
-      <ActionBar></ActionBar>
+      <ActionBar
+        @submitPlay="submitPlay"
+      ></ActionBar>
     </div>
     <div class="musicList">
-      <MusicItem v-for="(item, index) in musicList" :key="item.id" :index="index+1" :music="item"></MusicItem>
+      <ContextMenu
+        :menu="menu"
+        @select="pickMenu"
+      >
+        <MusicItem
+          v-for="(item, index) in musicList"
+          :key="item.id"
+          :index="index+1"
+          @select="pickMusicItem = $event"
+          :music="item"
+        />
+      </ContextMenu>
     </div>
   </div>
 </template>
@@ -118,8 +138,8 @@ export default {
       z-index: 10;
       width: 14rem;
       height: 14rem;
-      min-width: 180px;
-      min-height: 180px;
+      //min-width: 180px;
+      //min-height: 180px;
       border-radius: 5px;
       cursor: pointer;
       box-shadow: 0 4px 60px rgba(0, 0, 0, .5);
