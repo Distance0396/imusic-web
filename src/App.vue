@@ -1,7 +1,7 @@
 <template>
   <div id="app">
 <!--    <keep-alive include="albumDetail">-->
-      <router-view :key="key"/>
+      <router-view />
 <!--    </keep-alive>-->
     <player v-if="isHidden"></player>
   </div>

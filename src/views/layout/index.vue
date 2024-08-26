@@ -4,23 +4,19 @@
       <el-aside width="250px" id="el-aside" style="height: 100vh">
         <Navbar></Navbar>
       </el-aside>
-      <el-main style="overflow:hidden; z-index: 1; padding: 0 0 90px 0">
-<!--        <Header></Header>-->
-<!--        <keep-alive>-->
-        <router-view :key="key"></router-view>
-<!--        </keep-alive>-->
+      <el-main>
+        <transition name="component-fade" mode="out-in">
+          <router-view :key="key"></router-view>
+        </transition>
       </el-main>
     </el-container>
-<!--    <el-footer id="el-footer" style="height: 70px">-->
-<!--      <Player></Player>-->
-<!--    </el-footer>-->
   </el-container>
 </template>
 
 <script>
 // import Header from '@/components/layout/Header.vue'
 import Navbar from '@/components/layout/NavBar.vue'
-// import Player from '@/components/player.vue'
+import { mapActions } from 'vuex'
 export default {
   name: 'LayoutIndex',
   components: {
@@ -32,13 +28,26 @@ export default {
     key () {
       return this.$route.name !== undefined ? this.$route.name + +new Date() : this.$route + +new Date()
     }
+  },
+  methods: {
+    ...mapActions('random', ['query'])
+  },
+  created () {
+    this.query()
   }
 }
 </script>
 
 <style scoped lang="less">
+
+.component-fade-enter-active, .component-fade-leave-active {
+  transition: opacity .2s ease;
+}
+.component-fade-enter, .component-fade-leave-to{
+  opacity: 0;
+}
 .subject{
-  //min-width: 800px;
+  height: 100%;
   #el-aside{
     display: flex;
     flex-direction: column;
@@ -47,22 +56,15 @@ export default {
     position: fixed;
   }
   .el-main{
+    overflow: hidden;
+    z-index: 1;
+    height: 100%;
     padding: 0 0 0 0;
     width: 100%;
-    //max-width: 86rem;
     margin-left: 250px;
     .header{
       padding-right: 5px;
     }
-  }
-  #el-footer{
-    position: fixed;
-    //top: 0;
-    bottom: 0;
-    width: 100%;
-    z-index: 10;
-    min-width: 800px;
-    background-color: #303133;
   }
 }
 </style>

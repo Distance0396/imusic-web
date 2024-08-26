@@ -10,6 +10,9 @@ export default {
     },
     album: {
       type: Object
+    },
+    isPlaying: {
+      type: Boolean
     }
   },
   data () {
@@ -22,9 +25,6 @@ export default {
       setTimeout(() => {
         this.loading = false
       }, 1000)
-    },
-    skip () {
-      this.$router.push(`/detail/music-form/${this.musicForm.id}`)
     }
   },
   mounted () {
@@ -86,6 +86,13 @@ export default {
       </div>
       <div></div>
     </template>
+    <div v-if="isPlaying"
+         style="
+         margin-left: auto;
+         fill: #409EFF;
+    ">
+      <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M74.968 386.328c-12.804 95.032-12.36 190.064 1.324 285.1 208.328 95.392 410.28 209.008 574.336 273.164 30.516-280.312 30.516-560.62 0-840.932-163.656 67.788-366.984 185.56-575.66 282.668zM746.592 321.516c110.64 10.8 219.008 106.056 219.72 202.608-0.712 96.552-109.08 191.804-219.72 202.608"></path></svg>
+    </div>
   </el-skeleton>
 </template>
 

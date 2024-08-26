@@ -1,7 +1,7 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/layout/home.vue'
-import Explore from '@/views/layout/explore/singerList.vue'
+import SingerList from '@/views/layout/explore/singerList.vue'
 import Login from '@/views/login/index.vue'
 import Singer from '@/views/detail/singer.vue'
 import Album from '@/views/detail/album.vue'
@@ -11,6 +11,7 @@ import Search from '@/views/layout/explore/search.vue'
 import PlayList from '@/views/layout/play/playList.vue'
 import ExploreLayout from '@/components/layout/ExploreLayout.vue'
 import PlayListLayout from '@/components/layout/PlayListLayout.vue'
+import My from '@/views/my/index.vue'
 Vue.use(VueRouter)
 
 const VueRouterPush = VueRouter.prototype.push
@@ -33,11 +34,11 @@ const router = new VueRouter({
         {
           path: 'explore',
           name: 'Explore',
-          redirect: '/explore/explore',
           component: ExploreLayout,
+          redirect: '/explore/search',
           children: [
             {
-              path: '/explore/explore',
+              path: '/explore/search',
               name: 'exploreSearch',
               component: Search,
               meta: { title: '搜索' }
@@ -45,19 +46,19 @@ const router = new VueRouter({
             {
               path: '/explore/singer',
               name: 'exploreSinger',
-              component: Explore,
+              component: SingerList,
               meta: { title: '歌手' }
             }
           ]
         },
         {
-          path: 'play',
+          path: '/play',
           name: 'Play',
           redirect: '/play/playlist',
           component: PlayListLayout,
           children: [
             {
-              path: 'playlist',
+              path: '/play/playlist',
               name: 'PlayList',
               component: PlayList,
               meta: { title: '播放队列' }
@@ -78,6 +79,15 @@ const router = new VueRouter({
           path: 'detail/music-form/:id',
           name: 'MusicForm',
           component: MusicForm
+        },
+        {
+          path: 'reply',
+          component: () => import('@/views/layout/reply.vue')
+        },
+        {
+          path: 'my',
+          name: 'MyHome',
+          component: My
         }
       ]
     },

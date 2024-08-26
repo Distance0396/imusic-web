@@ -15,25 +15,56 @@ export default {
     menu: {
       type: Array,
       default: () => []
+    },
+    position: {
+      type: Object
+    }
+  },
+  watch: {
+    position: {
+      handler (newVal) {
+        this.handleContextMenu(newVal)
+      }
     }
   },
   methods: {
     select (e) {
-      return this.$emit('select', e)
+      return this.$emit('select-menu', e)
     },
     handleContextMenu (e) {
       e.preventDefault()
       e.stopPropagation()
       this.showMenu = true
-      if (e.clientY > 300) {
-        this.y = e.clientY - 200
+      const viewportWidth = window.innerWidth
+      const viewportHeight = window.innerHeight
+      const menuWidth = 170
+      const menuHeight = 210
+
+      if (e.clientY + menuHeight > viewportHeight) {
+        this.y = e.clientY - menuHeight
       } else {
         this.y = e.clientY
       }
-      if (e.clientX > 1250) {
-        this.x = e.clientX - 170
+
+      if (e.clientX + menuWidth > viewportWidth) {
+        this.x = e.clientX - menuWidth
       } else {
         this.x = e.clientX
+      }
+    },
+    sonMenuStyle (e) {
+      const viewportWidth = window.innerWidth
+      const menuWidth = 170
+      const subMenuWidth = 150
+
+      let left = this.x + menuWidth
+      if (left + subMenuWidth > viewportWidth) {
+        left = this.x - subMenuWidth
+      }
+
+      return {
+        left: `${left}px`,
+        top: `${this.y}px`
       }
     },
     closeMenu () {
@@ -53,10 +84,7 @@ export default {
 <template>
   <div ref="containerRef">
     <slot></slot>
-    <div v-show="showMenu" class="context-menu" :style="{
-        left: x + 'px',
-        top: y + 'px'
-    }">
+    <div v-show="showMenu" class="context-menu" :style="{left: x + 'px',top: y + 'px'}">
       <ul class="context-list">
         <li class="menu"
              v-for="item in menu"
@@ -66,10 +94,7 @@ export default {
           <i :class="item.icon"></i>
           {{ item.label }}
           <i style="" v-if="item.menu" class="el-icon-arrow-right"></i>
-          <ul class="son-context" :style="{
-            left: x + 167 + 'px',
-            top: y + 'px'
-          }">
+          <ul class="son-context" :style="sonMenuStyle()">
             <li class="son-menu"
                 v-for="sonItem in item.menu"
                 :key="sonItem.id"
@@ -103,14 +128,14 @@ export default {
         transition: all .3s;
         border-radius: 3px;
         .son-context{
-          opacity: 1;
+          display: block;
         }
       }
       i{
         margin: 0 10px;
       }
       .son-context{
-        opacity: 0;
+        display: none;
         //width: 100%;
         width: 150px;
         position: fixed;

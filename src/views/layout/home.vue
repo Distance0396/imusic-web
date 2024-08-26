@@ -1,5 +1,5 @@
 <template>
-  <div class="home">
+  <div class="home" v-title data-title="主页">
 <!--    <Header></Header>-->
     <scrollBar>
       <template #title>
@@ -58,46 +58,44 @@
         </Block>
       </template>
     </scrollBar>
+    <Footer></Footer>
   </div>
 </template>
 
 <script>
 import Block from '@/components/bolck/Block.vue'
 import scrollBar from '@/components/layout/ScrollBar.vue'
-// import Header from '@/components/layout/Header.vue'
-import { getRandomSinger } from '@/api/singer'
-import { getRandomAlbum } from '@/api/album'
+import Footer from '@/components/layout/footer.vue'
+// import { getRandomSinger } from '@/api/singer'
+// import { getRandomAlbum } from '@/api/album'
+import { mapActions, mapState } from 'vuex'
+
 export default {
   name: 'homeIndex',
   components: {
     Block,
-    // loop,
+    Footer,
     scrollBar
-    // Header
   },
   data () {
     return {
       num: 0,
-      numTwo: 0,
-      singer: [],
-      album: []
+      numTwo: 0
     }
   },
   methods: {
-    // 随机获取歌手
-    async getRandomSinger () {
-      const { data } = await getRandomSinger()
-      this.singer = data
-    },
-    // 随机获取专辑
-    async getRandomAlbum () {
-      const { data } = await getRandomAlbum()
-      this.album = data
-    }
+    ...mapActions('random', ['query'])
   },
   created () {
-    this.getRandomSinger()
-    this.getRandomAlbum()
+    // if (!this.isLogin) {
+    this.query()
+    // }
+  },
+  computed: {
+    ...mapState('random', ['singer', 'album']),
+    isLogin () {
+      return this.$store.getters.token
+    }
   }
 }
 </script>
@@ -123,7 +121,7 @@ export default {
     }
 
     .music_from_right {
-      display: inline-flex;
+      display: flex;
       flex-wrap: nowrap;
       margin-left: auto;
       .rolling {

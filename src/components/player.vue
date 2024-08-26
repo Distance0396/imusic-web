@@ -1,7 +1,12 @@
 <script>
 import { mapState, mapGetters, mapMutations } from 'vuex'
+import Lyric from '@/components/Lyric.vue'
+import screenfull from 'screenfull'
 export default {
   name: 'playerItem',
+  components: {
+    Lyric
+  },
   data () {
     return {
       audio: require('@/style/audio/宇多田ヒカル椎名林檎-二時間だけのバカンス (只有两小时的假期).mp3'),
@@ -11,7 +16,7 @@ export default {
       isShow: false,
       // 总时长
       endTime: 0,
-      // 播放时间
+      // 播放进度时间
       firstTime: 0,
       // 进度条
       sliderValue: 0,
@@ -19,7 +24,9 @@ export default {
       // 音量大小
       volume: 0,
       // 控制播放队列显示
-      isDrawer: false
+      isDrawer: false,
+      dialogVisible: false,
+      iFullScreen: false
     }
   },
   methods: {
@@ -27,8 +34,10 @@ export default {
     play () {
       this.isPlay = !this.isPlay
       if (this.isPlay) {
+        this.setStatus(true)
         this.$refs.audio.play()
       } else {
+        this.setStatus(false)
         this.$refs.audio.pause()
       }
     },
@@ -65,14 +74,37 @@ export default {
     volumeChange (value) {
       this.$refs.audio.volume = value * 0.01
     },
-    ...mapMutations('playlist', ['nextSong', 'lastSong']),
+    ...mapMutations('playlist', ['nextSong', 'lastSong', 'setStatus']),
+    // 播放完
     overPlay () {
       this.sliderValue = 0
       this.nextSong()
+    },
+    // 全屏
+    toggleFullScreen () {
+      this.dialogVisible = true
+      // 判断当前浏览器是否支持全屏
+      if (screenfull.isEnabled) {
+        // 当前页面是否全屏
+        if (!screenfull.isFullscreen) {
+          this.iFullScreen = !this.iFullScreen
+          screenfull.request()
+        } else {
+          this.iFullScreen = !this.iFullScreen
+          screenfull.exit()
+        }
+      } else {
+        // 提醒 无法全屏浏览
+        this.$message({ message: '你的浏览器不支持全屏', type: 'warning' })
+      }
+    },
+    // dialog关闭前
+    dialogClose () {
+      screenfull.exit()
     }
   },
   computed: {
-    ...mapState('playlist', ['playlist']),
+    ...mapState('playlist', ['playlist', 'status']),
     ...mapGetters('playlist', ['firstPlayList'])
   },
   mounted () {
@@ -83,12 +115,25 @@ export default {
   },
   watch: {
     playlist: {
-      handler (newVal, oldVal) {
+      // 音乐队列改变触发
+      handler (newVal) {
         this.isShow = true
         this.isPlay = true
         setTimeout(() => {
           this.$refs.audio.play()
         }, 500)
+      }
+    },
+    status: {
+      // musicItem点击播放暂停修改player播放暂停状态
+      handler (newVal) {
+        if (newVal) {
+          this.isPlay = true
+          this.$refs.audio.play()
+        } else {
+          this.isPlay = false
+          this.$refs.audio.pause()
+        }
       }
     }
   }
@@ -108,7 +153,7 @@ export default {
       <div class="contr-top">
         <audio
           ref="audio"
-          :src="audio"
+          :src="this.firstPlayList.audio"
           @ended="overPlay"
           @loadedmetadata="loadMetadata"
           @timeupdate="current"
@@ -153,7 +198,7 @@ export default {
       <button @click="$router.push('/play/playlist')">
         <svg class="icon" viewBox="0 0 1118 1024" xmlns="http://www.w3.org/2000/svg"  width="20" height="20"><path d="M972.33052618 601.48863669L128.58052618 601.48863669C107.41007157 601.48863669 90.22825308 584.30681821 90.22825308 563.13636358 90.22825308 541.94034103 107.41007157 524.78409131 128.58052618 524.78409131L972.33052618 524.78409131C993.5009808 524.78409131 1010.68279929 541.94034103 1010.68279929 563.13636358 1010.68279929 584.30681821 993.5009808 601.48863669 972.33052618 601.48863669ZM972.33052618 269.10227255L435.39870771 269.10227255C414.22825308 269.10227255 397.04643542 251.9204549 397.04643542 230.75000027 397.04643542 209.57954565 414.22825308 192.39772717 435.39870771 192.39772717L972.33052618 192.39772717C993.5009808 192.39772717 1010.68279929 209.57954565 1010.68279929 230.75000027 1010.68279929 251.9204549 993.5009808 269.10227255 972.33052618 269.10227255ZM155.8617759 360.25284131C140.82768515 375.28693207 116.43563977 375.28693207 101.40154902 360.25284131 97.79643515 356.62215869 95.1629126 352.42897744 93.2708675 348.00568152 93.2708675 347.98011358 93.24529873 347.95454565 93.24529873 347.95454565 91.17427647 343.01988613 90.15154929 337.8039769 90.22825308 332.53693179L90.22825308 129.75568207C90.22825308 129.42329565 90.22825308 129.11647717 90.22825308 128.78409076L90.22825308 128.4772731C90.22825308 125.53693207 91.27654902 122.95454538 91.89018515 120.21875027 92.35041287 118.37784103 92.29927618 116.46022717 93.01518487 114.69602256 98.56348053 100.35227255 112.29359439 90.09943207 128.58052618 90.09943207 139.70268542 90.09943207 149.52086695 95.00852283 156.52654873 102.55113613L282.91007157 203.51988641C290.5293895 211.13920435 294.21120798 221.13636387 294.10893542 231.13352255 294.21120798 241.13068206 290.5293895 251.15340869 282.91007157 258.74715869L155.8617759 360.25284131ZM128.58052618 857.17045462L972.33052618 857.17045462C993.5009808 857.17045462 1010.68279929 874.32670435 1010.68279929 895.5227269 1010.68279929 916.69318152 993.5009808 933.875 972.33052618 933.875L128.58052618 933.875C107.41007157 933.875 90.22825308 916.69318152 90.22825308 895.5227269 90.22825308 874.32670435 107.41007157 857.17045462 128.58052618 857.17045462Z"></path></svg>
       </button>
-      <button class="volume">
+      <button class="volume" >
         <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M512 947.2c-16 0-33.6-6.4-44.8-19.2l-224-224H160c-52.8 0-96-43.2-96-96V416c0-52.8 43.2-96 96-96h83.2l224-224c17.6-17.6 46.4-24 70.4-14.4C560 92.8 576 115.2 576 140.8v740.8c0 25.6-16 49.6-40 59.2-8 4.8-16 6.4-24 6.4zM160 384c-17.6 0-32 14.4-32 32v192c0 17.6 14.4 32 32 32h96c8 0 16 3.2 22.4 9.6L512 883.2V140.8L278.4 374.4C272 380.8 264 384 256 384h-96z m640 432c-9.6 0-17.6-3.2-24-11.2-11.2-14.4-9.6-33.6 4.8-44.8 72-62.4 115.2-152 115.2-248s-43.2-185.6-116.8-246.4c-14.4-11.2-16-32-4.8-44.8 11.2-14.4 32-16 44.8-4.8C908.8 289.6 960 396.8 960 512c0 115.2-51.2 222.4-139.2 296-6.4 4.8-14.4 8-20.8 8zM672 672c-9.6 0-19.2-4.8-25.6-12.8-11.2-14.4-8-33.6 6.4-44.8 32-24 51.2-62.4 51.2-102.4s-19.2-78.4-51.2-102.4c-14.4-11.2-17.6-30.4-6.4-44.8 11.2-14.4 30.4-17.6 44.8-6.4 48 36.8 76.8 92.8 76.8 153.6s-27.2 116.8-76.8 153.6c-6.4 4.8-12.8 6.4-19.2 6.4z"></path></svg>
         <el-slider
           class="volume-change"
@@ -162,10 +207,19 @@ export default {
           @change="volumeChange"
         />
       </button>
-      <button>
+      <button @click="toggleFullScreen">
         <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M919.272727 46.545455A34.909091 34.909091 0 0 1 954.181818 81.454545v272.104728a34.909091 34.909091 0 1 1-69.818182 0v-187.810909L613.655273 436.433455a34.792727 34.792727 0 0 1-24.669091 10.216727 34.909091 34.909091 0 0 1-24.692364-59.578182L835.025455 116.363636h-187.81091a34.909091 34.909091 0 1 1 0-69.818181H919.272727zM387.072 564.293818a34.909091 34.909091 0 1 1 49.361455 49.361455L165.725091 884.363636h187.857454a34.909091 34.909091 0 1 1 0 69.818182H81.454545A34.909091 34.909091 0 0 1 46.545455 919.272727V647.168a34.909091 34.909091 0 1 1 69.818181 0v187.810909l270.708364-270.661818z" fill="#797979"></path></svg>
       </button>
     </div>
+    <el-dialog
+      @close="dialogClose"
+      :visible.sync="dialogVisible"
+      :fullscreen="true"
+      :modal="true"
+      :append-to-body="true"
+    >
+      <Lyric :id="firstPlayList.id" :first-time="firstTime"></Lyric>
+    </el-dialog>
   </div>
 </template>
 

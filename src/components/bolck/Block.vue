@@ -11,6 +11,10 @@ export default {
       setTimeout(() => {
         this.loading = false
       }, 1000)
+    },
+    delHistory () {
+      console.log('123')
+      this.$emit('del-history')
     }
   },
   mounted () {
@@ -40,6 +44,12 @@ export default {
       </template>
       <template>
         <span class="block-img">
+          <span
+            v-if="this.$router.history.current.fullPath === '/explore/search'"
+            @click="delHistory"
+            class="del" style="position: absolute; right: -5px; top: -5px;">
+            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M806.4 263.2l-45.6-45.6L512 467.2 263.2 217.6l-45.6 45.6L467.2 512 217.6 760.8l45.6 45.6L512 557.6l248.8 248.8 45.6-45.6L557.6 512z" p-id="5316"></path></svg>
+          </span>
           <slot name="img"></slot>
         </span>
         <span class="block-name">
@@ -81,9 +91,10 @@ export default {
     transition: background-color .4s;
   }
   .block-img{
-    width: 9rem;
-    height: 9rem;
+    width: 8.5rem;
+    height: 8.5rem;
     margin-bottom: 10px;
+    position: relative;
     //overflow: hidden;
   }
   .block-name{

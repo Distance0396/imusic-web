@@ -82,55 +82,54 @@ export default {
 </template>
 
 <style scoped lang="less">
-
-.scroll-bar-navbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-
-  i {
-    font-size: 2rem;
-  }
-
-  .scroll-bar-btn {
-    display: inline-flex;
-    flex-wrap: nowrap;
-    margin-left: auto;
-    .rolling {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      width: 32px;
-      height: 32px;
-      background-color: rgb(229, 230, 235);
-      margin-left: 10px;
-      margin-right: 10px;
-      border-radius: 50%;
+.scroll-bar{
+  min-height: 270px;
+  .scroll-bar-navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    i {
+      font-size: 2rem;
     }
+    .scroll-bar-btn {
+      display: inline-flex;
+      flex-wrap: nowrap;
+      margin-left: auto;
+      .rolling {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 32px;
+        height: 32px;
+        background-color: rgb(229, 230, 235);
+        margin-left: 10px;
+        margin-right: 10px;
+        border-radius: 50%;
+      }
 
-    span:nth-child(2) {
-      svg {
-        transform: rotate(180deg);
+      span:nth-child(2) {
+        svg {
+          transform: rotate(180deg);
+        }
       }
     }
   }
-}
-
-.scroll-bar-item {
-  width: 100%;
-  display: flex;
-  flex-wrap: nowrap;
-  scrollbar-width: none;
-  align-items: center;
-  margin-top: 10px;
-  contain: paint;
-  .item {
-    scrollbar-width: none;
-    overflow: scroll;
-    display: inline-flex;
+  .scroll-bar-item {
+    width: 100%;
+    display: flex;
     flex-wrap: nowrap;
-    transition: all 0.1s linear;
-    scroll-behavior: smooth; /* 平滑滚动 */
+    scrollbar-width: none;
+    align-items: center;
+    margin-top: 10px;
+    contain: paint;
+    .item {
+      scrollbar-width: none;
+      overflow: scroll;
+      display: inline-flex;
+      flex-wrap: nowrap;
+      transition: all 0.1s linear;
+      scroll-behavior: smooth; /* 平滑滚动 */
+    }
   }
 }
 </style>

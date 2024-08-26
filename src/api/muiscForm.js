@@ -1,20 +1,12 @@
 import Request from '@/utils/request'
 
 /**
- * 根据用户id查询所属歌单
- * @returns {Promise<axios.AxiosResponse<any>>}
- */
-// export const getMusicFormByUserId = () => {
-//   return Request.get('/music-form/user')
-// }
-
-/**
  * 根据歌单id查询歌单
  * @param id
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const getMusicFormById = (id) => {
-  return Request.get(`/music-form/${id}`)
+  return Request.get(`/user/music-form/${id}`)
 }
 
 /**
@@ -22,7 +14,7 @@ export const getMusicFormById = (id) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const addMusicForm = () => {
-  return Request.post('/music-form/save')
+  return Request.post('/user/music-form/save')
 }
 
 /**
@@ -32,7 +24,7 @@ export const addMusicForm = () => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const appendMusicForm = (musicFormId, musicId) => {
-  return Request.post('/music-form', {
+  return Request.post('/user/music-form', {
     musicFormId: musicFormId,
     musicId: musicId
   })
@@ -45,10 +37,19 @@ export const appendMusicForm = (musicFormId, musicId) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const deleteMusic = (musicFormId, musicId) => {
-  return Request.delete('/music-form', {
+  return Request.delete('/user/music-form', {
     data: {
       musicFormId: musicFormId,
       musicId: musicId
     }
+  })
+}
+
+export const updateMusicForm = (musicForm) => {
+  return Request.put('/user/music-form', {
+    id: musicForm.id,
+    name: musicForm.name,
+    image: musicForm.image,
+    description: musicForm.description
   })
 }

@@ -15,7 +15,7 @@ export default {
 </script>
 
 <template>
-  <div class="playList">
+  <div class="playList" v-title data-title="播放队列">
     <Header></Header>
     <div class="main">
       <h2>队列</h2>

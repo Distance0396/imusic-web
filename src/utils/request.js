@@ -1,6 +1,8 @@
 import axios from 'axios'
 import { Notification } from 'element-ui'
 import store from '@/store'
+import { removeToken } from '@/utils/storage'
+import router from '@/router'
 
 const request = axios.create({
   baseURL: '/api',
@@ -11,20 +13,31 @@ const request = axios.create({
  * 响应拦截器
  */
 request.interceptors.response.use((response) => {
-  const res = response.data
-  if (res.code !== 200) {
+  const { data } = response
+
+  if (data.code === 200) {
+    return data
+  }
+  if (data.code === 401) {
     Notification.error({
-      title: '错误',
-      message: res.msg,
+      title: 'token失效',
+      message: '请重新登陆',
       showClose: false
     })
-    return Promise.reject(res.msg)
-  } else {
-    Notification.close()
+    router.push('/login').then(r => removeToken())
+    return Promise.reject(data.msg)
   }
-  return res
+
+  if (data.code !== 200) {
+    Notification.error({
+      title: '错误',
+      message: data.msg,
+      showClose: false
+    })
+    return Promise.reject(data.msg)
+  }
 }, (error) => {
-  console.log('响应错误')
+  router.push('/404').then(r => removeToken())
   return Promise.reject(error)
 })
 
@@ -34,11 +47,9 @@ request.interceptors.request.use((config) => {
   if (token) {
     config.headers.token = token
   }
-  // console.log('请求拦截器' + config + config.data)
   return config
 }, function (error) {
   // 对请求错误做些什么
-  console.log('请求失败')
   return Promise.reject(error)
 })
 export default request

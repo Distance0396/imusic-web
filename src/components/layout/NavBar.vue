@@ -1,39 +1,26 @@
 <script>
-import { getUserInfo } from '@/api/user'
-// import MusicFormItem from '@/components/MusicFormItem.vue'
-import collectItem from '@/components/collectItem.vue'
+import { mapState } from 'vuex'
+import collectItem from '@/components/collect.vue'
+import { removeMusicFormList, removeToken } from '@/utils/storage'
 export default {
   name: 'navbarView',
   components: {
     collectItem
   },
-  data () {
-    return {
-      userInfo: {
-        name: ''
-      }
-    }
-  },
   methods: {
-    getUser () {
-      getUserInfo()
-        .then(res => {
-          this.userInfo = res.data
-        })
+    logout () {
+      removeToken()
+      removeMusicFormList()
+      location.reload()
     }
   },
   computed: {
+    ...mapState('user', ['userInfo']),
     isLogin () {
       return this.$store.getters.token
-    },
-    userName () {
-      return this.$store.getters.userName
     }
   },
   created () {
-    if (!this.isLogin) {
-      this.getUser()
-    }
   }
 }
 </script>
@@ -53,13 +40,14 @@ export default {
     </a>
     <a class="login" v-else-if="isLogin !== ''">
       <div class="avatar" style="width: 40px; height: 40px; font-size: 20px;">
-          <span>
-            <svg class="icon-avatar" viewBox="0 0 1024 1024"  xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M501.041414 62.931285c125.654838 0 227.51269 100.19498 227.51269 223.775576 0 123.605156-101.856829 223.805252-227.51269 223.805252-125.650745 0-227.506551-100.199073-227.506551-223.805252C273.53384 163.097612 375.424438 62.931285 501.041414 62.931285L501.041414 62.931285 501.041414 62.931285zM501.041414 62.931285c125.654838 0 227.51269 100.19498 227.51269 223.775576 0 123.605156-101.856829 223.805252-227.51269 223.805252-125.650745 0-227.506551-100.199073-227.506551-223.805252C273.53384 163.097612 375.424438 62.931285 501.041414 62.931285L501.041414 62.931285 501.041414 62.931285zM415.730423 585.125461l189.629895 0c162.314783 0 293.880237 129.387859 293.880237 289.057395l0 18.622126c0 62.922075-131.593084 65.313541-293.880237 65.313541L415.730423 958.118524c-162.319899 0-293.880237-0.092098-293.880237-65.313541l0-18.622126C121.852232 714.51332 253.411547 585.125461 415.730423 585.125461L415.730423 585.125461 415.730423 585.125461z" fill="#fff" p-id="4553"></path></svg>
-          </span>
+        <el-avatar :src="userInfo?.avatar">
+          {{userInfo.name?.slice(0,1).toUpperCase()}}
+        </el-avatar>
       </div>
-      <div class="text">
-        {{userName}}
+      <div class="text" @click="$router.push('/my')">
+        {{userInfo?.name}}
       </div>
+      <svg @click="logout" class="close" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M783.92332 467.520619l-108.097715-108.137692 60.295258-60.295259L917.05661 480.023415l30.142632 30.152626-211.078379 211.078378-60.295258-60.345229 108.097715-108.097715H331.024277V467.530613h452.899043z m-197.046463 556.479361H160.712409a85.470752 85.470752 0 0 1-60.485149-25.02558 85.458759 85.458759 0 0 1-25.055563-60.475155V86.080401C75.171697 38.877599 113.429653 0.579666 160.712409 0.579666h426.164448v85.280862h-383.479043a42.600454 42.600454 0 0 0-42.945255 42.305624v768.247342c0 22.896807 19.188943 42.29563 42.945255 42.29563h383.479043v85.290856z m0 0"></path></svg>
     </a>
 
     <div class="scrollbar">
@@ -93,11 +81,6 @@ export default {
 </template>
 
 <style scoped lang="less">
-//@media (min-width: 1300px){
-//  .menu-item{
-//    border-radius: 4px;
-//  }
-//}
 .navbar{
   overflow: hidden;
 }
@@ -132,11 +115,19 @@ export default {
       margin-left: auto;
       font-style: normal;
     }
+    &:hover{
+      fill: #409EFF;
+      color: #409EFF;
+      transition: fill .5s;
+    }
   }
-  .text:hover{
-    fill: #409EFF;
-    color: #409EFF;
-    transition: fill .5s;
+
+  .close{
+    fill: #c9cdd4;
+    &:hover{
+      fill: #409EFF;
+      transition: fill .5s;
+    }
   }
 
 }

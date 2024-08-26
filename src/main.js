@@ -4,11 +4,31 @@ import router from './router'
 import store from './store'
 import '@/style/common.less'
 import ElementUI from 'element-ui'
+import { VueReCaptcha } from 'vue-recaptcha-v3'
 import 'element-ui/lib/theme-chalk/index.css'
 
 Vue.config.productionTip = false
-// axios.defaults.baseURL = '/'
+
+Vue.use(VueReCaptcha, {
+  siteKey: '6LeNfRYqAAAAALtUVfNp5GAyLQJebGTWFU0w6WDQ',
+  loaderOptions: {
+    // google域名替换为recaptcha
+    useRecaptchaNet: true,
+    // 隐藏reCAPTCHA小图标
+    autoHideBadge: true
+  }
+})
 Vue.use(ElementUI)
+
+/**
+ * 标签页name
+ */
+Vue.directive('title', {
+  inserted: function (el, binding) {
+    document.title = el.dataset.title + ' - ' + '空白的一坪'
+  }
+})
+
 new Vue({
   router,
   store,

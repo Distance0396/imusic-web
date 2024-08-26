@@ -1,24 +1,33 @@
 <script>
-// import ColorThief from 'colorthief'
 import MusicItem from '@/components/bolck/MusicItem.vue'
 import BlockItem from '@/components/bolck/BlockItem.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import Header from '@/components/layout/Header.vue'
 import { findSingerById } from '@/api/singer'
-import { mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { useContextMenu } from '@/utils/useContextMenu'
 import ActionBar from '@/components/layout/ActionBar.vue'
+import { collect, unfollow } from '@/api/collect'
+import ReplyInput from '@/components/bolck/replyInput.vue'
+import Reply from '@/components/bolck/reply.vue'
+import { findSingerReplyById, insert } from '@/api/reply'
 
 export default {
   name: 'singerDetail',
   computed: {
-    //  获取路由歌手id
+    ...mapGetters('collect', ['getUserMusicForm', 'isSingerCollect']),
+    ...mapState('user', ['user']),
+    //  获取路由 歌手id
     getSingerId () {
-      return this.$route.params.id
+      return +this.$route.params.id
     },
-    ...mapState('music', ['musicFormList'])
+    isLogin () {
+      return this.$store.getters.token
+    }
   },
   components: {
+    Reply,
+    ReplyInput,
     ActionBar,
     MusicItem,
     BlockItem,
@@ -34,46 +43,90 @@ export default {
     window.addEventListener('scroll', this.handleScroll)
     //
     this.getSinger()
+    this.getReply()
+  },
+  mounted () {
     setTimeout(() => {
       this.loading = false
     }, 1000)
-  },
-  mounted () {
-    // 将会话中的歌单数据赋值
-    this.menu[0].menu = this.musicFormList
+    // 将会话中的歌单数据赋值给菜单
+    this.menu[0].menu = this.getUserMusicForm
   },
   methods: {
+    // 点击固定输入框时，清除选中输入框
+    toClear () {
+      this.clear()
+      this.setActiveReplyId(null)
+    },
+    // 获取评论
+    async getReply () {
+      await findSingerReplyById(this.getSingerId).then(res => {
+        if (res.data == null) return
+        this.total = res.data.total
+        this.reply = res.data.page
+      })
+    },
+    async submit () {
+      await insert(this.$store.state.reply.reply, null, null, this.getSingerId, null)
+        .then(res => {
+          this.getReply()
+          this.clear()
+        })
+    },
+    ...mapActions('reply', ['clear', 'setActiveReplyId']),
+    ...mapActions('collect', ['getCollectForm']),
     ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
     handleScroll () {
       // 获取滚动距离
       const scrollTop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop
       const maxScroll = 100 // 设置滚动的最大位置
       const opacity = Math.min(1, scrollTop / maxScroll) // 计算透明度，最大不超过1
-      // 给膜层设置颜色和透明度
+      // 设置颜色和透明度
       this.$refs.background.style.backgroundColor = this.singer.color
       this.$refs.background.style.opacity = opacity.toString()
     },
     // 根据id查询歌手
     async getSinger () {
       await findSingerById(this.getSingerId).then(res => {
+        if (res.data == null) return
         this.singer = res.data
         this.musicList = res.data.musicList
         this.albumList = res.data.albumList
-
-        this.$refs.image.crossOrigin = 'anonymous'
-        this.$refs.image.src = this.singer.image + '?time=' + new Date().valueOf()
       })
     },
-    // 选中的选项
+    // 右键选中的选项
     pickMenu (e) {
-      useContextMenu(e, this.pickMusicItem)
+      useContextMenu(e, this.pickMusicItem, this.getSingerId)
     },
+    // 提交播放数据
     submitPlay () {
       this.setPlayList(this.musicList)
+    },
+    // 关注
+    async attention () {
+      if (this.isLogin) {
+        await collect(this.getSingerId, null, null).then(res => {
+          this.getCollectForm(this.user.id)
+          this.isSingerCollect(this.getSingerId)
+        })
+      }
+    },
+    // 取消关注
+    async unfollow () {
+      if (this.isLogin) {
+        await unfollow(this.getSingerId, null, null).then(res => {
+          this.getCollectForm(this.user.id)
+          this.isSingerCollect(this.getSingerId)
+        })
+      }
     }
   },
   data () {
     return {
+      // 评论条数
+      total: '',
+      // 评论
+      reply: '',
       menu: [
         {
           id: 1,
@@ -82,13 +135,9 @@ export default {
           menu: []
         },
         { id: 2, label: '加入队列', icon: 'el-icon-menu' },
-        // { id: 3, label: '删除', icon: 'el-icon-delete' },
-        { id: 4, label: '跳转至歌手', icon: 'el-icon-s-promotion' },
         { id: 5, label: '分享给好友', icon: 'el-icon-info' }
       ],
-      // 背景渐变
-      backgroundColor: [],
-      isDark: false,
+      isExist: '',
       // 歌手信息
       singer: {},
       // 歌手
@@ -100,21 +149,24 @@ export default {
       // 加载
       loading: true,
       // 选中的歌曲
-      pickMusicItem: {}
+      pickMusicItem: {},
+      // MusicItem组件点击省略号时间
+      position: {},
+      isReply: true
     }
   }
 }
 </script>
 
 <template>
-  <div class="detail" v-loading="loading">
+  <div class="detail" v-loading="loading" v-title data-title="歌手详情">
     <Header :color="singer.color">
       <p>{{singer.name}}</p>
     </Header>
     <div class="main">
       <div class="background">
         <div class="public">
-          <img class="background-img" alt="" ref="image" src=""/>
+          <img class="background-img" crossorigin="anonymous" alt="" ref="image" :src="this.singer.image  + '?time=' + new Date().valueOf()"/>
         </div>
         <div class="background-black public" ref="background" ></div>
       </div>
@@ -133,38 +185,59 @@ export default {
           <div class="cont-works">
             <ActionBar
               @submitPlay="submitPlay"
+              @attention="attention"
+              @unfollow="unfollow"
+              :is-exist="this.isSingerCollect(this.getSingerId)"
+              :isReply.sync="isReply"
             />
-            <div style="display: flex; flex-wrap: wrap; flex-direction: column; margin: 0 20px 0 20px;">
-              <div class="cont-hot-music">
-                <h2 :class="{dark : this.isDark}" class="title">热门</h2>
-                  <ContextMenu
-                    :menu="menu"
-                    @select="pickMenu"
-                  >
-                    <div class="target">
+            <transition name="component-fade" mode="out-in">
+              <div v-if="isReply" style="min-height: 300px; display: flex; flex-wrap: wrap; flex-direction: column; margin: 0 20px 0 20px;">
+                <div v-if="musicList.length > 0" class="cont-hot-music">
+                  <h2 class="title">热门</h2>
+                  <div class="target">
+                    <ContextMenu
+                      :menu="menu"
+                      :position="position"
+                      @select-menu="pickMenu"
+                    >
                       <MusicItem
-                        v-for="(item,index) in musicList.slice(0,this.controlMusicNumber)"
-                        @select="pickMusicItem = $event"
+                        v-for="(item,index) in musicList.slice(0, this.controlMusicNumber)"
+                        @select-music="pickMusicItem = $event"
+                        @position="position = $event"
                         :key="item.id"
                         :music="item"
                         :index="index+1"
                       />
-                    </div>
-                  </ContextMenu>
-                <div class="more" >
-                  <span v-if="controlMusicNumber === 5" @click="controlMusicNumber = 10">查看更多</span>
-                  <span v-else @click="controlMusicNumber = 5">收起</span>
+                    </ContextMenu>
+                  </div>
+                  <div class="more" >
+                    <span v-if="controlMusicNumber === 5" @click="controlMusicNumber = 10">查看更多</span>
+                    <span v-else @click="controlMusicNumber = 5">收起</span>
+                  </div>
+                </div>
+                <div v-if="albumList.length > 0" class="cont-album">
+                  <h2 class="title">唱片专辑</h2>
+                  <div class="target">
+                    <BlockItem v-for="item in albumList" :key="item.id" :album="item"></BlockItem>
+                  </div>
+                </div>
+                <div class="cont-introduce">
                 </div>
               </div>
-              <div class="cont-album">
-                <h2 class="title">唱片专辑</h2>
-                <div class="target">
-                  <BlockItem v-for="item in albumList" :key="item.id" :album="item"></BlockItem>
-                </div>
+            </transition>
+            <transition name="component-fade" mode="out-in">
+              <div style="min-height: 300px;" v-if="!isReply" class="replyView">
+                <ul class="nav-bar">
+                  <li class="nav-title">
+                    <span class="title-text">评论</span>
+                    <span class="total-reply">{{total}}</span>
+                  </li>
+                  <li></li>
+                </ul>
+                <ReplyInput @sub="submit" @focus="toClear"></ReplyInput>
+                <Reply v-for="item in reply" :key="item.replyId" :item="item" @sub="submit"></Reply>
               </div>
-              <div class="cont-introduce">
-              </div>
-            </div>
+            </transition>
           </div>
         </div>
       </div>
@@ -175,7 +248,6 @@ export default {
 <style scoped lang="less">
 .title{
   margin-bottom: 10px;
-  //margin-top: 40px;
 }
 .detail {
   position: relative;
@@ -184,8 +256,6 @@ export default {
   overflow: hidden;
   margin-bottom: 40px;
   .main {
-    //position: relative;
-    //width: 100%;
     .background {
       height: 40vh;
       max-height: 700px;
@@ -204,7 +274,7 @@ export default {
         }
       }
       .background-black {
-        background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
+        //background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
       }
     }
 
@@ -238,7 +308,9 @@ export default {
         top: 0;
 
         .background-active {
-          background-image: linear-gradient(rgba(198, 197, 197, 0.4) 40%, #ffffff 100%);
+          //background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
+          //background-image: linear-gradient(rgba(198, 197, 197, 0.4) 40%, #ffffff 100%);
+          background-image: linear-gradient(rgba(198, 197, 197, 0) 40%, #ffffff 100%);
           height: 40vh;
           max-height: 400px;
           position: absolute;
@@ -250,51 +322,6 @@ export default {
           position: relative;
           top: 1vh;
           z-index: 100;
-          //margin: 0 20px;
-          //padding: 0 20px 0 20px;
-          //.follow-play {
-          //  position: relative;
-          //  z-index: 2;
-          //  top: 1.5rem;
-          //  display: flex;
-          //  align-items: center;
-          //  width: 100%;
-          //  .play {
-          //    fill: #ffffff;
-          //    display: flex;
-          //    width: 56px;
-          //    height: 56px;
-          //    border-radius: 50%;
-          //    //opacity: .8;
-          //    background-color: #2e6aff;
-          //    justify-content: center;
-          //    align-items: center;
-          //    margin-right: 20px;
-          //  }
-          //
-          //  .play:hover {
-          //    background-color: #004dff;
-          //    transition: background-color .3s;
-          //  }
-          //
-          //  .follow {
-          //    font-size: 2vh;
-          //    display: flex;
-          //    align-items: center;
-          //    justify-content: center;
-          //    width: 56px;
-          //    height: 32px;
-          //    border-radius: 15px;
-          //    border: 1px solid #121212;
-          //    i{
-          //      font-size: 15px;
-          //    }
-          //  }
-          //}
-          //h2{
-          //  mix-blend-mode: difference;
-          //  font-size: 1.5rem;
-          //}
           .cont-hot-music{
             position: relative;
             width: 70rem;
@@ -343,9 +370,62 @@ export default {
               color: #ffffff;
             }
           }
+          .replyView{
+            width: 100%;
+            height: 100%;
+            //height: 30rem;
+            padding: 0 40px 0 40px;
+            position: relative;
+            top: -80px;
+            margin-top: 5rem;
+            z-index: -1;
+            .nav-bar{
+              margin-bottom: 10px;
+              .nav-title{
+                font-size: 20px;
+                .title-text{
+                  color: #18191C;
+                  margin-right: 5px;
+                }
+                .total-reply{
+                  height: 100%;
+                  font-size: 13px;
+                }
+              }
+            }
+            .reply-tool{
+              padding: 20px 0;
+              margin-bottom: 10px;
+              display: flex;
+              .input{
+                .btn-box{
+                  display: flex;
+                  margin-top: 10px;
+                  height: 32px;
+                  transition: all .3s ease-in-out;
+                  .btn{
+                    margin-left: auto;
+                  }
+                }
+                .hide{
+                  margin-top: -30px;
+                  height: 0;
+                  overflow: hidden;
+                  transition: all .2s ease-in-out;
+                }
+              }
+            }
+          }
         }
       }
     }
   }
+}
+.component-fade-enter-active, .component-fade-leave-active {
+  transition: opacity .2s ease;
+}
+.component-fade-enter, .component-fade-leave-to
+  /* .component-fade-leave-active for below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

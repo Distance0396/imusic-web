@@ -1,11 +1,9 @@
 import { getMusicFormById } from '@/api/muiscForm'
-import { getMusicFormList } from '@/utils/storage'
+import Vue from 'vue'
 export default {
   namespaced: true,
   state () {
     return {
-      // 用户歌单
-      musicFormList: getMusicFormList(),
       // 歌单信息
       musicForm: {},
       // 歌单歌曲
@@ -13,37 +11,37 @@ export default {
     }
   },
   mutations: {
-    // 查询用户的歌单
-    // setMusicFormList (state, obj) {
-    //   state.musicFormList = obj
-    //   setMusicFormList(obj)
-    // },
-    // 根据歌单id查询歌单详情
+    // 歌单 根据歌单id查询歌单详情
     setMusicForm (state, obj) {
       state.musicForm = obj
     },
-    // 歌单中的歌曲
+    // 歌单 歌单中的歌曲
     setMusic (state, obj) {
       state.musicList = obj
+    },
+    // 歌单
+    setMusicFormProperty (state, { property, value }) {
+      Vue.set(state.musicForm, property, value)
     }
   },
   actions: {
-    // 查询用户的歌单
-    // async getMusicFormList (context) {
-    //   await getMusicFormByUserId().then(res => {
-    //     const { data } = res
-    //     context.commit('setMusicFormList', data)
-    //   })
-    // },
     // 根据歌单id查询歌单详情
     async getMusicForm (context, id) {
       await getMusicFormById(id).then(res => {
+        if (res.data == null) return
         context.commit('setMusicForm', res.data)
         context.commit('setMusic', res.data.musicList)
       })
+    },
+    // 歌单 修改歌单
+    updateMusicFormProperty ({ commit }, payload) {
+      commit('setMusicFormProperty', payload)
     }
   },
   getters: {
-
+    /*
+      获取指定属性
+     */
+    getMusicFormProperty: state => property => state.musicForm[property]
   }
 }

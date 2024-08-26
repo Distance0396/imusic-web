@@ -1,11 +1,12 @@
 <script>
 import { getSearchHistory, setSearchHistory } from '@/utils/storage'
 import { search } from '@/api/common'
-import { mapState } from 'vuex'
+import { mapGetters } from 'vuex'
 import Block from '@/components/bolck/Block.vue'
 import MusicItem from '@/components/bolck/MusicItem.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import History from '@/components/history.vue'
+import { useContextMenu } from '@/utils/useContextMenu'
 
 export default {
   name: 'searchObject',
@@ -16,10 +17,10 @@ export default {
     History
   },
   computed: {
-    ...mapState('music', ['musicFormList'])
+    ...mapGetters('collect', ['getUserMusicForm'])
   },
   mounted () {
-    this.menu[0].menu = this.musicFormList
+    this.menu[0].menu = this.getUserMusicForm
   },
   data () {
     return {
@@ -57,7 +58,11 @@ export default {
       timeout: true,
       result: {},
       isShowHistory: true,
-      historyElement: null
+      historyElement: null,
+      // MusicItem组件省略号位置
+      position: {},
+      // 选中的歌曲
+      pickMusicItem: {}
     }
   },
   methods: {
@@ -77,12 +82,8 @@ export default {
       }
     },
     // 选中的菜单选项
-    select (e) {
-      console.log(e)
-    },
-    // 选中的歌曲
-    pickMusicItem (e) {
-      console.log(e)
+    pickMenu (e) {
+      useContextMenu(e, this.pickMusicItem, this.getMusicFormId)
     }
   },
   beforeRouteLeave: function (to, from, next) {
@@ -92,13 +93,22 @@ export default {
     if (index !== -1) {
       this.history.splice(index, 1)
     }
-    if (from.path === '/explore/explore' && to.name === 'Singer') {
-      if (this.result.singerList) this.history.unshift(this.result.singerList.find(singer => singer.id === Number(to.params.id)))
-      else this.history.unshift(his)
+    let newHistoryItem = null
+    if (from.path === '/explore/search' && to.name === 'Singer') {
+      if (this.result.singerList) {
+        newHistoryItem = this.result.singerList.find(singer => singer.id === Number(to.params.id))
+      }
     }
-    if (from.path === '/explore/explore' && to.name === 'Album') {
-      if (this.result.albumList) this.history.unshift(this.result.albumList.find(singer => singer.id === Number(to.params.id)))
-      else this.history.unshift(his)
+    if (from.path === '/explore/search' && to.name === 'Album') {
+      if (this.result.albumList) {
+        newHistoryItem = this.result.albumList.find(album => album.id === Number(to.params.id))
+      }
+    }
+    // 新记录存在就插入，不存在就插入之前的
+    if (newHistoryItem) {
+      this.history.unshift(newHistoryItem)
+    } else if (his) {
+      this.history.unshift(his)
     }
     setSearchHistory(this.history)
     next()
@@ -114,7 +124,7 @@ export default {
 </script>
 
 <template>
-  <div class="search">
+  <div class="search" v-title data-title="搜索">
     <form class="search-box">
       <div style="width: 100%; height: 100%; display: flex; padding: 10px 0 10px 0">
         <div class="input-inner" :class="{active: clickInput}">
@@ -131,11 +141,11 @@ export default {
         </div>
       </div>
     </form>
-    <el-collapse-transition>
+    <transition>
       <div v-if="isShowHistory" class="history">
         <History></History>
       </div>
-    </el-collapse-transition>
+    </transition>
     <transition name="el-fade-in">
       <div class="result">
         <div class="singer">
@@ -162,11 +172,16 @@ export default {
         <div class="music">
           <ContextMenu
             :menu="menu"
-            @select="select">
+            :position="position"
+            @select-menu="pickMenu"
+          >
             <MusicItem
               v-for="(item,index) in result.musicList"
-              @select="pickMusicItem"
-              :key="item.id" :music="item" :index="index+1"
+              @select-music="pickMusicItem = $event"
+              @position="position = $event"
+              :key="item.id"
+              :music="item"
+              :index="index+1"
             />
           </ContextMenu>
         </div>

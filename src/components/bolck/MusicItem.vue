@@ -1,5 +1,5 @@
 <script>
-import { mapMutations } from 'vuex'
+import { mapMutations, mapState, mapActions } from 'vuex'
 
 export default {
   name: 'musicItem',
@@ -15,9 +15,12 @@ export default {
     // avatar: String
   },
   methods: {
-    ...mapMutations('playlist', ['unshiftPlayList', 'appoint']),
+    ...mapMutations('playlist', ['appoint']),
+    ...mapMutations('playlist', ['setStatus']),
+    ...mapActions('collect', ['playSong', 'playCol']),
+    // 右键点击的歌曲
     ContextMenu () {
-      this.$emit('select', this.music)
+      this.$emit('select-music', this.music)
     },
     formatTime (seconds) {
       const minutes = Math.floor(seconds / 60)
@@ -28,19 +31,36 @@ export default {
     ready () {
       this.duration = this.formatTime(this.$refs.audio.duration)
     },
+    // 点击播放将歌曲添加至队列
     play () {
       this.appoint(this.music)
+      this.playSong(this.music)
+      this.setStatus(true)
+      this.playCol(this.$router.history.current.fullPath)
+    },
+    // 点击省略符号
+    clickMore (e) {
+      e.preventDefault()
+      e.stopPropagation()
+      this.$emit('position', e)
+    },
+    // 暂停
+    pause () {
+      this.setStatus(false)
     }
   },
   computed: {
-  },
-  watch: {
-    music (newVal, oldVal) {
-      console.log('123')
-      console.log(newVal)
-      console.log(oldVal)
+    ...mapState('collect', ['currentSong', 'currentCol']),
+    ...mapState('playlist', ['status']),
+    isPlaying () {
+      return music => this.currentSong && this.currentSong.id === music.id
     }
   },
+  // watch: {
+  //   music (newVal, oldVal) {
+  //
+  //   }
+  // },
   data () {
     return {
       audio: require('@/style/audio/宇多田ヒカル椎名林檎-二時間だけのバカンス (只有两小时的假期).mp3'),
@@ -53,11 +73,17 @@ export default {
 <template>
   <div class="musicItem" ref="music">
     <div class="music-index public">
-      <div class="public">
+      <div v-if="isPlaying(music) && status && this.currentCol === this.$router.history.current.fullPath" class="public">
+        <img class="index" style="width: 1rem; height: 1rem;" src="@/assets/equaliser.gif" alt="">
+        <button class="player" @click.stop="pause">
+          <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M426.666667 138.666667v746.666666a53.393333 53.393333 0 0 1-53.333334 53.333334H266.666667a53.393333 53.393333 0 0 1-53.333334-53.333334V138.666667a53.393333 53.393333 0 0 1 53.333334-53.333334h106.666666a53.393333 53.393333 0 0 1 53.333334 53.333334z m330.666666-53.333334H650.666667a53.393333 53.393333 0 0 0-53.333334 53.333334v746.666666a53.393333 53.393333 0 0 0 53.333334 53.333334h106.666666a53.393333 53.393333 0 0 0 53.333334-53.333334V138.666667a53.393333 53.393333 0 0 0-53.333334-53.333334z" ></path></svg>
+        </button>
+      </div>
+      <div v-else class="public">
         <span class="index">
           {{index}}
         </span>
-        <button class="player" @click="play">
+        <button class="player" @click.stop="play">
           <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"></path></svg>
         </button>
       </div>
@@ -73,7 +99,7 @@ export default {
       <i>{{music.name}}</i>
       <i class="singer" @click="$router.replace(`/detail/singer/${music.singerId}`)">{{music.singerName}}</i>
     </div>
-    <div class="music-num public">
+    <div class="music-num public" style="margin-right: 20px;">
       <div class="num">
         {{music.count.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')}}
       </div>
@@ -83,7 +109,7 @@ export default {
         {{duration}}
         <audio ref="audio" :src="audio" @canplay="ready"></audio>
       </div>
-      <div class="more">
+      <div class="more" @click="clickMore">
         <span>
           <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M96 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z"></path><path d="M512 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z" ></path><path d="M928 512m-96 0a3 3 0 1 0 192 0 3 3 0 1 0-192 0Z" ></path></svg>
         </span>
@@ -117,7 +143,7 @@ export default {
   padding: 8px;
   display: grid;
   //grid-template-columns: 3rem 36rem 8rem 22rem;
-  grid-template-columns: 0.5fr 5fr 4fr 4fr;
+  grid-template-columns: 0.5fr 700px 4fr 4fr;
   //grid-template-columns: 0.5fr 5fr 100px 100px;
   .public{
     display: flex;

@@ -1,25 +1,29 @@
 import request from '@/utils/request'
 
 // 获取用户信息
-export const getUserInfo = () => {
-  return request.get('/user/info')
+export const getUser = () => {
+  return request.get('/user/user/info')
 }
 
 // 登陆
-export const login = (landing) => {
-  return request.post('/user/login', {
+export const login = (landing, reCAPTCHA) => {
+  return request.post('/user/user/login', {
     ...landing
+  },
+  {
+    params: {
+      reCAPTCHA: reCAPTCHA
+    }
   })
 }
 
 // 注册
 export const register = (user) => {
-  return request.post('/user/register', {
+  return request.post('/user/user/register', {
     ...user
   })
 }
 
-// 获取用户收藏
-export const getCollectForm = () => {
-  return request.get('/user/collectForm')
+export const query = () => {
+  return request.get('/user/user/query')
 }

@@ -1,7 +1,7 @@
 <script>
 import Block from '@/components/bolck/Block.vue'
 import ScrollBar from '@/components/layout/ScrollBar.vue'
-import { getSearchHistory } from '@/utils/storage'
+import { getSearchHistory, setSearchHistory } from '@/utils/storage'
 export default {
   name: 'historyBar',
   components: {
@@ -13,22 +13,29 @@ export default {
     }
   },
   methods: {
-    click () {
-      console.log('123')
+    delHistory (e) {
+      const index = this.history.findIndex(h => h.id === e.id)
+      this.history.splice(index, 1)
+      setSearchHistory(this.history)
     }
   }
 }
 </script>
 
 <template>
-  <ScrollBar style="margin-top: 30px">
-    <template #title>
-      <i>最近搜索</i>
-    </template>
-    <template #body>
-<!--      <div class="history">-->
+  <div>
+    <ScrollBar style="margin-top: 30px" v-if="history.length > 0">
+      <template #title>
+        <i>最近搜索</i>
+      </template>
+      <template #body>
+        <!--      <div class="history">-->
         <div class="historyList">
-          <Block v-for="item in history" :key="item.id">
+          <Block
+            v-for="item in history"
+            :key="item.id"
+            @del-history="delHistory(item)"
+          >
             <template #img>
               <img :src="item.avatar || item.image"
                    v-if="item.language"
@@ -61,9 +68,11 @@ export default {
             </template>
           </Block>
         </div>
-<!--      </div>-->
-    </template>
-  </ScrollBar>
+        <!--      </div>-->
+      </template>
+    </ScrollBar>
+    <el-empty v-else description="还未搜索，快来发现更多吧"></el-empty>
+  </div>
 </template>
 
 <style scoped lang="less">
