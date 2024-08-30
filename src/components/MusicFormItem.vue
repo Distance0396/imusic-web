@@ -96,7 +96,7 @@ export default {
   </el-skeleton>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .musicForm {
   width: 100%;
   padding: 6px 6px;

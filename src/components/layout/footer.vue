@@ -20,11 +20,10 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .footer{
-  //height: 20px;
   fill: rgba(60, 60, 67, .78);
-  //border-top: 1px solid #e2e2e3;
+  font-size: 10px;
   text-align: center;
   padding: 10px 12px;
   .info{

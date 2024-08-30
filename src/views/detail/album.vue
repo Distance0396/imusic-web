@@ -114,7 +114,7 @@ export default {
 
         this.total = res.data.total
         this.reply = res.data.page
-        console.log(res.data.page)
+        // console.log(res.data.page)
       })
     },
     // 提交评论
@@ -233,7 +233,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .album {
   position: relative;
   z-index: 1;

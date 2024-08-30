@@ -245,7 +245,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .title{
   margin-bottom: 10px;
 }

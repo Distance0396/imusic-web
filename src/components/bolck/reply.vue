@@ -89,7 +89,9 @@ export default {
     <div class="child" v-for="children in item.children" :key="children.replyId" >
       <div class="context">
         <div class="avatar">
-          <el-avatar size="small" src="https://distance0.oss-cn-chengdu.aliyuncs.com/music/5de34dff-741c-499d-8fc7-61e5424298ff.jpg"></el-avatar>
+          <el-avatar size="small" src="">
+            {{children?.userName.slice(0,1).toUpperCase()}}
+          </el-avatar>
         </div>
         <div class="user-name">{{children.userName}}</div>
         <div class="reply-content">
@@ -116,7 +118,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .reply{
   position: relative;
   min-height: 90px;

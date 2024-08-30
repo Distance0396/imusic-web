@@ -1,7 +1,7 @@
 import { appendMusicForm, deleteMusic } from '@/api/muiscForm'
 
 export function useContextMenu (menu, musicItem, params) {
-  console.log(menu)
+  // console.log(menu)
   if (menu.id) {
     appendMusicForm(menu.id, musicItem.id).then(r => null)
   }

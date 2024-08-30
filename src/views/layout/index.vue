@@ -38,7 +38,7 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 
 .component-fade-enter-active, .component-fade-leave-active {
   transition: opacity .2s ease;

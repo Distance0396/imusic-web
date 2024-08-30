@@ -1,12 +1,22 @@
 import { setToken, getToken } from '@/utils/storage'
 import { getUser } from '@/api/user'
+import Vue from 'vue'
 export default {
   namespaced: true,
   state () {
     return {
       // 带token
       token: getToken(),
-      userInfo: {}
+      userInfo: {
+        id: null,
+        name: '',
+        account: '',
+        phone: '',
+        avatar: '',
+        email: '',
+        sex: '',
+        createTime: ''
+      }
     }
   },
   mutations: {
@@ -18,6 +28,9 @@ export default {
     // 修改用户信息
     setUserInfo (state, obj) {
       state.userInfo = obj
+    },
+    setProperty (state, { property, value }) {
+      Vue.set(state.userInfo, property, value)
     }
   },
   actions: {
@@ -32,8 +45,12 @@ export default {
       // 用户信息重置
       context.commit('setUser', {})
       context.commit('setUserInfo', {})
+    },
+    updateProperty ({ commit }, payload) {
+      commit('setProperty', payload)
     }
   },
   getters: {
+    getProperty: state => property => state.userInfo[property]
   }
 }

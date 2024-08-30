@@ -27,3 +27,12 @@ export const register = (user) => {
 export const query = () => {
   return request.get('/user/user/query')
 }
+
+/*
+  修改用户信息
+ */
+export const updateUserInfo = (name, email, phone, avatar, sign, tag) => {
+  return request.put('/user/user', {
+    name, email, phone, avatar, sign, tag
+  })
+}

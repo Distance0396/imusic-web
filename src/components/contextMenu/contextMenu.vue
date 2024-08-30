@@ -107,7 +107,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .context-menu{
   width: 170px;
   position: fixed;

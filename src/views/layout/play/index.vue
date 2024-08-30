@@ -36,7 +36,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .playList{
   .main{
     padding: 60px 20px 20px 20px;

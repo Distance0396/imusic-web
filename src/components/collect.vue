@@ -11,15 +11,15 @@ export default {
     }
   },
   methods: {
-    ...mapActions('collect', ['playSong']),
+    ...mapActions('collect', ['playSong', 'getCollectForm']),
     // 添加歌单
     async addMusicForm () {
-      if (!this.isLogin) this.$router.replace('/login')
+      if (!this.isLogin) await this.$router.replace('/login')
       else {
         // 添加歌单api
         await addMusicForm().then(res => {
           // 获取用户收藏
-          this.getCollectForm(this.user.id)
+          this.getCollectForm(this.userInfo.id)
         })
       }
     }
@@ -91,7 +91,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .collect{
   margin-top: 10px;
   .menu-list{

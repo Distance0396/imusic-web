@@ -87,6 +87,7 @@ export default {
     }
   },
   beforeRouteLeave: function (to, from, next) {
+    this.history = getSearchHistory()
     // 查找本地记录是否存在，存在删除
     const index = this.history.findIndex(history => history.id === (Number(to.params.id)))
     const his = this.history[index]
@@ -94,6 +95,7 @@ export default {
       this.history.splice(index, 1)
     }
     let newHistoryItem = null
+    // 确保是从搜索页进入的歌手页或者专辑页
     if (from.path === '/explore/search' && to.name === 'Singer') {
       if (this.result.singerList) {
         newHistoryItem = this.result.singerList.find(singer => singer.id === Number(to.params.id))
@@ -190,18 +192,18 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .search {
   width: 100%;
   height: 100%;
   //margin-top: 60px;
-  padding: 60px 20px 0 20px;
+  padding: 90px 20px 0 20px;
 
   .search-box {
-    left: 0%;
-    top: 10%;
-    display: flex;
-    align-items: center;
+    //left: 0%;
+    ////top: 10%;
+    //display: flex;
+    //align-items: center;
     border-radius: 30px;
     height: 48px;
     width: 320px;

@@ -1,14 +1,14 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '@/views/layout/home.vue'
-import SingerList from '@/views/layout/explore/singerList.vue'
+import Home from '@/views/layout/home/home.vue'
+import SingerList from '@/views/layout/explore/singer.vue'
 import Login from '@/views/login/index.vue'
 import Singer from '@/views/detail/singer.vue'
 import Album from '@/views/detail/album.vue'
-import MusicForm from '@/views/detail/musicForm.vue'
+import SongList from '@/views/detail/songList.vue'
 import Layout from '@/views/layout/index.vue'
 import Search from '@/views/layout/explore/search.vue'
-import PlayList from '@/views/layout/play/playList.vue'
+import PlayList from '@/views/layout/play/index.vue'
 import ExploreLayout from '@/components/layout/ExploreLayout.vue'
 import PlayListLayout from '@/components/layout/PlayListLayout.vue'
 import My from '@/views/my/index.vue'
@@ -78,11 +78,11 @@ const router = new VueRouter({
         {
           path: 'detail/music-form/:id',
           name: 'MusicForm',
-          component: MusicForm
+          component: SongList
         },
         {
           path: 'reply',
-          component: () => import('@/views/layout/reply.vue')
+          component: () => import('@/views/layout/reply/index.vue')
         },
         {
           path: 'my',
@@ -98,7 +98,7 @@ const router = new VueRouter({
     },
     {
       path: '/404',
-      component: () => import('@/views/404'),
+      component: () => import('@/views/404/404.vue'),
       hidden: true
     },
     {

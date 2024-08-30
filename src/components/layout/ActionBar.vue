@@ -60,7 +60,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .action {
   padding: 20px 0 20px 20px;
   display: flex;

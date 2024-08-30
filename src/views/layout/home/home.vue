@@ -100,7 +100,7 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .home {
   margin-left: 20px;
   margin-top: 20px;

@@ -9,7 +9,7 @@ export default {
   },
   data () {
     return {
-      audio: require('@/style/audio/宇多田ヒカル椎名林檎-二時間だけのバカンス (只有两小时的假期).mp3'),
+      audio: require('../assets/audio/宇多田ヒカル椎名林檎-二時間だけのバカンス (只有两小时的假期).mp3'),
       // 控制播放
       isPlay: false,
       // 控制播放器显示
@@ -223,7 +223,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .player{
   position: fixed;
   //top: 0;

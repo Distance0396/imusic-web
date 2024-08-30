@@ -78,7 +78,7 @@ export default {
 }
 </script>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .header{
   padding-left: 20px;
   z-index: 1000;

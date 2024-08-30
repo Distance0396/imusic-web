@@ -54,7 +54,7 @@ export default {
         }
       })
 
-      console.log(lrcArray)
+      // console.log(lrcArray)
       // 存储数据，将处理后的歌词数组赋值给 currentLyric 属性
       this.currentLyric = lrcArray
     },
@@ -96,7 +96,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .homepage{
   display: flex;
   align-items: center;

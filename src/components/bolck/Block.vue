@@ -13,7 +13,7 @@ export default {
       }, 1000)
     },
     delHistory () {
-      console.log('123')
+      // console.log('123')
       this.$emit('del-history')
     }
   },
@@ -65,7 +65,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .block{
   padding: 9px 9px;
   margin: 1px;

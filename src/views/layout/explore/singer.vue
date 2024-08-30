@@ -57,7 +57,7 @@ export default {
           break
         case 'chinese':
           this.singer = this.res.filter(s => s.language === '华语')
-          console.log(this.singer)
+          // console.log(this.singer)
           break
         case 'japanese':
           this.singer = this.res.filter(s => s.language === '日语')
@@ -74,12 +74,12 @@ export default {
     }
   },
   created () {
-    console.log(this.$router.history.current.fullPath)
+    // console.log(this.$router.history.current.fullPath)
     this.getSingerList()
   }
 }
 </script>
-<style scoped lang="less">
+<style scoped lang="scss">
 .explore{
   padding: 60px 20px 0 20px;
   //max-width: 1200px;

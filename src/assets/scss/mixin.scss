@@ -1,0 +1,10 @@
+@mixin updateInput () {
+  .el-input{
+    ::v-deep .el-input__inner{
+      border: 1px solid #FFFFFF;
+      &:hover{
+        border: 1px solid #c0c4cc;
+      }
+    }
+  }
+}

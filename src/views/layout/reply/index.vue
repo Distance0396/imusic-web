@@ -29,7 +29,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .body{
   padding: 60px 20px 0px 20px;
   //padding-top: 60px;

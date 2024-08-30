@@ -52,7 +52,7 @@ export default {
     </el-skeleton>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .block{
   padding: 9px 9px;
   margin: 1px;

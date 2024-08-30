@@ -81,7 +81,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .scroll-bar{
   min-height: 270px;
   .scroll-bar-navbar {

@@ -11,48 +11,48 @@ export default {
     return {
       hidden: true,
       active: true,
-      img: [
-        {
-          id: 1,
-          img: require('@/assets/image/ab67616d00001e02a86c7932c5072d2221907af1.jpg')
-        },
-        {
-          id: 12,
-          img: require('@/assets/image/ab67616d00001e021615d51c49ccf1f6afd81b6c.jpg')
-        },
-        {
-          id: 10,
-          img: require('@/assets/image/ab67616d00001e027b2dd792101b91625f3f1b97.jpg')
-        },
-        {
-          id: 5,
-          img: require('@/assets/image/ab67616d00001e024973a7d9304de53e18583220.jpg')
-        },
-        {
-          id: 6,
-          img: require('@/assets/image/ab67616d00001e02edfdb3d781e102b176000a88.jpg')
-        },
-        {
-          id: 7,
-          img: require('@/assets/image/ab67616d00001e021d210622badaad3d869038ef.jpg')
-        },
-        {
-          id: 13,
-          img: require('@/assets/image/ab67616d00001e02110af1ee291450d9e86a05a4.jpg')
-        },
-        {
-          id: 3,
-          img: require('@/assets/image/ab67616d00001e02e0eeb4148f2c84ba6ccd8b68.jpg')
-        },
-        {
-          id: 4,
-          img: require('@/assets/image/ab67616d00001e02e2e8f804c2cdd5b3815adbf9.jpg')
-        },
-        {
-          id: 16,
-          img: require('@/assets/image/ab67616d00001e02147338ef86c5cccef39f1ca1.jpg')
-        }
-      ],
+      // img: [
+      //   {
+      //     id: 1,
+      //     img: require('@/assets/image/ab67616d00001e02a86c7932c5072d2221907af1.jpg')
+      //   },
+      //   {
+      //     id: 12,
+      //     img: require('@/assets/image/ab67616d00001e021615d51c49ccf1f6afd81b6c.jpg')
+      //   },
+      //   {
+      //     id: 10,
+      //     img: require('@/assets/image/ab67616d00001e027b2dd792101b91625f3f1b97.jpg')
+      //   },
+      //   {
+      //     id: 5,
+      //     img: require('@/assets/image/ab67616d00001e024973a7d9304de53e18583220.jpg')
+      //   },
+      //   {
+      //     id: 6,
+      //     img: require('@/assets/image/ab67616d00001e02edfdb3d781e102b176000a88.jpg')
+      //   },
+      //   {
+      //     id: 7,
+      //     img: require('@/assets/image/ab67616d00001e021d210622badaad3d869038ef.jpg')
+      //   },
+      //   {
+      //     id: 13,
+      //     img: require('@/assets/image/ab67616d00001e02110af1ee291450d9e86a05a4.jpg')
+      //   },
+      //   {
+      //     id: 3,
+      //     img: require('@/assets/image/ab67616d00001e02e0eeb4148f2c84ba6ccd8b68.jpg')
+      //   },
+      //   {
+      //     id: 4,
+      //     img: require('@/assets/image/ab67616d00001e02e2e8f804c2cdd5b3815adbf9.jpg')
+      //   },
+      //   {
+      //     id: 16,
+      //     img: require('@/assets/image/ab67616d00001e02147338ef86c5cccef39f1ca1.jpg')
+      //   }
+      // ],
       register: {
         name: '',
         account: '',
@@ -74,7 +74,7 @@ export default {
       registerRules: {
         name: [
           { required: true, message: '昵称不能为空', trigger: 'blur' },
-          { pattern: /^[a-zA-Z0-9]{3,10}$/, message: '请填写3到10位不包含特殊字符的昵称', trigger: 'change' }
+          { pattern: /^[a-zA-Z0-9]{3,15}$/, message: '请填写3到15位不包含特殊字符的昵称', trigger: 'change' }
         ],
         account: [
           { required: true, message: '账号不能为空', trigger: 'blur' },
@@ -88,7 +88,6 @@ export default {
     }
   },
   methods: {
-    // ...mapMutations('random', ['setSinger', 'setAlbum']),
     // 登陆
     async login () {
       // const { executeRecaptcha, recaptchaLoaded } = useReCaptcha()
@@ -120,7 +119,7 @@ export default {
         })
       }
       register(this.register).then(res => {
-        console.log(res)
+        // console.log(res)
         this.hidden = !this.hidden
       })
     }
@@ -130,13 +129,17 @@ export default {
 
 <template>
   <div class="login">
-    <div class="background">
-      <img class="img" v-for="item in img" :key="item.id" :src="item.img" alt="">
-    </div>
+    <!-- <div class="background"> -->
+      <!-- <img class="img" v-for="item in img" :key="item.id" :src="item.img" alt=""> -->
+    <!-- </div> -->
     <div class="blur">
+      <div class="layer1"></div>
+      <div class="layer2"></div>
+      <div class="layer3"></div>
+      <div class="layer4"></div>
+      <div class="layer5"></div>
     </div>
     <div class="register">
-<!--      <form action="#" class="form-left public">-->
       <transition name="el-fade-in">
         <el-form v-show="hidden" :model="landing" :rules="rules" ref="ruleForm" label-width="100px" class="form-left public">
           <span>欢迎登陆</span>
@@ -172,10 +175,18 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
+// html{
+//   height: 100%;
+//   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+//   overflow: hidden;
+// }
 body {
-  margin: 0;
+  height: 100%;
+  background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   overflow: hidden;
+  // margin: 0;
+  // overflow: hidden;
 }
 .login{
   height: 100vh;
@@ -184,12 +195,11 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  //background-color: #C0C4CC;
   .background{
     position: absolute;
     display: grid;
-    grid-template-columns: repeat(10, 1fr);
-    grid-template-rows: 100vh;
+    // grid-template-columns: repeat(10, 1fr);
+    // grid-template-rows: 100vh;
     width: 100%;
     height: 100%;
     overflow: hidden;
@@ -200,14 +210,63 @@ body {
     }
   }
   .blur{
+    height: 100%;
+    background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
+    overflow: hidden;
     width: 100%;
     height: 100%;
     position: absolute;
-    background-image: radial-gradient(transparent 2px, #ffffff 4px);
-    background-size: 4px 4px;
-    backdrop-filter: blur(8px);
-    filter: blur(1px);
+    // background-image: radial-gradient(transparent 2px, #ffffff 4px);
+    // background-size: 4px 4px;
+    // backdrop-filter: blur(8px);
+    // filter: blur(1px);
     z-index: 2;
+
+    @function getShadows($n){
+      $shadows: '#{random(100)}vw #{random(100)}vh #e1e1e1';
+      @for $i from 2 through $n{
+        $shadows: '#{$shadows}, #{random(100)}vw #{random(100)}vh #e1e1e1';
+      }
+      @return unquote($shadows)
+    }
+
+    $duration: 800s;
+    $count: 1000;
+    @for $i from 1 through 5{
+      $duration: floor(calc($duration / 2));
+      $count: floor(calc($count / 2));
+      .layer#{$i}{
+        $size: #{$i}px;
+        position: fixed;
+        // color: #e1e1e1;
+        width: $size;
+        height: $size;
+        border-radius: 50%;
+        left: 0;
+        top: 0;
+        box-shadow: getShadows($count);
+        animation: moveUp $duration linear infinite;
+        &::after{
+          content: '';
+          position: fixed;
+          // top: 100vh;
+          left: -100vw;
+          top: 0;
+          // left: 0;
+          width: $size;
+          height: $size;
+          border-radius: inherit;
+          box-shadow: inherit;
+        }
+      }
+    }
+
+    @keyframes moveUp {
+      100% {
+        transform: translateX(100vw);
+        // transform: translateY(-100vh);
+      }
+    }
   }
   .register{
     margin: auto;
@@ -229,8 +288,10 @@ body {
       font-size: 20px;
       margin-bottom: 20px;
     }
-    .el-form-item /deep/ .el-form-item__content{
+    .el-form-item {
+      ::v-deep .el-form-item__content{
         margin-left: 0 !important;
+    }
     }
     .form-left{
       padding: 45px 120px;

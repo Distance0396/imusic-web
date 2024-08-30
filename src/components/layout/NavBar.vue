@@ -44,10 +44,12 @@ export default {
           {{userInfo.name?.slice(0,1).toUpperCase()}}
         </el-avatar>
       </div>
-      <div class="text" @click="$router.push('/my')">
-        {{userInfo?.name}}
-      </div>
-      <svg @click="logout" class="close" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M783.92332 467.520619l-108.097715-108.137692 60.295258-60.295259L917.05661 480.023415l30.142632 30.152626-211.078379 211.078378-60.295258-60.345229 108.097715-108.097715H331.024277V467.530613h452.899043z m-197.046463 556.479361H160.712409a85.470752 85.470752 0 0 1-60.485149-25.02558 85.458759 85.458759 0 0 1-25.055563-60.475155V86.080401C75.171697 38.877599 113.429653 0.579666 160.712409 0.579666h426.164448v85.280862h-383.479043a42.600454 42.600454 0 0 0-42.945255 42.305624v768.247342c0 22.896807 19.188943 42.29563 42.945255 42.29563h383.479043v85.290856z m0 0"></path></svg>
+      <el-tooltip class="item" effect="dark" :content="userInfo.name" placement="bottom">
+        <div class="text" @click="$router.push('/my')">
+          {{userInfo.name}}
+        </div>
+      </el-tooltip>
+      <svg style="margin-left:auto; min-width: 20px; min-height: 20px;" @click="logout" class="close" viewBox="0 0 1024 1024" version="1.1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M783.92332 467.520619l-108.097715-108.137692 60.295258-60.295259L917.05661 480.023415l30.142632 30.152626-211.078379 211.078378-60.295258-60.345229 108.097715-108.097715H331.024277V467.530613h452.899043z m-197.046463 556.479361H160.712409a85.470752 85.470752 0 0 1-60.485149-25.02558 85.458759 85.458759 0 0 1-25.055563-60.475155V86.080401C75.171697 38.877599 113.429653 0.579666 160.712409 0.579666h426.164448v85.280862h-383.479043a42.600454 42.600454 0 0 0-42.945255 42.305624v768.247342c0 22.896807 19.188943 42.29563 42.945255 42.29563h383.479043v85.290856z m0 0"></path></svg>
     </a>
 
     <div class="scrollbar">
@@ -80,7 +82,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .navbar{
   overflow: hidden;
 }
@@ -101,15 +103,20 @@ export default {
   }
 
   .text{
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    //display: flex;
+    //align-items: center;
+    //justify-content: space-between;
     flex: 1 1 0;
     margin-left: 1rem;
     cursor: pointer;
     font-size: 18px;
     fill: #000000;
     transition: color .5s;
+    //max-width: 130px;
+    width: 100px;
+    overflow: hidden;
+    text-overflow:ellipsis;
+    white-space: nowrap;
     svg{
       display: inline-block;
       margin-left: auto;

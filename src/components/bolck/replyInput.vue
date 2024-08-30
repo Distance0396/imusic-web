@@ -60,7 +60,7 @@ export default {
   </div>
 </template>
 
-<style scoped lang="less">
+<style scoped lang="scss">
 .reply-tool{
   padding: 20px 0;
   margin-bottom: 10px;
