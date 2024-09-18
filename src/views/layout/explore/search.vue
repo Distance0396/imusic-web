@@ -1,12 +1,12 @@
 <script>
 import { getSearchHistory, setSearchHistory } from '@/utils/storage'
-import { search } from '@/api/common'
 import { mapGetters } from 'vuex'
 import Block from '@/components/bolck/Block.vue'
 import MusicItem from '@/components/bolck/MusicItem.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import History from '@/components/history.vue'
 import { useContextMenu } from '@/utils/useContextMenu'
+import { search } from '@/api/user'
 
 export default {
   name: 'searchObject',
@@ -195,31 +195,21 @@ export default {
 <style scoped lang="scss">
 .search {
   width: 100%;
-  height: 100%;
-  //margin-top: 60px;
+  height: calc(100vh - 60px);
   padding: 90px 20px 0 20px;
-
   .search-box {
-    //left: 0%;
-    ////top: 10%;
-    //display: flex;
-    //align-items: center;
     border-radius: 30px;
     height: 48px;
     width: 320px;
     background-color: #C0C4CC;
-
     &:hover {
       border: 2px solid #909399;
     }
-
     .input-inner {
       width: 100%;
       height: 100%;
-      //padding: 5px;
       border-radius: 3px;
       margin-left: 15px;
-
       .input {
         color: #303133;
         width: 100%;
@@ -234,7 +224,6 @@ export default {
         outline: none;
       }
     }
-
     .search-icon {
       padding: 5px;
       border-radius: 3px;
@@ -242,14 +231,12 @@ export default {
       display: flex;
       align-items: center;
       cursor: pointer;
-
       &:hover {
         transition: all .2s ease;
         background-color: #DCDFE6;
       }
     }
   }
-
   .result {
     margin-top: 20px;
     display: flex;

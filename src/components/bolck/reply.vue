@@ -63,13 +63,13 @@ export default {
 <template>
   <div class="reply">
     <div class="main" style="display: flex;">
-      <div class="avatar">
+      <div class="avatar" @click="$router.push(`/user/${item.userId}`)">
         <el-avatar>
           {{this.item?.userName.slice(0,1).toUpperCase()}}
         </el-avatar>
       </div>
       <div class="context">
-        <div class="user-name">{{item.userName}}</div>
+        <div class="user-name" @click="$router.push(`/user/${item.userId}`)">{{item.userName}}</div>
         <div class="root-reply">
           <div class="reply-content">{{item.content}}</div>
           <div class="reply-info" style="fill: #9499A0; color: #9499A0; display: flex; align-items: center;">

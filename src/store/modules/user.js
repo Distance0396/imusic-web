@@ -16,6 +16,16 @@ export default {
         email: '',
         sex: '',
         createTime: ''
+      },
+      settings: {
+        id: null,
+        userId: null,
+        language: '',
+        privacyLevel: '',
+        quality: '',
+        emailInform: '',
+        createTime: '',
+        updateTime: ''
       }
     }
   },
@@ -31,6 +41,9 @@ export default {
     },
     setProperty (state, { property, value }) {
       Vue.set(state.userInfo, property, value)
+    },
+    setSettings (state, obj) {
+      state.settings = obj
     }
   },
   actions: {

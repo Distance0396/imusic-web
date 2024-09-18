@@ -9,12 +9,12 @@
       </div>
       <div class="bullshit">
         <div class="bullshit__oops">OOPS!</div>
-        <div class="bullshit__info">All rights reserved
-          <a style="color:#20a0ff" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>
+        <div class="bullshit__info">
+<!--          <a style="color:#20a0ff" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>-->
         </div>
         <div class="bullshit__headline">{{ message }}</div>
         <div class="bullshit__info">Please check that the URL you entered is correct, or click the button below to return to the homepage.</div>
-        <a href="/public" class="bullshit__return-home">返回主页</a>
+        <a class="bullshit__return-home" @click="goto">返回主页</a>
       </div>
     </div>
   </div>
@@ -28,6 +28,11 @@ export default {
   computed: {
     message () {
       return '页面不存在, 请重新访问'
+    }
+  },
+  methods: {
+    goto () {
+      this.$store.state.user.token ? this.$router.replace('/home') : this.$router.replace('/login')
     }
   }
 }

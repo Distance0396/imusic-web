@@ -29,8 +29,8 @@ export default {
   },
   actions: {
     // 查询用户搜藏
-    async getCollectForm ({ commit }, userId) {
-      await getUserCollect(userId).then(res => {
+    async getCollectForm ({ commit }) {
+      await getUserCollect().then(res => {
         if (res.data == null) return
         const { data } = res
         commit('setCollectForm', data)

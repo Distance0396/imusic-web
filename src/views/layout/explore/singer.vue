@@ -2,12 +2,14 @@
   <div class="explore" v-title data-title="歌手列表">
     <span class="tab">
       <span class="title">歌手</span>
-      <el-button-group>
-        <el-button size="small" data-language="all" plain type="primary" @click="language">全部</el-button>
-        <el-button size="small" data-language="chinese" plain type="primary" @click="language">华语</el-button>
-        <el-button size="small" data-language="japanese" plain type="primary" @click="language">日语</el-button>
-        <el-button size="small" data-language="english" plain type="primary" @click="language">英语</el-button>
-      </el-button-group>
+      <el-select v-model="value" placeholder="全部" @change="language">
+          <el-option
+            v-for="item in options"
+            :key="item.value"
+            :label="item.label"
+            :value="item.value">
+          </el-option>
+        </el-select>
     </span>
     <div class="item-list">
       <Block v-for="item in singer" :key="item.id" >
@@ -46,18 +48,31 @@ export default {
   data () {
     return {
       singer: [],
-      res: []
+      res: [],
+      value: '',
+      options: [{
+        value: 'all',
+        label: '全部'
+      }, {
+        value: 'chinese',
+        label: '华语'
+      }, {
+        value: 'japanese',
+        label: '日语'
+      }, {
+        value: 'english',
+        label: '英语'
+      }]
     }
   },
   methods: {
     language (e) {
-      switch (e.currentTarget.dataset.language) {
+      switch (e) {
         case 'all':
           this.singer = this.res
           break
         case 'chinese':
           this.singer = this.res.filter(s => s.language === '华语')
-          // console.log(this.singer)
           break
         case 'japanese':
           this.singer = this.res.filter(s => s.language === '日语')
@@ -93,7 +108,7 @@ export default {
       width: 23vh;
       margin-right: 20px;
     }
-    .el-button-group{
+    .el-select{
       display: flex;
       flex-wrap: nowrap;
       margin-left: auto;

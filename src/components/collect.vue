@@ -1,6 +1,6 @@
 <script>
 import MusicFormItem from '@/components/MusicFormItem.vue'
-import { mapState, mapActions } from 'vuex'
+import { mapState, mapActions, mapGetters } from 'vuex'
 import { addMusicForm } from '@/api/muiscForm'
 
 export default {
@@ -19,14 +19,14 @@ export default {
         // 添加歌单api
         await addMusicForm().then(res => {
           // 获取用户收藏
-          this.getCollectForm(this.userInfo.id)
+          this.getCollectForm()
         })
       }
     }
   },
   computed: {
+    ...mapGetters('common', ['isBerth']),
     ...mapState('collect', ['collect', 'currentCol', 'currentSong']),
-    ...mapState('user', ['userInfo']),
     // 是否登录
     isLogin () {
       return this.$store.getters.token
@@ -44,10 +44,10 @@ export default {
   <div class="collect">
     <div class="menu-list">
       <span class="icon">
-        <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="15" height="15"><path d="M488.680727 124.090182a104.727273 104.727273 0 0 1 93.184 0l279.272728 139.636363A104.727273 104.727273 0 0 1 919.272727 357.469091v332.706909a104.727273 104.727273 0 0 1-58.042182 93.696l-279.272727 139.636364a104.727273 104.727273 0 0 1-93.696 0L208.896 783.825455a104.634182 104.634182 0 0 1-57.623273-94.021819V357.469091a104.727273 104.727273 0 0 1 58.042182-93.696L342.574545 197.073455a35.048727 35.048727 0 0 1 5.352728-2.653091z m-267.636363 246.597818v319.348364a34.909091 34.909091 0 0 0 19.130181 31.371636l260.189091 130.094545v-341.178181l-279.272727-139.636364z m628.363636 0l-279.272727 139.636364v340.992l259.956363-129.954909a34.909091 34.909091 0 0 0 19.037091-26.298182l0.325818-4.887273V370.688zM360.913455 266.053818L264.378182 314.274909 535.272727 449.629091l96.442182-48.221091-270.894545-135.447273z m189.905454-79.453091a34.909091 34.909091 0 0 0-30.952727 0l-80.849455 40.401455 270.848 135.400727 96.302546-48.128z"></path></svg>
+        <svg :width="this.isBerth ? 22 : 15" :height="isBerth ? 22 : 15" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M488.680727 124.090182a104.727273 104.727273 0 0 1 93.184 0l279.272728 139.636363A104.727273 104.727273 0 0 1 919.272727 357.469091v332.706909a104.727273 104.727273 0 0 1-58.042182 93.696l-279.272727 139.636364a104.727273 104.727273 0 0 1-93.696 0L208.896 783.825455a104.634182 104.634182 0 0 1-57.623273-94.021819V357.469091a104.727273 104.727273 0 0 1 58.042182-93.696L342.574545 197.073455a35.048727 35.048727 0 0 1 5.352728-2.653091z m-267.636363 246.597818v319.348364a34.909091 34.909091 0 0 0 19.130181 31.371636l260.189091 130.094545v-341.178181l-279.272727-139.636364z m628.363636 0l-279.272727 139.636364v340.992l259.956363-129.954909a34.909091 34.909091 0 0 0 19.037091-26.298182l0.325818-4.887273V370.688zM360.913455 266.053818L264.378182 314.274909 535.272727 449.629091l96.442182-48.221091-270.894545-135.447273z m189.905454-79.453091a34.909091 34.909091 0 0 0-30.952727 0l-80.849455 40.401455 270.848 135.400727 96.302546-48.128z"></path></svg>
       </span>
-      <div class="title">音乐库
-        <button class="item-add" @click="addMusicForm">
+      <div class="title" v-if="!this.isBerth">音乐库
+        <button class="item-add" @click="addMusicForm" >
           <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M992 480H544V32c0-17.7-14.3-32-32-32s-32 14.3-32 32v448H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h448v448c0 17.7 14.3 32 32 32s32-14.3 32-32V544h448c17.7 0 32-14.3 32-32s-14.3-32-32-32z" fill="" ></path></svg>
         </button>
       </div>
@@ -93,19 +93,18 @@ export default {
 
 <style scoped lang="scss">
 .collect{
-  margin-top: 10px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
   .menu-list{
     border-radius: 4px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
+    padding: 0 11px;
     margin-bottom: 10px;
     fill: #000000;
     .icon{
-      svg{
-        margin-top: 4px;
-        margin-right: 15px;
-      }
+      margin: 10px;
+      transition: all .1s ease-in-out;
     }
     .title{
       width: 100%;
@@ -121,22 +120,21 @@ export default {
       display: inline-flex;
       align-items: center;
       justify-content: center;
+      margin-left: 20px;
       &:hover{
         background-color: #e9e9e9;
       }
     }
   }
   .collect-content::-webkit-scrollbar{
-     //width: 10px;
      display:none
    }
   .collect-content{
 
-    height: 300px;
+    height: 500px;
     overflow-y: scroll;
     .active{
       background-color: #E4E7ED;
-      //transition: background-color .2s linear;
     }
     .collect-tips{
       border-radius: 5px;

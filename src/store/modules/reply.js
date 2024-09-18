@@ -32,7 +32,7 @@ export default {
     setActiveReplyId ({ commit }, id) {
       commit('setActiveReplyId', id)
     },
-    clear ({ commit, rootState }, reply) {
+    clear ({ commit, rootState }) {
       commit('setReply', rootState)
     },
     updateReplyProperty ({ commit, rootState }, reply) {

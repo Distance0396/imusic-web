@@ -5,7 +5,7 @@ import musicForm from '@/store/modules/musicform'
 import playlist from '@/store/modules/playlist'
 import collect from '@/store/modules/collect'
 import reply from '@/store/modules/reply'
-import random from './modules/random'
+import common from './modules/common'
 
 Vue.use(Vuex)
 export default new Vuex.Store({
@@ -18,6 +18,6 @@ export default new Vuex.Store({
   mutations: {},
   actions: {},
   modules: {
-    user, musicForm, playlist, collect, reply, random
+    user, musicForm, playlist, collect, reply, common
   }
 })

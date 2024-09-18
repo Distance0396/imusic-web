@@ -20,6 +20,7 @@ VueRouter.prototype.push = function push (to) {
 }
 
 const router = new VueRouter({
+  mode: 'history',
   routes: [
     {
       path: '/',
@@ -35,16 +36,16 @@ const router = new VueRouter({
           path: 'explore',
           name: 'Explore',
           component: ExploreLayout,
-          redirect: '/explore/search',
+          redirect: 'explore/search',
           children: [
             {
-              path: '/explore/search',
+              path: 'search',
               name: 'exploreSearch',
               component: Search,
               meta: { title: '搜索' }
             },
             {
-              path: '/explore/singer',
+              path: 'singer',
               name: 'exploreSinger',
               component: SingerList,
               meta: { title: '歌手' }
@@ -52,13 +53,13 @@ const router = new VueRouter({
           ]
         },
         {
-          path: '/play',
+          path: 'play',
           name: 'Play',
-          redirect: '/play/playlist',
+          redirect: 'play/playlist',
           component: PlayListLayout,
           children: [
             {
-              path: '/play/playlist',
+              path: 'playlist',
               name: 'PlayList',
               component: PlayList,
               meta: { title: '播放队列' }
@@ -85,7 +86,7 @@ const router = new VueRouter({
           component: () => import('@/views/layout/reply/index.vue')
         },
         {
-          path: 'my',
+          path: 'user/:id',
           name: 'MyHome',
           component: My
         }
@@ -107,6 +108,24 @@ const router = new VueRouter({
       hidden: true
     }
   ]
+})
+
+// 全局前置守卫
+router.beforeEach((to, from, next) => {
+  const token = localStorage.getItem('imusic_token')
+  // 如果目标路由需要认证且用户未登录
+  if (!token) {
+    if (to.path !== '/login') {
+      // 重定向到登录页面
+      next({ path: '/login', query: { backUrl: to.fullPath === '/404' ? '/home' : to.fullPath } })
+    } else {
+      // 如果目标路由是登录页，直接允许访问
+      next()
+    }
+  } else {
+    // 允许访问
+    next()
+  }
 })
 
 export default router

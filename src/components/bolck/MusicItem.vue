@@ -63,7 +63,7 @@ export default {
   // },
   data () {
     return {
-      audio: require('../../assets/audio/宇多田ヒカル椎名林檎-二時間だけのバカンス (只有两小时的假期).mp3'),
+      // audio: require('../../assets/audio/宇多田ヒカル椎名林檎-二時間だけのバカンス (只有两小时的假期).mp3'),
       duration: ''
     }
   }
@@ -107,7 +107,7 @@ export default {
     <div class="music-more public">
       <div class="duration">
         {{duration}}
-        <audio ref="audio" :src="audio" @canplay="ready"></audio>
+        <audio ref="audio" :src="music.audio" @canplay="ready"></audio>
       </div>
       <div class="more" @click="clickMore">
         <span>

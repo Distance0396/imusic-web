@@ -4,7 +4,7 @@ import BlockItem from '@/components/bolck/BlockItem.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import Header from '@/components/layout/Header.vue'
 import { findSingerById } from '@/api/singer'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 import { useContextMenu } from '@/utils/useContextMenu'
 import ActionBar from '@/components/layout/ActionBar.vue'
 import { collect, unfollow } from '@/api/collect'
@@ -16,7 +16,6 @@ export default {
   name: 'singerDetail',
   computed: {
     ...mapGetters('collect', ['getUserMusicForm', 'isSingerCollect']),
-    ...mapState('user', ['user']),
     //  获取路由 歌手id
     getSingerId () {
       return +this.$route.params.id
@@ -77,11 +76,13 @@ export default {
     ...mapActions('collect', ['getCollectForm']),
     ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
     handleScroll () {
+      console.log('handleScroll')
       // 获取滚动距离
       const scrollTop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop
       const maxScroll = 100 // 设置滚动的最大位置
       const opacity = Math.min(1, scrollTop / maxScroll) // 计算透明度，最大不超过1
       // 设置颜色和透明度
+      console.log(opacity)
       this.$refs.background.style.backgroundColor = this.singer.color
       this.$refs.background.style.opacity = opacity.toString()
     },
@@ -106,7 +107,7 @@ export default {
     async attention () {
       if (this.isLogin) {
         await collect(this.getSingerId, null, null).then(res => {
-          this.getCollectForm(this.user.id)
+          this.getCollectForm()
           this.isSingerCollect(this.getSingerId)
         })
       }
@@ -115,7 +116,7 @@ export default {
     async unfollow () {
       if (this.isLogin) {
         await unfollow(this.getSingerId, null, null).then(res => {
-          this.getCollectForm(this.user.id)
+          this.getCollectForm()
           this.isSingerCollect(this.getSingerId)
         })
       }
@@ -166,11 +167,14 @@ export default {
     <div class="main">
       <div class="background">
         <div class="public">
-          <img class="background-img" crossorigin="anonymous" alt="" ref="image" :src="this.singer.image  + '?time=' + new Date().valueOf()"/>
+          <el-image
+            ref="image"
+            class="background-img"
+            :src="singer.image"
+            alt="" />
+<!--          <img class="background-img" crossorigin="anonymous" alt="" ref="image" :src="this.singer.image  + '?time=' + new Date().valueOf()"/>-->
         </div>
-        <div class="background-black public" ref="background" ></div>
-      </div>
-      <div class="content">
+        <div class="background-black public" ref="background"></div>
         <div class="cont-info">
           <span></span>
           <span>
@@ -178,6 +182,15 @@ export default {
           </span>
           <span class="count">每月有 1,697,783 名听众</span>
         </div>
+      </div>
+      <div class="content">
+<!--        <div class="cont-info">-->
+<!--          <span></span>-->
+<!--          <span>-->
+<!--            <i class="name">{{singer.name}}</i>-->
+<!--          </span>-->
+<!--          <span class="count">每月有 1,697,783 名听众</span>-->
+<!--        </div>-->
         <div class="cont-center">
           <div class="background-active"
             :style="{'background-color': singer.color}">
@@ -215,7 +228,7 @@ export default {
                     <span v-else @click="controlMusicNumber = 5">收起</span>
                   </div>
                 </div>
-                <div v-if="albumList.length > 0" class="cont-album">
+                <div v-if="albumList.length > 0" class="cont-album" style="padding-bottom: 10px">
                   <h2 class="title">唱片专辑</h2>
                   <div class="target">
                     <BlockItem v-for="item in albumList" :key="item.id" :album="item"></BlockItem>
@@ -251,68 +264,88 @@ export default {
 }
 .detail {
   position: relative;
-  width: 100%;
-  //max-width: 1500px;
-  overflow: hidden;
-  margin-bottom: 40px;
   .main {
     .background {
       height: 40vh;
-      max-height: 700px;
+      position: relative;
       width: 100%;
       .public {
         height: 40vh;
         width: 100%;
         position: absolute;
         top: 0;
-        .background-img {
+        ::v-deep .background-img {
           height: 100%;
           width: 100%;
-          z-index: -5;
-          object-position: 50% 15%;
-          object-fit: cover;
+          img {
+            height: 100%;
+            width: 100%;
+            z-index: -5;
+            object-position: 50% 15%;
+            object-fit: cover;
+          }
         }
       }
       .background-black {
         //background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
       }
-    }
-
-    .content {
-      height: 100%;
       .cont-info {
         position: absolute;
+        bottom: 1rem;
         display: flex;
-        top: 2rem;
         flex-direction: column;
         color: #ffffff;
-        overflow: hidden;
-        margin: 5vh 20px 0;
-        z-index: 0;
+        margin: 0 20px;
+        z-index: 100;
         span {
-          font-size: 2vh;
+          font-size: 2rem;
           .name {
             color: #ffffff;
             z-index: -4;
-            font-size: 7rem;
+            font-size: 10vh;
           }
         }
         .count{
+          margin-left: 0.8vw;
           font-size: 1rem;
         }
       }
+    }
+
+    .content {
+      min-height: calc(100vh - 40vh - 40px);
+      //height: calc(100vh - 40vh);
+      //.cont-info {
+      //  position: absolute;
+      //  display: flex;
+      //  top: 2rem;
+      //  flex-direction: column;
+      //  color: #ffffff;
+      //  overflow: hidden;
+      //  margin: 5vh 20px 0;
+      //  z-index: 0;
+      //  span {
+      //    font-size: 2vh;
+      //    .name {
+      //      color: #ffffff;
+      //      z-index: -4;
+      //      font-size: 7rem;
+      //    }
+      //  }
+      //  .count{
+      //    font-size: 1rem;
+      //  }
+      //}
 
       .cont-center {
         width: 100%;
         position: relative;
         top: 0;
-
         .background-active {
           //background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
           //background-image: linear-gradient(rgba(198, 197, 197, 0.4) 40%, #ffffff 100%);
           background-image: linear-gradient(rgba(198, 197, 197, 0) 40%, #ffffff 100%);
           height: 40vh;
-          max-height: 400px;
           position: absolute;
           top: 0;
           width: 100%;
@@ -424,8 +457,7 @@ export default {
 .component-fade-enter-active, .component-fade-leave-active {
   transition: opacity .2s ease;
 }
-.component-fade-enter, .component-fade-leave-to
-  /* .component-fade-leave-active for below version 2.1.8 */ {
+.component-fade-enter, .component-fade-leave-to{
   opacity: 0;
 }
 </style>

@@ -6,7 +6,7 @@ import router from '@/router'
 
 const request = axios.create({
   baseURL: '/api',
-  timeout: 5000
+  timeout: 10000
 })
 
 /**
@@ -37,7 +37,8 @@ request.interceptors.response.use((response) => {
     return Promise.reject(data.msg)
   }
 }, (error) => {
-  router.push('/404').then(r => removeToken())
+  router.push('/404')
+  // .then(r => removeToken())
   return Promise.reject(error)
 })
 

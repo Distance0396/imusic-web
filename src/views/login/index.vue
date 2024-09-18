@@ -1,9 +1,6 @@
 <script>
-import { login, register } from '@/api/user'
+import { getCodeApi, login, register } from '@/api/user'
 import { Notification } from 'element-ui'
-// import { reCAPTCHA } from '@/api/common'
-// import { useReCaptcha } from 'vue-recaptcha-v3'
-// import { mapMutations } from 'vuex'
 
 export default {
   name: 'LoginIndex',
@@ -11,80 +8,54 @@ export default {
     return {
       hidden: true,
       active: true,
-      // img: [
-      //   {
-      //     id: 1,
-      //     img: require('@/assets/image/ab67616d00001e02a86c7932c5072d2221907af1.jpg')
-      //   },
-      //   {
-      //     id: 12,
-      //     img: require('@/assets/image/ab67616d00001e021615d51c49ccf1f6afd81b6c.jpg')
-      //   },
-      //   {
-      //     id: 10,
-      //     img: require('@/assets/image/ab67616d00001e027b2dd792101b91625f3f1b97.jpg')
-      //   },
-      //   {
-      //     id: 5,
-      //     img: require('@/assets/image/ab67616d00001e024973a7d9304de53e18583220.jpg')
-      //   },
-      //   {
-      //     id: 6,
-      //     img: require('@/assets/image/ab67616d00001e02edfdb3d781e102b176000a88.jpg')
-      //   },
-      //   {
-      //     id: 7,
-      //     img: require('@/assets/image/ab67616d00001e021d210622badaad3d869038ef.jpg')
-      //   },
-      //   {
-      //     id: 13,
-      //     img: require('@/assets/image/ab67616d00001e02110af1ee291450d9e86a05a4.jpg')
-      //   },
-      //   {
-      //     id: 3,
-      //     img: require('@/assets/image/ab67616d00001e02e0eeb4148f2c84ba6ccd8b68.jpg')
-      //   },
-      //   {
-      //     id: 4,
-      //     img: require('@/assets/image/ab67616d00001e02e2e8f804c2cdd5b3815adbf9.jpg')
-      //   },
-      //   {
-      //     id: 16,
-      //     img: require('@/assets/image/ab67616d00001e02147338ef86c5cccef39f1ca1.jpg')
-      //   }
-      // ],
+      // 注册
       register: {
         name: '',
         account: '',
         password: ''
       },
+      // 登陆
       landing: {
         account: '',
         password: ''
       },
+      sign: {
+        code: '',
+        type: 'signIn',
+        email: ''
+      },
       rules: {
         account: [
-          { required: true, message: '账号不能为空', trigger: 'blur' },
+          // { required: true, message: '账号不能为空', trigger: 'blur' },
           { pattern: /^[a-zA-Z0-9]{6,13}$/, message: '请填写6-13位账号不包含特殊字符', trigger: 'change' }
         ],
         password: [
-          { required: true, message: '密码不能为空', trigger: 'blur' }
+          // { required: true, message: '密码不能为空', trigger: 'blur' }
         ]
       },
       registerRules: {
         name: [
-          { required: true, message: '昵称不能为空', trigger: 'blur' },
+          // { required: true, message: '昵称不能为空', trigger: 'blur' },
           { pattern: /^[a-zA-Z0-9]{3,15}$/, message: '请填写3到15位不包含特殊字符的昵称', trigger: 'change' }
         ],
         account: [
-          { required: true, message: '账号不能为空', trigger: 'blur' },
+          // { required: true, message: '账号不能为空', trigger: 'blur' },
           { pattern: /^[a-zA-Z0-9]{6,13}$/, message: '请填写6-13位账号不包含特殊字符', trigger: 'change' }
         ],
         password: [
-          { required: true, message: '密码不能为空', trigger: 'blur' },
+          // { required: true, message: '密码不能为空', trigger: 'blur' },
           { pattern: /[^[^\u4e00-\u9fa5]{6,20}$/, message: '请填写6到20位不包含中文字符', trigger: 'change' }
         ]
-      }
+      },
+      activeIndex: 'signIn',
+      // 显示邮件操作
+      showEmail: false,
+      // 是否发送code码
+      isSendCode: false,
+      // 等待总时
+      totalTime: 60,
+      timer: null,
+      codeName: '发送验证码'
     }
   },
   methods: {
@@ -106,6 +77,7 @@ export default {
           // 判断有无回调地址
           const url = this.$route.query.backUrl || '/'
           this.$router.replace(url)
+          // }
         })
       })
     },
@@ -119,9 +91,63 @@ export default {
         })
       }
       register(this.register).then(res => {
-        // console.log(res)
         this.hidden = !this.hidden
       })
+    },
+    handleSelect (e) {
+      this.activeIndex = e
+      e === 'signIn' ? this.showEmail = false : this.showEmail = true
+      this.sign.type = e
+    },
+    async getCode () {
+      // 判断是否填写邮箱
+      if (this.sign.email === '') {
+        return Notification.error({
+          title: '错误',
+          message: '数据不能为空',
+          showClose: false
+        })
+      }
+      // 人机验证
+      const recaptcha = await this.$recaptcha('email')
+      const res = getCodeApi(this.sign, recaptcha)
+      const token = res.data.token
+      // 消息添加成功 显示提示 禁用组件
+      this.isSendCode = true
+      if (!this.sign.code) {
+        this.$message({
+          message: '邮件发送成功',
+          type: 'success'
+        })
+      }
+      // 响应数据携带数据将token存到vuex
+      if (token !== null) {
+        this.$store.commit('user/setToken', res.data)
+        const url = this.$route.query.backUrl || '/'
+        this.$router.replace(url)
+      }
+      this.timer = setInterval(() => {
+        this.totalTime--
+        this.codeName = this.totalTime + 's后重新发送'
+        if (this.totalTime < 0) {
+          clearInterval(this.timer)
+          this.codeName = '重新发送验证码'
+          this.totalTime = 60
+          this.isSendCode = false
+        }
+      }, 1000)
+      // })
+    }
+  },
+  watch: {
+    hidden: {
+      handler (newVal) {
+        this.sign = {
+          code: '',
+          type: this.activeIndex,
+          email: ''
+        }
+      }
     }
   }
 }
@@ -140,33 +166,69 @@ export default {
       <div class="layer5"></div>
     </div>
     <div class="register">
-      <transition name="el-fade-in">
-        <el-form v-show="hidden" :model="landing" :rules="rules" ref="ruleForm" label-width="100px" class="form-left public">
-          <span>欢迎登陆</span>
-          <el-form-item prop="account">
-            <el-input class="input-item" placeholder="请输入账号" v-model.trim="landing.account" prefix-icon="el-icon-user-solid" clearable></el-input>
-          </el-form-item>
-          <el-form-item prop="password">
-            <el-input class="input-item" placeholder="请输入密码" v-model.trim="landing.password" prefix-icon="el-icon-message-solid" show-password></el-input>
-          </el-form-item>
-          <el-button class="input-item" type="primary" @click="login">登陆</el-button>
-        </el-form>
-      </transition>
-      <transition name="el-fade-in">
-        <el-form v-show="!hidden" :model="register" :rules="registerRules" class="form-right public">
-          <span>注册</span>
-          <el-form-item prop="name">
-            <el-input class="input-item" placeholder="昵称" v-model.trim="register.name" clearable></el-input>
-          </el-form-item>
-          <el-form-item prop="account">
-            <el-input class="input-item" placeholder="账号" v-model.trim="register.account" clearable></el-input>
-          </el-form-item>
-          <el-form-item prop="password">
-            <el-input class="input-item" placeholder="密码" v-model.trim="register.password" show-password></el-input>
-          </el-form-item>
-          <el-button type="primary" @click="RegAccount">注册账号</el-button>
-        </el-form>
-      </transition>
+      <el-menu :default-active="activeIndex" style="width: 100%;" class="el-menu-demo" mode="horizontal" @select="handleSelect">
+        <el-menu-item index="signIn">{{hidden ? "账号登陆" : "注册账号"}}</el-menu-item>
+        <el-menu-item index="signUp">{{hidden ? "邮箱登陆" : "邮箱注册"}}</el-menu-item>
+        <div>
+          <el-form size="medium" v-if="hidden && !showEmail" :model="landing" :rules="rules" ref="ruleForm" label-width="100px" class="form-left public">
+            <el-form-item prop="account">
+              <el-input class="input-item" placeholder="请输入账号" v-model.trim="landing.account" prefix-icon="el-icon-user-solid" clearable></el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+              <el-input class="input-item" placeholder="请输入密码" v-model.trim="landing.password" prefix-icon="el-icon-message-solid" show-password></el-input>
+            </el-form-item>
+            <el-button size="medium" class="input-item" type="primary" @click="login">登陆</el-button>
+          </el-form>
+          <el-form size="small" v-if="hidden && showEmail" :model="sign" :rules="{
+            email: [{
+              pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: '请填写正确邮箱', trigger: 'change'
+            }]
+          }" ref="ruleForm" label-width="100px" class="form-left public">
+            <el-form-item prop="email">
+              <el-input :disabled="isSendCode" size="medium" class="input-item" placeholder="请输入邮箱" v-model.trim="sign.email" prefix-icon="el-icon-s-promotion" clearable>
+                <template slot="append">
+                  <el-link :disabled="isSendCode" type="success" @click="getCode">{{codeName}}</el-link>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="code">
+              <el-input size="medium" class="input-item" placeholder="请输入验证码" v-model.trim="sign.code" ></el-input>
+            </el-form-item>
+            <el-button size="medium" class="input-item" type="primary" @click="getCode">登陆</el-button>
+          </el-form>
+        </div>
+        <div>
+          <el-form size="medium" v-if="!hidden && !showEmail" :model="register" :rules="registerRules" class="form-right public">
+            <el-form-item prop="name">
+              <el-input class="input-item" placeholder="昵称" v-model.trim="register.name" clearable></el-input>
+            </el-form-item>
+            <el-form-item prop="account">
+              <el-input class="input-item" placeholder="账号" v-model.trim="register.account" clearable></el-input>
+            </el-form-item>
+            <el-form-item prop="password">
+              <el-input class="input-item" placeholder="密码" v-model.trim="register.password" show-password></el-input>
+            </el-form-item>
+            <el-button size="medium" type="primary" @click="RegAccount">注册账号</el-button>
+          </el-form>
+          <el-form size="medium" v-if="!hidden && showEmail" :model="sign" :rules="{
+            email: [{
+              pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: '请填写正确邮箱', trigger: 'change'
+            }]
+          }" class="form-right public">
+            <el-form-item prop="email">
+              <el-input class="input-item" placeholder="请输入邮箱" v-model.trim="sign.email" prefix-icon="el-icon-s-promotion" clearable>
+                <template slot="append">
+                  <el-button size="medium" class="input-item" type="primary" @click="getCode">获取验证码</el-button>
+                </template>
+              </el-input>
+            </el-form-item>
+            <el-form-item prop="code">
+              <el-input class="input-item" placeholder="请输入验证码" v-model.trim="sign.code"></el-input>
+            </el-form-item>
+            <el-button size="medium" type="primary" @click="getCode">注册账号</el-button>
+          </el-form>
+        </div>
+      </el-menu>
       <div class="click-rolling" >
         <a @click="hidden = !hidden" v-if="hidden">注册账号</a>
         <a @click="hidden = !hidden" v-else>去登陆</a>
@@ -176,17 +238,10 @@ export default {
 </template>
 
 <style scoped lang="scss">
-// html{
-//   height: 100%;
-//   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
-//   overflow: hidden;
-// }
 body {
   height: 100%;
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
   overflow: hidden;
-  // margin: 0;
-  // overflow: hidden;
 }
 .login{
   height: 100vh;
@@ -195,31 +250,12 @@ body {
   flex-wrap: wrap;
   justify-content: center;
   align-items: center;
-  .background{
-    position: absolute;
-    display: grid;
-    // grid-template-columns: repeat(10, 1fr);
-    // grid-template-rows: 100vh;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    .img{
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-  }
   .blur{
     height: 100%;
     background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
     overflow: hidden;
     width: 100%;
-    height: 100%;
     position: absolute;
-    // background-image: radial-gradient(transparent 2px, #ffffff 4px);
-    // background-size: 4px 4px;
-    // backdrop-filter: blur(8px);
-    // filter: blur(1px);
     z-index: 2;
 
     @function getShadows($n){
@@ -264,7 +300,6 @@ body {
     @keyframes moveUp {
       100% {
         transform: translateX(100vw);
-        // transform: translateY(-100vh);
       }
     }
   }
@@ -280,7 +315,7 @@ body {
     overflow: hidden;
     .public{
       width: 600px;
-      height: 300px;
+      height: 210px;
       display: flex;
       flex-direction: column;
     }
@@ -294,16 +329,10 @@ body {
     }
     }
     .form-left{
-      padding: 45px 120px;
-      position: absolute;
-      left: 0px;
-      transition: left .5s;
+      padding: 35px 120px 0 120px;
     }
     .form-right{
-      //position: absolute;
-      //right: -800px;
-      transition: right .5s;
-      padding: 12px 120px;
+      padding: 15px 120px 0 120px;
     }
     .click-rolling{
       position: absolute;

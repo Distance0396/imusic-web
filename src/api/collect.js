@@ -1,8 +1,8 @@
 import request from '@/utils/request'
 
 // 获取用户收藏
-export const getUserCollect = (userId) => {
-  return request.get(`/user/collect/${userId}`)
+export const getUserCollect = () => {
+  return request.get('/collect')
 }
 
 /**
@@ -13,7 +13,7 @@ export const getUserCollect = (userId) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const collect = (singerId, albumId, musicFormId) => {
-  return request.post('/user/collect', {
+  return request.post('/collect', {
     singerId: singerId,
     albumId: albumId,
     musicFormId: musicFormId
@@ -28,7 +28,7 @@ export const collect = (singerId, albumId, musicFormId) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const unfollow = (singerId, albumId, musicFormId) => {
-  return request.post('/user/collect/del', {
+  return request.post('/collect/del', {
     singerId: singerId,
     albumId: albumId,
     musicFormId: musicFormId

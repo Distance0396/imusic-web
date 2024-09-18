@@ -6,7 +6,7 @@ import request from '@/utils/request'
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const getLyric = (id) => {
-  return request.get('/user/music/lyric', {
+  return request.get('/music/lyric', {
     params: {
       id: id
     }

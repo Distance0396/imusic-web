@@ -5,7 +5,10 @@ export default {
   state () {
     return {
       singer: null,
-      album: null
+      album: null,
+      browse: null,
+      asideWidth: 250
+      // isBerth: false
     }
   },
   mutations: {
@@ -14,6 +17,12 @@ export default {
     },
     setAlbum (state, obj) {
       state.album = obj
+    },
+    setBrowse (state, obj) {
+      state.browse = obj
+    },
+    setAsideWidth (state, obj) {
+      state.asideWidth = obj
     }
   },
   actions: {
@@ -23,12 +32,16 @@ export default {
 
         commit('collect/setCollectForm', { ...res.data.collect }, { root: true })
         commit('user/setUserInfo', { ...res.data.user }, { root: true })
+        commit('user/setSettings', { ...res.data.user.settings }, { root: true })
         commit('setSinger', res.data.singer)
         commit('setAlbum', res.data.album)
+        commit('setBrowse', res.data.browse)
       })
     }
   },
   getters: {
-
+    isBerth (state) {
+      return state.asideWidth <= 120
+    }
   }
 }

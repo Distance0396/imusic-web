@@ -1,36 +1,72 @@
 <template>
-  <el-container class="subject">
-    <el-container id="container">
-      <el-aside width="250px" id="el-aside" style="height: 100vh">
-        <Navbar></Navbar>
-      </el-aside>
-      <el-main>
-        <transition name="component-fade" mode="out-in">
-          <router-view :key="key"></router-view>
-        </transition>
-      </el-main>
-    </el-container>
+  <el-container class="container">
+    <el-aside class="el-aside" ref="aside" :style="{ width: this.asideWidth + 'px' }" style="height: 100vh;">
+      <Navbar></Navbar>
+      <div class="resizer" @mousedown="startResize"></div>
+    </el-aside>
+    <el-main class="el-main" :style="{ marginLeft: this.asideWidth + 'px' }">
+      <transition name="component-fade" mode="out-in">
+        <router-view :key="key"></router-view>
+      </transition>
+      <el-footer style="height: 35px;">
+        <Footer></Footer>
+      </el-footer>
+    </el-main>
   </el-container>
 </template>
 
 <script>
-// import Header from '@/components/layout/Header.vue'
 import Navbar from '@/components/layout/NavBar.vue'
-import { mapActions } from 'vuex'
+import { mapActions, mapMutations, mapState } from 'vuex'
+import Footer from '@/components/layout/footer.vue'
 export default {
   name: 'LayoutIndex',
   components: {
-    // Header,
-    Navbar
-    // Player
+    Navbar, Footer
   },
   computed: {
+    ...mapState('common', ['asideWidth']),
     key () {
-      return this.$route.name !== undefined ? this.$route.name + +new Date() : this.$route + +new Date()
+      return this.$route.fullPath || 'default-route'
+    }
+  },
+  data () {
+    return {
+      isResizing: false
     }
   },
   methods: {
-    ...mapActions('random', ['query'])
+    ...mapActions('common', ['query']),
+    ...mapMutations('common', ['setAsideWidth']),
+    startResize (event) {
+      // 开始拖动时设置标记
+      this.isResizing = true
+      document.addEventListener('mousemove', this.resize)
+      document.addEventListener('mouseup', this.stopResize)
+    },
+    resize (event) {
+      if (this.isResizing) {
+        // 获取鼠标位置并更新 aside 的宽度
+        const newWidth = event.clientX
+        // 当宽度小于等于200px时，直接设置为100px
+        if (newWidth <= 160) {
+          this.setAsideWidth(80)
+          document.querySelector('.el-main').style.setProperty('--width', '80px')
+        } else if (newWidth > 300) {
+          this.setAsideWidth(400)
+          document.querySelector('.el-main').style.setProperty('--width', '400px')
+        } else {
+          this.setAsideWidth(newWidth)
+          document.querySelector('.el-main').style.setProperty('--width', `${newWidth}px`)
+        }
+      }
+    },
+    stopResize () {
+      // 停止拖动，移除事件监听
+      this.isResizing = false
+      document.removeEventListener('mousemove', this.resize)
+      document.removeEventListener('mouseup', this.stopResize)
+    }
   },
   created () {
     this.query()
@@ -46,25 +82,35 @@ export default {
 .component-fade-enter, .component-fade-leave-to{
   opacity: 0;
 }
-.subject{
-  height: 100%;
-  #el-aside{
+.container{
+  width: 100%;
+  height: 100vh;
+  .el-aside{
+    position: fixed;
     display: flex;
     flex-direction: column;
     background-color: rgb(242,243,245);
-    border-right: #d0d0d0 2px solid;
-    position: fixed;
+    //transition: all .1s ease-in-out;
+    .resizer {
+      width: 5px;
+      cursor: grab;
+      position: absolute;
+      right: 0;
+      top: 0;
+      height: 100%;
+      transition: all .1s ease-in-out;
+      &:hover{
+        background-color: #ccc;
+      }
+    }
   }
   .el-main{
-    overflow: hidden;
-    z-index: 1;
-    height: 100%;
+    position: relative;
+    height: 100vh;
+    overflow-x: hidden;
+    width: calc(100vw - var(--width));
     padding: 0 0 0 0;
-    width: 100%;
-    margin-left: 250px;
-    .header{
-      padding-right: 5px;
-    }
+    //transition: all .1s ease-in-out;
   }
 }
 </style>

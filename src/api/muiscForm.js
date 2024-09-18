@@ -6,7 +6,7 @@ import Request from '@/utils/request'
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const getMusicFormById = (id) => {
-  return Request.get(`/user/music-form/${id}`)
+  return Request.get(`/music-form/${id}`)
 }
 
 /**
@@ -14,7 +14,7 @@ export const getMusicFormById = (id) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const addMusicForm = () => {
-  return Request.post('/user/music-form/save')
+  return Request.post('/music-form/save')
 }
 
 /**
@@ -24,7 +24,7 @@ export const addMusicForm = () => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const appendMusicForm = (musicFormId, musicId) => {
-  return Request.post('/user/music-form', {
+  return Request.post('/music-form', {
     musicFormId: musicFormId,
     musicId: musicId
   })
@@ -37,7 +37,7 @@ export const appendMusicForm = (musicFormId, musicId) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const deleteMusic = (musicFormId, musicId) => {
-  return Request.delete('/user/music-form', {
+  return Request.delete('/music-form', {
     data: {
       musicFormId: musicFormId,
       musicId: musicId
@@ -46,7 +46,7 @@ export const deleteMusic = (musicFormId, musicId) => {
 }
 
 export const updateMusicForm = (musicForm) => {
-  return Request.put('/user/music-form', {
+  return Request.put('/music-form', {
     id: musicForm.id,
     name: musicForm.name,
     image: musicForm.image,

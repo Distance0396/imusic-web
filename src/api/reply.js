@@ -6,7 +6,7 @@ import request from '@/utils/request'
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const getReplyMusicById = (id) => {
-  return request.get(`/user/reply/music/${id}`)
+  return request.get(`/reply/music/${id}`)
 }
 
 /**
@@ -15,7 +15,7 @@ export const getReplyMusicById = (id) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const getReplyAlbumById = (id) => {
-  return request.get(`/user/reply/album/${id}`)
+  return request.get(`/reply/album/${id}`)
 }
 
 /**
@@ -24,7 +24,7 @@ export const getReplyAlbumById = (id) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const findPlaylistReplyById = (id) => {
-  return request.get(`/user/reply/playlist/${id}`)
+  return request.get(`/reply/playlist/${id}`)
 }
 
 /**
@@ -33,7 +33,7 @@ export const findPlaylistReplyById = (id) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const findSingerReplyById = (id) => {
-  return request.get(`/user/reply/singer/${id}`)
+  return request.get(`/reply/singer/${id}`)
 }
 
 /**
@@ -46,7 +46,7 @@ export const findSingerReplyById = (id) => {
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const insert = (reply, musicId, albumId, singerId, playListId) => {
-  return request.post('/user/reply', {
+  return request.post('/reply', {
     ...reply,
     musicId: musicId,
     singerId: singerId,

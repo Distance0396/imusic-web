@@ -1,6 +1,5 @@
 <template>
   <div class="home" v-title data-title="主页">
-<!--    <Header></Header>-->
     <scrollBar>
       <template #title>
         <i>专辑</i>
@@ -58,23 +57,22 @@
         </Block>
       </template>
     </scrollBar>
-    <Footer></Footer>
   </div>
 </template>
 
 <script>
 import Block from '@/components/bolck/Block.vue'
 import scrollBar from '@/components/layout/ScrollBar.vue'
-import Footer from '@/components/layout/footer.vue'
+// import Footer from '@/components/layout/footer.vue'
 // import { getRandomSinger } from '@/api/singer'
 // import { getRandomAlbum } from '@/api/album'
-import { mapActions, mapState } from 'vuex'
+import { mapState } from 'vuex'
 
 export default {
   name: 'homeIndex',
   components: {
     Block,
-    Footer,
+    // Footer,
     scrollBar
   },
   data () {
@@ -84,15 +82,14 @@ export default {
     }
   },
   methods: {
-    ...mapActions('random', ['query'])
   },
   created () {
     // if (!this.isLogin) {
-    this.query()
+    // this.query()
     // }
   },
   computed: {
-    ...mapState('random', ['singer', 'album']),
+    ...mapState('common', ['singer', 'album']),
     isLogin () {
       return this.$store.getters.token
     }
@@ -104,7 +101,7 @@ export default {
 .home {
   margin-left: 20px;
   margin-top: 20px;
-  height: 100%;
+  //height: 100%;
   > div{
     margin-top: 60px;
   }

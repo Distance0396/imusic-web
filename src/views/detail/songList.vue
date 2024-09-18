@@ -78,7 +78,7 @@ export default {
     async attention () {
       if (this.isLogin) {
         await collect(null, null, this.getMusicFormId).then(res => {
-          this.getCollectForm(this.user.id)
+          this.getCollectForm()
           this.isMusicFormCollect(this.getMusicFormId)
         })
       }
@@ -87,7 +87,7 @@ export default {
     async unfollow () {
       if (this.isLogin) {
         await unfollow(null, null, this.getMusicFormId).then(res => {
-          this.getCollectForm(this.user.id)
+          this.getCollectForm()
           this.isMusicFormCollect(this.getMusicFormId)
         })
       }
@@ -202,36 +202,38 @@ export default {
         <span>{{musicForm.architect}} · {{musicList.length}}首歌曲</span>
       </div>
     </div>
-    <div class="gradual-block" :style="{'background-color': musicForm.color }"></div>
-    <div class="album-plank">
-      <ActionBar
-        @submitPlay="submitPlay"
-        @attention="attention"
-        @unfollow="unfollow"
-        :is-exist="this.isMusicFormCollect(this.getMusicFormId)"
-      >
-        <div @click="dialogVisible = true" v-if="musicForm.architect === this.userInfo.name">
-          <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path>
-          </svg>
-        </div>
-      </ActionBar>
-    </div>
-    <div class="musicList">
-      <ContextMenu
-        :menu="menu"
-        :position="position"
-        @select-menu="pickMenu"
-      >
-        <MusicItem
-          v-for="(item, index) in musicList"
-          @select-music="pickMusicItem = $event"
-          @position="position = $event"
-          @play="playLocation"
-          :key="item.id"
-          :index="index+1"
-          :music="item"
-        />
-      </ContextMenu>
+    <div class="context">
+      <div class="gradual-block" :style="{'background-color': musicForm.color }"></div>
+      <div class="album-plank">
+        <ActionBar
+          @submitPlay="submitPlay"
+          @attention="attention"
+          @unfollow="unfollow"
+          :is-exist="this.isMusicFormCollect(this.getMusicFormId)"
+        >
+          <div @click="dialogVisible = true" v-if="musicForm.architect === this.userInfo.name">
+            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path>
+            </svg>
+          </div>
+        </ActionBar>
+      </div>
+      <div class="musicList">
+        <ContextMenu
+          :menu="menu"
+          :position="position"
+          @select-menu="pickMenu"
+        >
+          <MusicItem
+            v-for="(item, index) in musicList"
+            @select-music="pickMusicItem = $event"
+            @position="position = $event"
+            @play="playLocation"
+            :key="item.id"
+            :index="index+1"
+            :music="item"
+          />
+        </ContextMenu>
+      </div>
     </div>
     <el-dialog
       title="编辑详情"
@@ -297,15 +299,13 @@ export default {
 </template>
 
 <style scoped lang="scss">
+$min-height: 400px;
+$action-height: 5rem;
 .music-form{
   position: relative;
   z-index: 1;
-  overflow: hidden;
-  height: 100%;
   .head{
-    height: 53vh;
-    min-height: 330px;
-    max-height: 400px;
+    min-height: $min-height;
     width: 100%;
     padding: 0 0 20px 20px;
     display: flex;
@@ -329,8 +329,8 @@ export default {
       z-index: 10;
       width: 14rem;
       height: 14rem;
-      //min-width: 180px;
-      //min-height: 180px;
+      min-width: 180px;
+      min-height: 180px;
       border-radius: 5px;
       cursor: pointer;
       box-shadow: 0 4px 60px rgba(0, 0, 0, .5);
@@ -349,40 +349,42 @@ export default {
       }
     }
   }
-  .gradual-block{
-    //position: relative;
-    z-index: 1;
-    float: left;
+  .context{
     width: 100%;
-    height: 530px;
-    background-image: linear-gradient(rgba(0, 0, 0, .4) 0, #ffffff 100%);
-  }
-  .album-plank{
-    display: flex;
-    align-items: center;
-    width: 100%;
-    z-index: 10;
-    height: 5rem;
-    position: absolute;
-  }
-  .musicList{
-    width: 100%;
-    height: 30rem;
-    padding: 0 20px 0 20px;
-    position: absolute;
-    margin-top: 5rem;
-    //bottom: 5rem;
-    z-index: 10;
+    min-height: calc(100vh - $min-height - 40px);
+    .gradual-block{
+      height: calc(100vh - $min-height - 40px);
+      position: relative;
+      z-index: 1;
+      float: left;
+      width: 100%;
+      background-image: linear-gradient(rgba(0, 0, 0, .4) 0, #ffffff 100%);
+    }
+    .album-plank{
+      display: flex;
+      align-items: center;
+      width: 100%;
+      z-index: 10;
+      height: $action-height;
+      position: absolute;
+    }
+    .musicList{
+      min-height: calc(100vh - $min-height - $action-height - 35px);
+      width: 100%;
+      padding: 0 20px 0 20px;
+      position: absolute;
+      margin-top: 5rem;
+      z-index: 10;
+    }
   }
 }
 .upload{
-  //position: absolute;
   .img{
     border-radius: 5px;
     position: relative;
     width: 100%;
     height: 100%;
-    display: block; /* 确保 img 是块级元素 */
+    display: block;
   }
   .change-icon{
     border-radius: 5px;

@@ -9,7 +9,7 @@ import { useContextMenu } from '@/utils/useContextMenu'
 import { getAlbumById } from '@/api/album'
 import { getReplyAlbumById, insert } from '@/api/reply'
 import { collect, unfollow } from '@/api/collect'
-import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations } from 'vuex'
 
 export default {
   name: 'albumDetail',
@@ -87,7 +87,7 @@ export default {
     async attention () {
       if (this.isLogin) {
         await collect(null, this.getAlbumId, null).then(res => {
-          this.getCollectForm(this.userInfo.id)
+          this.getCollectForm()
           this.isAlbumCollect(this.getAlbumId)
         })
       }
@@ -96,7 +96,7 @@ export default {
     async unfollow () {
       if (this.isLogin) {
         await unfollow(null, this.getAlbumId, null).then(res => {
-          this.getCollectForm(this.user.id)
+          this.getCollectForm()
           this.isAlbumCollect(this.getAlbumId)
         })
       }
@@ -144,7 +144,6 @@ export default {
       return +this.$route.params.id
     },
     // 用户信息
-    ...mapState('user', ['userInfo']),
     // isAlbumCollect判断专辑是否收藏 getUserMusicForm返回收藏夹歌单
     ...mapGetters('collect', ['isAlbumCollect', 'getUserMusicForm']),
     isLogin () {
@@ -234,14 +233,18 @@ export default {
 </template>
 
 <style scoped lang="scss">
+$min-height: 400px;
+$action-height: 5rem;
+
 .album {
   position: relative;
   z-index: 1;
 
   .head {
-    height: 53vh;
-    min-height: 330px;
-    max-height: 400px;
+    //height: 53vh;
+    //min-height: 330px;
+    //max-height: 400px;
+    min-height: $min-height;
     width: 100%;
     padding: 0 0 20px 20px;
     display: flex;
@@ -294,11 +297,9 @@ export default {
 
   .gradual-block {
     z-index: -10;
-    //float: left;
     position: relative;
     width: 100%;
-    height: 100%;
-    //height: 530px;
+    min-height: calc(100vh - $min-height - 40px);
     overflow: hidden;
 
     .background {
@@ -390,8 +391,7 @@ export default {
   transition: opacity .2s ease;
 }
 
-.component-fade-enter, .component-fade-leave-to
-  /* .component-fade-leave-active for below version 2.1.8 */ {
+.component-fade-enter, .component-fade-leave-to{
   opacity: 0;
 }
 </style>
