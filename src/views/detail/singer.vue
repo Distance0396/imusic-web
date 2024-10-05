@@ -4,17 +4,18 @@ import BlockItem from '@/components/bolck/BlockItem.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import Header from '@/components/layout/Header.vue'
 import { findSingerById } from '@/api/singer'
-import { mapActions, mapGetters, mapMutations } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { useContextMenu } from '@/utils/useContextMenu'
 import ActionBar from '@/components/layout/ActionBar.vue'
 import { collect, unfollow } from '@/api/collect'
 import ReplyInput from '@/components/bolck/replyInput.vue'
 import Reply from '@/components/bolck/reply.vue'
-import { findSingerReplyById, insert } from '@/api/reply'
+import { moreComment, saveComment, select } from '@/api/comment'
 
 export default {
   name: 'singerDetail',
   computed: {
+    ...mapState('comment', ['content', 'replyUserId', 'rootId', 'parent']),
     ...mapGetters('collect', ['getUserMusicForm', 'isSingerCollect']),
     //  获取路由 歌手id
     getSingerId () {
@@ -25,13 +26,7 @@ export default {
     }
   },
   components: {
-    Reply,
-    ReplyInput,
-    ActionBar,
-    MusicItem,
-    BlockItem,
-    ContextMenu,
-    Header
+    Reply, ReplyInput, ActionBar, MusicItem, BlockItem, ContextMenu, Header
   },
   beforeDestroy () {
     // 关闭滚动事件
@@ -40,45 +35,58 @@ export default {
   created () {
     // 注册滚动事件
     window.addEventListener('scroll', this.handleScroll)
-    //
     this.getSinger()
     this.getReply()
   },
   mounted () {
-    setTimeout(() => {
-      this.loading = false
-    }, 1000)
     // 将会话中的歌单数据赋值给菜单
     this.menu[0].menu = this.getUserMusicForm
   },
   methods: {
-    // 点击固定输入框时，清除选中输入框
-    toClear () {
-      this.clear()
-      this.setActiveReplyId(null)
-    },
-    // 获取评论
-    async getReply () {
-      await findSingerReplyById(this.getSingerId).then(res => {
-        if (res.data == null) return
-        this.total = res.data.total
-        this.reply = res.data.page
-      })
-    },
-    async submit () {
-      await insert(this.$store.state.reply.reply, null, null, this.getSingerId, null)
-        .then(res => {
-          this.getReply()
-          this.clear()
-        })
-    },
-    ...mapActions('reply', ['clear', 'setActiveReplyId']),
     ...mapActions('collect', ['getCollectForm']),
     ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
+    ...mapMutations('comment', ['setContent']),
+    ...mapActions('comment', ['clear']),
+    // 获取评论
+    async getReply () {
+      const { data } = await select(this.comment)
+      this.reply = data.comment
+      this.total = data.count
+    },
+    async submit (data) {
+      this.content = data
+      await saveComment({
+        ...this.comment,
+        replyUserId: this.replyUserId,
+        root: this.rootId,
+        parent: this.parent
+      }, this.content)
+      await this.clear()
+      this.setContent('')
+      this.comment = {
+        objId: +this.$route.params.id,
+        objType: 1,
+        userId: this.$store.state.user.userInfo.id,
+        root: 0,
+        parent: 0
+      }
+      await this.getReply()
+    },
+    async more ({ pagination, objId, objType, rootId }) {
+      const { data } = await moreComment({
+        ...pagination,
+        objId: objId,
+        objType: objType,
+        rootId: rootId
+      })
+      const find = this.reply.find(item => item.id === rootId)
+      if (find) {
+        find.children = data.page
+      }
+    },
     handleScroll () {
-      console.log('handleScroll')
       // 获取滚动距离
-      const scrollTop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop
+      const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop
       const maxScroll = 100 // 设置滚动的最大位置
       const opacity = Math.min(1, scrollTop / maxScroll) // 计算透明度，最大不超过1
       // 设置颜色和透明度
@@ -88,12 +96,12 @@ export default {
     },
     // 根据id查询歌手
     async getSinger () {
-      await findSingerById(this.getSingerId).then(res => {
-        if (res.data == null) return
-        this.singer = res.data
-        this.musicList = res.data.musicList
-        this.albumList = res.data.albumList
-      })
+      const { data } = await findSingerById(this.getSingerId)
+      if (data == null) return
+      this.singer = data
+      this.musicList = data.musicList
+      this.albumList = data.albumList
+      this.loading = false
     },
     // 右键选中的选项
     pickMenu (e) {
@@ -106,19 +114,17 @@ export default {
     // 关注
     async attention () {
       if (this.isLogin) {
-        await collect(this.getSingerId, null, null).then(res => {
-          this.getCollectForm()
-          this.isSingerCollect(this.getSingerId)
-        })
+        await collect(this.getSingerId, null, null)
+        await this.getCollectForm()
+        this.isSingerCollect(this.getSingerId)
       }
     },
     // 取消关注
     async unfollow () {
       if (this.isLogin) {
-        await unfollow(this.getSingerId, null, null).then(res => {
-          this.getCollectForm()
-          this.isSingerCollect(this.getSingerId)
-        })
+        await unfollow(this.getSingerId, null, null)
+        await this.getCollectForm()
+        this.isSingerCollect(this.getSingerId)
       }
     }
   },
@@ -127,7 +133,7 @@ export default {
       // 评论条数
       total: '',
       // 评论
-      reply: '',
+      reply: {},
       menu: [
         {
           id: 1,
@@ -153,7 +159,15 @@ export default {
       pickMusicItem: {},
       // MusicItem组件点击省略号时间
       position: {},
-      isReply: true
+      isReply: true,
+      comment: {
+        objId: +this.$route.params.id,
+        objType: 1,
+        userId: this.$store.state.user.userInfo.id,
+        root: 0,
+        parent: 0,
+        content: ''
+      }
     }
   }
 }
@@ -184,13 +198,6 @@ export default {
         </div>
       </div>
       <div class="content">
-<!--        <div class="cont-info">-->
-<!--          <span></span>-->
-<!--          <span>-->
-<!--            <i class="name">{{singer.name}}</i>-->
-<!--          </span>-->
-<!--          <span class="count">每月有 1,697,783 名听众</span>-->
-<!--        </div>-->
         <div class="cont-center">
           <div class="background-active"
             :style="{'background-color': singer.color}">
@@ -201,56 +208,61 @@ export default {
               @attention="attention"
               @unfollow="unfollow"
               :is-exist="this.isSingerCollect(this.getSingerId)"
-              :isReply.sync="isReply"
-            />
-            <transition name="component-fade" mode="out-in">
-              <div v-if="isReply" style="min-height: 300px; display: flex; flex-wrap: wrap; flex-direction: column; margin: 0 20px 0 20px;">
-                <div v-if="musicList.length > 0" class="cont-hot-music">
-                  <h2 class="title">热门</h2>
-                  <div class="target">
-                    <ContextMenu
-                      :menu="menu"
-                      :position="position"
-                      @select-menu="pickMenu"
-                    >
-                      <MusicItem
-                        v-for="(item,index) in musicList.slice(0, this.controlMusicNumber)"
-                        @select-music="pickMusicItem = $event"
-                        @position="position = $event"
-                        :key="item.id"
-                        :music="item"
-                        :index="index+1"
-                      />
-                    </ContextMenu>
-                  </div>
-                  <div class="more" >
-                    <span v-if="controlMusicNumber === 5" @click="controlMusicNumber = 10">查看更多</span>
-                    <span v-else @click="controlMusicNumber = 5">收起</span>
-                  </div>
+            >
+              <span @click="isReply = !isReply" style="fill: #aaaaaa; min-width: 40px; min-height: 40px;">
+                <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M853.333333 768c35.413333 0 64-20.650667 64-55.978667V170.581333A63.978667 63.978667 0 0 0 853.333333 106.666667H170.666667C135.253333 106.666667 106.666667 135.253333 106.666667 170.581333v541.44C106.666667 747.285333 135.338667 768 170.666667 768h201.173333l110.016 117.44a42.752 42.752 0 0 0 60.586667 0.042667L651.904 768H853.333333z m-219.029333-42.666667h-6.250667l-115.797333 129.962667c-0.106667 0.106667-116.010667-129.962667-116.010667-129.962667H170.666667c-11.776 0-21.333333-1.621333-21.333334-13.312V170.581333A21.205333 21.205333 0 0 1 170.666667 149.333333h682.666666c11.776 0 21.333333 9.536 21.333334 21.248v541.44c0 11.754667-9.472 13.312-21.333334 13.312H634.304zM341.333333 490.666667a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z"></path></svg>
+              </span>
+            </ActionBar>
+            <div v-if="isReply" style="min-height: 300px; display: flex; flex-wrap: wrap; flex-direction: column; margin: 0 20px 0 20px;">
+              <div v-if="musicList.length > 0" class="cont-hot-music">
+                <h2 class="title">热门</h2>
+                <div class="target">
+                  <ContextMenu
+                    :menu="menu"
+                    :position="position"
+                    @select-menu="pickMenu"
+                  >
+                    <MusicItem
+                      v-for="(item,index) in musicList.slice(0, this.controlMusicNumber)"
+                      @select-music="pickMusicItem = $event"
+                      @position="position = $event"
+                      :key="item.id"
+                      :music="item"
+                      :index="index+1"
+                    />
+                  </ContextMenu>
                 </div>
-                <div v-if="albumList.length > 0" class="cont-album" style="padding-bottom: 10px">
-                  <h2 class="title">唱片专辑</h2>
-                  <div class="target">
-                    <BlockItem v-for="item in albumList" :key="item.id" :album="item"></BlockItem>
-                  </div>
-                </div>
-                <div class="cont-introduce">
+                <div class="more" >
+                  <span v-if="controlMusicNumber === 5" @click="controlMusicNumber = 10">查看更多</span>
+                  <span v-else @click="controlMusicNumber = 5">收起</span>
                 </div>
               </div>
-            </transition>
-            <transition name="component-fade" mode="out-in">
-              <div style="min-height: 300px;" v-if="!isReply" class="replyView">
-                <ul class="nav-bar">
-                  <li class="nav-title">
-                    <span class="title-text">评论</span>
-                    <span class="total-reply">{{total}}</span>
-                  </li>
-                  <li></li>
-                </ul>
-                <ReplyInput @sub="submit" @focus="toClear"></ReplyInput>
-                <Reply v-for="item in reply" :key="item.replyId" :item="item" @sub="submit"></Reply>
+              <div v-if="albumList.length > 0" class="cont-album" style="padding-bottom: 10px">
+                <h2 class="title">唱片专辑</h2>
+                <div class="target">
+                  <BlockItem v-for="item in albumList" :key="item.id" :album="item"></BlockItem>
+                </div>
               </div>
-            </transition>
+              <div class="cont-introduce">
+              </div>
+            </div>
+            <div style="min-height: 300px;" v-if="!isReply" class="replyView">
+              <ul class="nav-bar">
+                <li class="nav-title">
+                  <span class="title-text">评论</span>
+                  <span class="total-reply">{{total}}</span>
+                </li>
+                <li></li>
+              </ul>
+              <ReplyInput @sub="submit" @focus="clear"></ReplyInput>
+              <Reply
+                v-for="item in reply"
+                :key=" 'singer' + item.id"
+                :item="item"
+                @more="more"
+                @submit="submit"
+              />
+            </div>
           </div>
         </div>
       </div>
@@ -265,8 +277,9 @@ export default {
 .detail {
   position: relative;
   .main {
+    overflow: hidden;
     .background {
-      height: 40vh;
+      min-height: 40vh;
       position: relative;
       width: 100%;
       .public {
@@ -301,8 +314,7 @@ export default {
           font-size: 2rem;
           .name {
             color: #ffffff;
-            z-index: -4;
-            font-size: 10vh;
+            font-size: 10rem;
           }
         }
         .count{
@@ -314,29 +326,6 @@ export default {
 
     .content {
       min-height: calc(100vh - 40vh - 40px);
-      //height: calc(100vh - 40vh);
-      //.cont-info {
-      //  position: absolute;
-      //  display: flex;
-      //  top: 2rem;
-      //  flex-direction: column;
-      //  color: #ffffff;
-      //  overflow: hidden;
-      //  margin: 5vh 20px 0;
-      //  z-index: 0;
-      //  span {
-      //    font-size: 2vh;
-      //    .name {
-      //      color: #ffffff;
-      //      z-index: -4;
-      //      font-size: 7rem;
-      //    }
-      //  }
-      //  .count{
-      //    font-size: 1rem;
-      //  }
-      //}
-
       .cont-center {
         width: 100%;
         position: relative;
@@ -345,13 +334,14 @@ export default {
           //background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
           //background-image: linear-gradient(rgba(198, 197, 197, 0.4) 40%, #ffffff 100%);
           background-image: linear-gradient(rgba(198, 197, 197, 0) 40%, #ffffff 100%);
-          height: 40vh;
+          min-height: 50vh;
           position: absolute;
           top: 0;
           width: 100%;
           z-index: 2;
         }
         .cont-works{
+          min-height: 40vh;
           position: relative;
           top: 1vh;
           z-index: 100;

@@ -32,8 +32,8 @@ export default {
   mutations: {
     // 修改用户信息
     setToken (state, obj) {
-      state.token = obj
       setToken(obj)
+      // state.token = obj
     },
     // 修改用户信息
     setUserInfo (state, obj) {
@@ -48,10 +48,9 @@ export default {
   },
   actions: {
     // 获取用户信息
-    async getUser (context) {
-      await getUser().then(res => {
-        context.commit('setUserInfo', res.data)
-      })
+    async getUser ({ context }, payload) {
+      const { data } = await getUser(payload)
+      context.commit('setUserInfo', data)
     },
     // 退出登录
     logout (context) {

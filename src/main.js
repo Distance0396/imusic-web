@@ -6,6 +6,7 @@ import '@/assets/scss/index.scss'
 import ElementUI from 'element-ui'
 import { VueReCaptcha } from 'vue-recaptcha-v3'
 import 'element-ui/lib/theme-chalk/index.css'
+import './assets/iconfont/iconfont.css'
 
 Vue.config.productionTip = false
 

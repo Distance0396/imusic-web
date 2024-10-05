@@ -29,15 +29,14 @@ export default {
   watch: {
     color: {
       handler (newVal, oldVal) {
-        window.removeEventListener('scroll', this.handleScroll)
-        window.addEventListener('scroll', this.handleScroll)
+        this.$refs.header.removeEventListener('scroll', this.handleScroll)
+        this.$refs.header.addEventListener('scroll', this.handleScroll)
       }
     }
   },
   data () {
     return {
-      scrollTop: ''
-      // rout: null
+      scrollTop: 0
     }
   },
   computed: {
@@ -49,13 +48,13 @@ export default {
   },
   methods: {
     getExploreRoute () {
-      // console.log(this.$router.options.routes)
       // 获取路由配置中的 explore 路由信息
       const exploreRoute = this.$router.options.routes[0].children[1].children
       return exploreRoute || null
     },
     // 页面滚动顶栏变色
     handleScroll () {
+      // console.log('scrollTop')
       // 计算滚动条位置
       const scrollTop = window.scrollX || document.documentElement.scrollTop || document.body.scrollTop
       this.scrollTop = scrollTop

@@ -23,6 +23,7 @@ export default {
     setCurrentSong (state, song) {
       state.currentSong = song
     },
+    // 修改当前播放的音乐所在
     setCurrentCol (state, obj) {
       state.currentCol = obj
     }

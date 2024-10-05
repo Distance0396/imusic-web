@@ -8,7 +8,7 @@
       <transition name="component-fade" mode="out-in">
         <router-view :key="key"></router-view>
       </transition>
-      <el-footer style="height: 35px;">
+      <el-footer style="height: ;">
         <Footer></Footer>
       </el-footer>
     </el-main>
@@ -17,18 +17,14 @@
 
 <script>
 import Navbar from '@/components/layout/NavBar.vue'
-import { mapActions, mapMutations, mapState } from 'vuex'
 import Footer from '@/components/layout/footer.vue'
+import { mapActions, mapMutations, mapState } from 'vuex'
 export default {
   name: 'LayoutIndex',
-  components: {
-    Navbar, Footer
-  },
+  components: { Navbar, Footer },
   computed: {
     ...mapState('common', ['asideWidth']),
-    key () {
-      return this.$route.fullPath || 'default-route'
-    }
+    key () { return this.$route.fullPath || 'default-route' }
   },
   data () {
     return {
@@ -68,9 +64,7 @@ export default {
       document.removeEventListener('mouseup', this.stopResize)
     }
   },
-  created () {
-    this.query()
-  }
+  created () { this.query() }
 }
 </script>
 
@@ -83,8 +77,8 @@ export default {
   opacity: 0;
 }
 .container{
-  width: 100%;
-  height: 100vh;
+  //width: 100%;
+  //height: 100vh;
   .el-aside{
     position: fixed;
     display: flex;
@@ -106,11 +100,9 @@ export default {
   }
   .el-main{
     position: relative;
-    height: 100vh;
-    overflow-x: hidden;
+    //height: 100%;
     width: calc(100vw - var(--width));
     padding: 0 0 0 0;
-    //transition: all .1s ease-in-out;
   }
 }
 </style>

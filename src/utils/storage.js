@@ -14,7 +14,7 @@ export const getToken = () => {
   return res
     ? JSON.parse(res)
     : {
-        token: ''
+        token: null
       }
 }
 

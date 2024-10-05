@@ -8,26 +8,38 @@ export default {
       isSubmit: false
     }
   },
+  beforeDestroy () {
+    this.clear()
+  },
   methods: {
-    ...mapActions('reply', ['updateReplyProperty', 'clear']),
+    ...mapActions('comment', ['updateCommentProperty', 'clear']),
     sub () {
-      this.$emit('sub')
+      this.$emit('sub', this.content)
       this.isSubmit = false
     },
-    input () {
+    focus () {
       this.$emit('focus')
       this.isSubmit = true
+    },
+    blur () {
+      setTimeout(() => {
+        this.isSubmit = false
+      }, 200)
     }
   },
   computed: {
-    ...mapGetters('reply', ['getReplyProperty']),
     ...mapState('user', ['userInfo']),
+    ...mapState('comment', ['content']),
+    ...mapGetters('comment', ['getCommentProperty']),
     content: {
       get () {
-        return this.getReplyProperty('content')
+        return this.getCommentProperty('content')
       },
       set (value) {
-        this.updateReplyProperty({ property: 'content', value })
+        this.updateCommentProperty({
+          property: 'content',
+          value
+        })
       }
     }
   }
@@ -37,23 +49,22 @@ export default {
 <template>
   <div class="reply-tool">
     <div class="avatar" style="margin-right: 30px">
-      <el-avatar>
-        {{userInfo.name.slice(0,1).toUpperCase()}}
-      </el-avatar>
+      <el-avatar :src="this.$store.state.user.userInfo.avatar"/>
     </div>
     <div class="input" style="min-width: 500px; white-space: nowrap;">
       <el-input
         type="textarea"
         resize='none'
         :autosize="{ minRows: 2}"
-        placeholder="万水千山总是情，评论两句行不行"
+        :placeholder="this.$store.state.comment.actionUserName ? '回复 @' + this.$store.state.comment.actionUserName : '万水千山总是情，评论两句行不行'"
         v-model="content"
         maxlength="1000"
         show-word-limit
-        @focus="input"
+        @focus="focus"
+        @blur="blur"
       >
       </el-input>
-      <div class="btn-box" :class="{ hide: !isSubmit}">
+      <div class="btn-box" :class="{ hide: !this.isSubmit}">
         <el-button class="btn" type="primary" @click="sub">提交</el-button>
       </div>
     </div>

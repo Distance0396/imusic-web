@@ -1,6 +1,7 @@
 <script>
 import { getCodeApi, login, register } from '@/api/user'
 import { Notification } from 'element-ui'
+import { setToken } from '@/utils/storage'
 
 export default {
   name: 'LoginIndex',
@@ -73,11 +74,11 @@ export default {
       await this.$recaptcha('login').then((token) => {
         login(this.landing, token).then(res => {
           // 将返回结果通过store存入本地
-          this.$store.commit('user/setToken', res.data)
+          // setToken(res.data)
+          this.$store.commit('user/setToken', res.data.token)
           // 判断有无回调地址
           const url = this.$route.query.backUrl || '/'
           this.$router.replace(url)
-          // }
         })
       })
     },
@@ -90,14 +91,13 @@ export default {
           showClose: false
         })
       }
-      register(this.register).then(res => {
-        this.hidden = !this.hidden
-      })
+      await register(this.register)
+      this.hidden = !this.hidden
     },
     handleSelect (e) {
       this.activeIndex = e
       e === 'signIn' ? this.showEmail = false : this.showEmail = true
-      this.sign.type = e
+      // this.sign.type = e
     },
     async getCode () {
       // 判断是否填写邮箱
@@ -110,46 +110,54 @@ export default {
       }
       // 人机验证
       const recaptcha = await this.$recaptcha('email')
-      const res = getCodeApi(this.sign, recaptcha)
-      const token = res.data.token
-      // 消息添加成功 显示提示 禁用组件
-      this.isSendCode = true
-      if (!this.sign.code) {
-        this.$message({
-          message: '邮件发送成功',
-          type: 'success'
-        })
-      }
-      // 响应数据携带数据将token存到vuex
-      if (token !== null) {
-        this.$store.commit('user/setToken', res.data)
-        const url = this.$route.query.backUrl || '/'
-        this.$router.replace(url)
-      }
-      this.timer = setInterval(() => {
-        this.totalTime--
-        this.codeName = this.totalTime + 's后重新发送'
-        if (this.totalTime < 0) {
-          clearInterval(this.timer)
-          this.codeName = '重新发送验证码'
-          this.totalTime = 60
-          this.isSendCode = false
+      getCodeApi(this.sign, recaptcha).then(res => {
+        // 消息添加成功 显示提示 禁用组件
+        this.isSendCode = true
+        if (!this.sign.code) {
+          this.timer = setInterval(() => {
+            this.totalTime--
+            this.codeName = this.totalTime + 's后重新发送'
+            if (this.totalTime < 0) {
+              clearInterval(this.timer)
+              this.codeName = '重新发送验证码'
+              this.totalTime = 60
+              this.isSendCode = false
+            }
+          }, 1000)
+          return this.$message({
+            message: '邮件发送成功',
+            type: 'success'
+          })
         }
-      }, 1000)
+        // console.log(res)
+        const token = res.data
+        // 响应数据携带数据将token存到vuex
+        if (token !== null) {
+          // console.log(token)
+          setToken(token)
+          // this.$store.commit('user/setToken', token)
+          const url = this.$route.query.backUrl || '/'
+          this.$router.replace(url)
+        }
+      })
       // })
-    }
-  },
-  watch: {
-    hidden: {
-      handler (newVal) {
-        this.sign = {
-          code: '',
-          type: this.activeIndex,
-          email: ''
-        }
-      }
+    },
+    changeHidden () {
+      this.hidden = !this.hidden
+      this.hidden === true ? this.sign.type = 'signIn' : this.sign.type = 'signUp'
     }
   }
+  // watch: {
+  //   hidden: {
+  //     handler (newVal) {
+  //       this.sign = {
+  //         code: '',
+  //         type: this.activeIndex,
+  //         email: ''
+  //       }
+  //     }
+  //   }
+  // }
 }
 </script>
 
@@ -229,9 +237,9 @@ export default {
           </el-form>
         </div>
       </el-menu>
-      <div class="click-rolling" >
-        <a @click="hidden = !hidden" v-if="hidden">注册账号</a>
-        <a @click="hidden = !hidden" v-else>去登陆</a>
+      <div class="click-rolling" @click="changeHidden">
+        <a v-if="hidden">注册账号</a>
+        <a v-else>去登陆</a>
       </div>
     </div>
   </div>

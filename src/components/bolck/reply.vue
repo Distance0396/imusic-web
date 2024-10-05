@@ -1,61 +1,91 @@
 <script>
-import { mapActions, mapGetters, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import replyInput from '@/components/bolck/replyInput.vue'
+
 export default {
   name: 'replyBlock',
-  components: {
-    replyInput
-  },
+  components: { replyInput },
   props: {
-    item: {
-    }
+    item: {}
   },
   data () {
     return {
-      isInput: false
+      // children: { ...this.item.children },
+      isInput: false,
+      showPage: false,
+      // total: 0,
+      pagination: {
+        pageSize: 10,
+        page: 1
+      },
+      islike: false
+      // islikeChild: false
     }
   },
   methods: {
-    ...mapActions('reply', ['updateReplyProperty', 'clear', 'setActiveReplyId']),
+    ...mapActions('comment', ['updateCommentProperty', 'clear']),
+    ...mapMutations('comment', ['setRootId', 'setActionUserId', 'setActionUserName', 'setParent']),
     // 回复父评论
-    reply () {
+    async reply () {
+      await this.clear()
+      this.setRootId(this.item.id)
+      this.setActionUserId(this.item.userId)
+      this.setParent(this.item.id)
+      this.setActionUserName(this.item.userInfo.name)
       this.isInput = true
-      this.setActiveReplyId(this.item.replyId)
-      this.clear()
-      this.rootReplyId = this.item.replyId
     },
     // 回复子评论
-    childReply (e) {
+    async childReply (e) {
+      await this.clear()
+      this.setRootId(this.item.id)
+      this.setActionUserId(e.userId)
+      this.setParent(e.id)
+      this.setActionUserName(e.userInfo.name)
       this.isInput = true
-      this.setActiveReplyId(this.item.replyId)
-      this.clear()
-      this.childReplyId = e.replyId
-      this.rootReplyId = this.item.replyId
     },
-    submit () {
-      this.$emit('sub')
+    // 提交评论
+    submit (data) {
+      this.$emit('submit', data)
+    },
+    // 更多评论
+    async moreComment () {
+      this.$emit('more', {
+        pagination: this.pagination,
+        objId: this.item.objId,
+        objType: this.item.objType,
+        rootId: this.item.id
+      })
+      this.showPage = true
+    },
+    currentChange (e) {
+      this.pagination.page = e
+      this.moreComment()
+    },
+    onLike (type, reload) {
+      if (type === 1) {
+        this.$emit('like', {
+          objId: this.item.id,
+          // 1为评论
+          objType: 1,
+          objUserId: this.item.userInfo.id
+        })
+        reload.islike = true
+      }
+      if (type === 2) {
+        this.$emit('like', {
+          objId: reload.id,
+          // 1为评论
+          objType: 1,
+          objUserId: reload.userInfo.id
+        })
+        reload.islike = true
+      }
     }
   },
   computed: {
-    ...mapGetters('reply', ['getReplyProperty']),
-    ...mapState('reply', ['activeReplyId']),
-    ...mapState('user', ['userInfo']),
-    rootReplyId: {
-      get () {
-        return this.getReplyProperty('rootReplyId')
-      },
-      set (value) {
-        this.updateReplyProperty({ property: 'rootReplyId', value })
-      }
-    },
-    childReplyId: {
-      get () {
-        return this.getReplyProperty('childReplyId')
-      },
-      set (value) {
-        this.updateReplyProperty({ property: 'childReplyId', value })
-      }
-    }
+    ...mapGetters('comment', ['getCommentProperty']),
+    ...mapState('comment', ['rootId']),
+    ...mapState('user', ['userInfo'])
   }
 }
 </script>
@@ -63,62 +93,86 @@ export default {
 <template>
   <div class="reply">
     <div class="main" style="display: flex;">
-      <div class="avatar" @click="$router.push(`/user/${item.userId}`)">
-        <el-avatar>
-          {{this.item?.userName.slice(0,1).toUpperCase()}}
-        </el-avatar>
+      <div class="avatar" @click="$router.push(`/user/${ item.userInfo.id }`)">
+        <el-avatar :src="item.userInfo?.avatar" />
       </div>
       <div class="context">
-        <div class="user-name" @click="$router.push(`/user/${item.userId}`)">{{item.userName}}</div>
+        <span class="user-name" @click="$router.push(`/user/${item.userInfo.id}`)">{{ item.userInfo?.name }}</span>
         <div class="root-reply">
-          <div class="reply-content">{{item.content}}</div>
-          <div class="reply-info" style="fill: #9499A0; color: #9499A0; display: flex; align-items: center;">
-            <span class="reply-time">{{item.createTime}}</span>
-            <span class="reply-like" style="display: flex; align-items: center;">
-              <svg style="margin-right: 5px" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="13" height="13"><path d="M933.248 335.104c-40-10.496-134.048-10.368-271.616-14.016 6.496-30.016 8-57.088 8-105.152C669.632 101.12 585.984 0 512 0c-52.256 0-95.328 42.72-96 95.264-0.704 64.448-20.64 175.744-128 232.192-7.872 4.16-30.4 15.264-33.696 16.704L256 345.6c-16.8-14.496-40.096-25.6-64-25.6H96c-52.928 0-96 43.072-96 96v512c0 52.928 43.072 96 96 96h96c38.08 0 69.952-23.008 85.376-55.264 0.384 0.128 1.056 0.32 1.504 0.384l7.648 1.984 1.472 0.384c18.432 4.576 53.92 13.056 129.76 30.496 16.256 3.712 102.144 22.016 191.104 22.016h174.944c53.312 0 91.744-20.512 114.624-61.696 0.32-0.64 7.68-15.008 13.696-34.432a106.56 106.56 0 0 0 0.736-56.32c34.368-23.616 45.44-59.328 52.64-82.56 12.064-38.112 8.448-66.752 0.064-87.264 19.328-18.24 35.808-46.048 42.752-88.512a120.224 120.224 0 0 0-12.448-75.904c18.112-20.352 26.368-45.952 27.328-69.632l0.384-6.688c0.224-4.192 0.416-6.784 0.416-16 0-40.416-28-91.968-90.752-109.888zM224 928a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V416a32 32 0 0 1 32-32h96a32 32 0 0 1 32 32v512z m735.264-462.88C958.624 480.928 952 512 896 512h-64a16 16 0 1 0 0 32h62.016c48 0 54.304 39.808 51.2 59.008-3.968 23.872-15.168 68.992-69.216 68.992H800a15.968 15.968 0 1 0 0 32h63.008c54.016 0 49.248 41.184 41.504 65.76-10.208 32.288-16.448 62.24-84.512 62.24h-52.192a15.968 15.968 0 1 0 0 32h50.176c35.008 0 36.64 33.12 32.992 44.992-4 12.992-8.736 22.624-8.928 23.072-9.664 17.44-25.248 27.936-58.24 27.936h-174.944c-87.872 0-175.04-19.936-177.28-20.448-132.928-30.624-139.936-32.992-148.288-35.36 0 0-27.072-4.576-27.072-28.192L256 434.016c0-15.008 9.568-28.576 25.408-33.344 1.984-0.768 4.672-1.6 6.592-2.4 146.176-60.544 190.688-193.28 192-302.272 0.192-15.328 12-32 32-32 33.824 0 93.632 67.904 93.632 151.936 0 75.872-3.072 88.992-29.632 168.064 320 0 317.76 4.608 345.984 12 35.008 10.016 38.016 39.008 38.016 48.992 0 10.976-0.32 9.376-0.736 20.128z"></path><path d="M144 832a48 48 0 1 0 0.032 96.032A48 48 0 0 0 144 832z m0 64c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16z"></path></svg>
-              {{item.likeCount}}
+          <div class="reply-content">{{ item.content }}</div>
+          <div class="reply-info">
+            <span class="reply-time">{{ item.createTime }}</span>
+            <span class="reply-like" :class="{ like:  item.islike}">
+              <i v-if="!item.islike" @click="onLike(1, item)" class="iconfont icon-dianzan2-copy" />
+              <i v-else class="iconfont icon-dianzan-copy" />
+              {{ item.islike ? item.likeCount + 1 : item.likeCount}}
             </span>
             <span style="transform: rotateX(180deg);">
-              <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="13" height="13"><path d="M933.248 335.104c-40-10.496-134.048-10.368-271.616-14.016 6.496-30.016 8-57.088 8-105.152C669.632 101.12 585.984 0 512 0c-52.256 0-95.328 42.72-96 95.264-0.704 64.448-20.64 175.744-128 232.192-7.872 4.16-30.4 15.264-33.696 16.704L256 345.6c-16.8-14.496-40.096-25.6-64-25.6H96c-52.928 0-96 43.072-96 96v512c0 52.928 43.072 96 96 96h96c38.08 0 69.952-23.008 85.376-55.264 0.384 0.128 1.056 0.32 1.504 0.384l7.648 1.984 1.472 0.384c18.432 4.576 53.92 13.056 129.76 30.496 16.256 3.712 102.144 22.016 191.104 22.016h174.944c53.312 0 91.744-20.512 114.624-61.696 0.32-0.64 7.68-15.008 13.696-34.432a106.56 106.56 0 0 0 0.736-56.32c34.368-23.616 45.44-59.328 52.64-82.56 12.064-38.112 8.448-66.752 0.064-87.264 19.328-18.24 35.808-46.048 42.752-88.512a120.224 120.224 0 0 0-12.448-75.904c18.112-20.352 26.368-45.952 27.328-69.632l0.384-6.688c0.224-4.192 0.416-6.784 0.416-16 0-40.416-28-91.968-90.752-109.888zM224 928a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V416a32 32 0 0 1 32-32h96a32 32 0 0 1 32 32v512z m735.264-462.88C958.624 480.928 952 512 896 512h-64a16 16 0 1 0 0 32h62.016c48 0 54.304 39.808 51.2 59.008-3.968 23.872-15.168 68.992-69.216 68.992H800a15.968 15.968 0 1 0 0 32h63.008c54.016 0 49.248 41.184 41.504 65.76-10.208 32.288-16.448 62.24-84.512 62.24h-52.192a15.968 15.968 0 1 0 0 32h50.176c35.008 0 36.64 33.12 32.992 44.992-4 12.992-8.736 22.624-8.928 23.072-9.664 17.44-25.248 27.936-58.24 27.936h-174.944c-87.872 0-175.04-19.936-177.28-20.448-132.928-30.624-139.936-32.992-148.288-35.36 0 0-27.072-4.576-27.072-28.192L256 434.016c0-15.008 9.568-28.576 25.408-33.344 1.984-0.768 4.672-1.6 6.592-2.4 146.176-60.544 190.688-193.28 192-302.272 0.192-15.328 12-32 32-32 33.824 0 93.632 67.904 93.632 151.936 0 75.872-3.072 88.992-29.632 168.064 320 0 317.76 4.608 345.984 12 35.008 10.016 38.016 39.008 38.016 48.992 0 10.976-0.32 9.376-0.736 20.128z"></path><path d="M144 832a48 48 0 1 0 0.032 96.032A48 48 0 0 0 144 832z m0 64c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16z"></path></svg>
+              <i class="iconfont icon-dianzan2-copy"></i>
             </span>
             <span class="reply-btn" @click="reply">回复</span>
           </div>
         </div>
       </div>
     </div>
-    <div class="child" v-for="children in item.children" :key="children.replyId" >
-      <div class="context">
-        <div class="avatar">
-          <el-avatar size="small" src="">
-            {{children?.userName.slice(0,1).toUpperCase()}}
-          </el-avatar>
+    <div class="child">
+      <div class="child-item" style="display: flex;" v-for="children in item.children" :key="'children' + children.id" >
+        <div class="avatar" @click="$router.push(`/user/${children.userInfo.id}`)">
+          <el-avatar size="small" :src="children.userInfo?.avatar" />
         </div>
-        <div class="user-name">{{children.userName}}</div>
-        <div class="reply-content">
-          <span v-if="children.callBackName">回复 <i style="color: #409EFF">@{{children.callBackName}}</i>: </span>
-          <span>{{children.content}}</span>
+        <div class="context">
+          <div class="reply-content">
+          <span
+            class="user-name"
+            @click="$router.push(`/user/${children.userInfo?.id}`)"
+          >
+            {{ children.userInfo?.name }}
+          </span>
+          <span v-if="children.replyToUser">
+            回复
+            <i style="color: #409EFF; margin-right: 10px" @click="$router.push(`/user/${children.replyToUser.id}`)">
+              @{{ children.replyToUser?.name }}
+            </i>
+          </span>
+            <span class="children-content">{{ children.content }}</span>
+          </div>
+          <div class="reply-info">
+            <span class="reply-time">{{ children.createTime }}</span>
+            <span class="reply-like" :class="{ like:  children.islike}">
+              <i v-if="!children.islike" @click="onLike(2, children)" class="iconfont icon-dianzan2-copy" />
+              <i v-else class="iconfont icon-dianzan-copy"/>
+              {{ children.islike ? children.likeCount + 1 : children.likeCount }}
+            </span>
+            <span style="transform: rotateX(180deg);">
+              <i class="iconfont icon-dianzan2-copy" />
+            </span>
+            <span class="reply-btn" @click="childReply(children)">回复</span>
+          </div>
         </div>
       </div>
-      <div class="reply-info" style="fill: #9499A0; color: #9499A0; display: flex; align-items: center;">
-        <span class="reply-time">{{children.createTime}}</span>
-        <span class="reply-like" style="display: flex; align-items: center;">
-            <svg style="margin-right: 5px" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="13" height="13"><path d="M933.248 335.104c-40-10.496-134.048-10.368-271.616-14.016 6.496-30.016 8-57.088 8-105.152C669.632 101.12 585.984 0 512 0c-52.256 0-95.328 42.72-96 95.264-0.704 64.448-20.64 175.744-128 232.192-7.872 4.16-30.4 15.264-33.696 16.704L256 345.6c-16.8-14.496-40.096-25.6-64-25.6H96c-52.928 0-96 43.072-96 96v512c0 52.928 43.072 96 96 96h96c38.08 0 69.952-23.008 85.376-55.264 0.384 0.128 1.056 0.32 1.504 0.384l7.648 1.984 1.472 0.384c18.432 4.576 53.92 13.056 129.76 30.496 16.256 3.712 102.144 22.016 191.104 22.016h174.944c53.312 0 91.744-20.512 114.624-61.696 0.32-0.64 7.68-15.008 13.696-34.432a106.56 106.56 0 0 0 0.736-56.32c34.368-23.616 45.44-59.328 52.64-82.56 12.064-38.112 8.448-66.752 0.064-87.264 19.328-18.24 35.808-46.048 42.752-88.512a120.224 120.224 0 0 0-12.448-75.904c18.112-20.352 26.368-45.952 27.328-69.632l0.384-6.688c0.224-4.192 0.416-6.784 0.416-16 0-40.416-28-91.968-90.752-109.888zM224 928a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V416a32 32 0 0 1 32-32h96a32 32 0 0 1 32 32v512z m735.264-462.88C958.624 480.928 952 512 896 512h-64a16 16 0 1 0 0 32h62.016c48 0 54.304 39.808 51.2 59.008-3.968 23.872-15.168 68.992-69.216 68.992H800a15.968 15.968 0 1 0 0 32h63.008c54.016 0 49.248 41.184 41.504 65.76-10.208 32.288-16.448 62.24-84.512 62.24h-52.192a15.968 15.968 0 1 0 0 32h50.176c35.008 0 36.64 33.12 32.992 44.992-4 12.992-8.736 22.624-8.928 23.072-9.664 17.44-25.248 27.936-58.24 27.936h-174.944c-87.872 0-175.04-19.936-177.28-20.448-132.928-30.624-139.936-32.992-148.288-35.36 0 0-27.072-4.576-27.072-28.192L256 434.016c0-15.008 9.568-28.576 25.408-33.344 1.984-0.768 4.672-1.6 6.592-2.4 146.176-60.544 190.688-193.28 192-302.272 0.192-15.328 12-32 32-32 33.824 0 93.632 67.904 93.632 151.936 0 75.872-3.072 88.992-29.632 168.064 320 0 317.76 4.608 345.984 12 35.008 10.016 38.016 39.008 38.016 48.992 0 10.976-0.32 9.376-0.736 20.128z"></path><path d="M144 832a48 48 0 1 0 0.032 96.032A48 48 0 0 0 144 832z m0 64c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16z"></path></svg>
-            {{children.likeCount}}
-          </span>
-        <span style="transform: rotateX(180deg);">
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="13" height="13"><path d="M933.248 335.104c-40-10.496-134.048-10.368-271.616-14.016 6.496-30.016 8-57.088 8-105.152C669.632 101.12 585.984 0 512 0c-52.256 0-95.328 42.72-96 95.264-0.704 64.448-20.64 175.744-128 232.192-7.872 4.16-30.4 15.264-33.696 16.704L256 345.6c-16.8-14.496-40.096-25.6-64-25.6H96c-52.928 0-96 43.072-96 96v512c0 52.928 43.072 96 96 96h96c38.08 0 69.952-23.008 85.376-55.264 0.384 0.128 1.056 0.32 1.504 0.384l7.648 1.984 1.472 0.384c18.432 4.576 53.92 13.056 129.76 30.496 16.256 3.712 102.144 22.016 191.104 22.016h174.944c53.312 0 91.744-20.512 114.624-61.696 0.32-0.64 7.68-15.008 13.696-34.432a106.56 106.56 0 0 0 0.736-56.32c34.368-23.616 45.44-59.328 52.64-82.56 12.064-38.112 8.448-66.752 0.064-87.264 19.328-18.24 35.808-46.048 42.752-88.512a120.224 120.224 0 0 0-12.448-75.904c18.112-20.352 26.368-45.952 27.328-69.632l0.384-6.688c0.224-4.192 0.416-6.784 0.416-16 0-40.416-28-91.968-90.752-109.888zM224 928a32 32 0 0 1-32 32H96a32 32 0 0 1-32-32V416a32 32 0 0 1 32-32h96a32 32 0 0 1 32 32v512z m735.264-462.88C958.624 480.928 952 512 896 512h-64a16 16 0 1 0 0 32h62.016c48 0 54.304 39.808 51.2 59.008-3.968 23.872-15.168 68.992-69.216 68.992H800a15.968 15.968 0 1 0 0 32h63.008c54.016 0 49.248 41.184 41.504 65.76-10.208 32.288-16.448 62.24-84.512 62.24h-52.192a15.968 15.968 0 1 0 0 32h50.176c35.008 0 36.64 33.12 32.992 44.992-4 12.992-8.736 22.624-8.928 23.072-9.664 17.44-25.248 27.936-58.24 27.936h-174.944c-87.872 0-175.04-19.936-177.28-20.448-132.928-30.624-139.936-32.992-148.288-35.36 0 0-27.072-4.576-27.072-28.192L256 434.016c0-15.008 9.568-28.576 25.408-33.344 1.984-0.768 4.672-1.6 6.592-2.4 146.176-60.544 190.688-193.28 192-302.272 0.192-15.328 12-32 32-32 33.824 0 93.632 67.904 93.632 151.936 0 75.872-3.072 88.992-29.632 168.064 320 0 317.76 4.608 345.984 12 35.008 10.016 38.016 39.008 38.016 48.992 0 10.976-0.32 9.376-0.736 20.128z"></path><path d="M144 832a48 48 0 1 0 0.032 96.032A48 48 0 0 0 144 832z m0 64c-8.8 0-16-7.2-16-16s7.2-16 16-16 16 7.2 16 16-7.2 16-16 16z"></path></svg>
-          </span>
-        <span class="reply-btn" @click="childReply(children)">回复</span>
+      <div class="more">
+        <div v-if="!showPage && this.item.num > 3">共{{ this.item.num }}条回复，<i @click="moreComment">点击查看</i></div>
+        <el-pagination
+          layout="pager"
+          background
+          v-else
+          :small="true"
+          :hide-on-single-page="true"
+          :total="item.num"
+          @current-change="currentChange"
+        />
       </div>
     </div>
     <transition name="fade">
-      <replyInput v-if="isInput && activeReplyId === item.replyId" @sub="submit"></replyInput>
+      <replyInput v-if="isInput && rootId === item.id" @sub="submit"></replyInput>
     </transition>
-    <el-divider></el-divider>
+<!--    <el-divider />-->
   </div>
 </template>
 
 <style scoped lang="scss">
+.like{ color: #409EFF; }
+
 .reply{
   position: relative;
   min-height: 90px;
@@ -128,6 +182,7 @@ export default {
     .context{
       margin: 3px 0 0 10px;
       .user-name{
+        cursor: pointer;
         font-size: 15px;
         color: #61666d;
       }
@@ -140,6 +195,9 @@ export default {
           width: 800px;
         }
         .reply-info{
+          color: #9499A0;
+          display: flex;
+          align-items: center;
           font-size: 13px;
           margin-top: 10px;
           .reply-btn{
@@ -158,34 +216,51 @@ export default {
     }
   }
   .child{
-    margin: 20px 0 0 50px;
-    .context{
-      margin: 3px 0 0 10px;
-      display: inline-flex;
-      align-items: center;
-      .user-name{
-        font-size: 15px;
-        color: #61666d;
-        margin-left: 10px;
+    padding: 20px 0 0 50px;
+    .child-item{
+      margin-bottom: 20px;
+      .context{
+        margin: 3px 0 0 10px;
+        .reply-content{
+          display: flex;
+          align-items: center;
+          .user-name{
+            font-size: 15px;
+            color: #61666d;
+            margin-right: 10px;
+            cursor: pointer;
+          }
+          .children-content{
+            cursor: auto;
+            font-size: 14px;
+          }
+        }
       }
-      .reply-content{
-        margin-left: 20px;
-        width: 800px;
+      .reply-info{
+        color: #9499A0;
+        font-size: 13px;
+        margin-top: 10px;
+        display: flex;
+        align-items: center;
+        .reply-btn{
+          &:hover{
+            color: #409EFF;
+          }
+        }
       }
-    }
-    .reply-info{
-      font-size: 13px;
-      margin-top: 10px;
-      .reply-btn{
+      .reply-info span{
+        margin-right: 20px;
         &:hover{
-          color: #409EFF;
+          fill: #409EFF;
         }
       }
     }
-    .reply-info span{
-      margin-right: 20px;
-      &:hover{
-        fill: #409EFF;
+    .more{
+      color: #9499a0;
+      font-size: 13px;
+      margin-bottom: 20px;
+      i:hover{
+        color: #409EFF;
       }
     }
   }

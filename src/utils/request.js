@@ -1,7 +1,7 @@
 import axios from 'axios'
 import { Notification } from 'element-ui'
-import store from '@/store'
-import { removeToken } from '@/utils/storage'
+// import store from '@/store'
+import { getToken, removeToken } from '@/utils/storage'
 import router from '@/router'
 
 const request = axios.create({
@@ -44,7 +44,8 @@ request.interceptors.response.use((response) => {
 
 // 请求拦截器
 request.interceptors.request.use((config) => {
-  const token = store.getters.token
+  const token = getToken()
+  // const token = store.getters.token
   if (token) {
     config.headers.token = token
   }

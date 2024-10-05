@@ -8,14 +8,15 @@
           action="http://localhost:8011/common/upload"
           :show-file-list="false"
           :limit="1"
+          :disabled="!isMy"
           :auto-upload="true"
           :before-upload="beforeUpload"
           :on-success="uploadOk"
         >
           <!-- 如果没有图片，显示加号图标 -->
-          <div v-if="!userInfo.avatar" class="error-img-box">
+          <div v-if="!user.avatar" class="error-img-box">
             <i class="el-icon-picture-outline" style="font-size: 80px; color: #b3b3b3;"></i>
-            <span class="el-upload-list__item-actions change-icon">
+            <span v-if="isMy" class="el-upload-list__item-actions change-icon">
               <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
             </span>
           </div>
@@ -26,7 +27,7 @@
               :src="user?.avatar"
               alt=""
             />
-            <span class="el-upload-list__item-actions change-icon">
+            <span v-if="isMy" class="el-upload-list__item-actions change-icon">
               <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
             </span>
           </div>
@@ -34,25 +35,39 @@
         <div class="user-info">
           <el-form class="form" :rules="rules" :model="user" label-position="right" label-width="60px">
             <el-form-item label="昵称" prop="name">
+              <sapn v-if="!isMy">{{user.name}}</sapn>
               <el-input
+                v-else
                 size="small"
                 v-model="user.name"
               />
             </el-form-item>
             <el-form-item label="电话" prop="phone">
+              <span v-if="userId !== this.$store.state.user.userInfo.id">{{user.phone}}</span>
               <el-input
+                v-else
                 size="small"
                 v-model="user.phone"
               />
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
+              <sapn v-if="userId !== this.$store.state.user.userInfo.id">{{user.email}}</sapn>
               <el-input
+                v-else
                 size="small"
                 v-model="user.email"
               />
             </el-form-item>
             <el-form-item label="标签">
-              <span>
+              <sapn v-if="userId !== this.$store.state.user.userInfo.id">
+                <el-tag
+                  v-for="tag in user.tag"
+                  :key="tag"
+                >
+                  {{tag}}
+                </el-tag>
+              </sapn>
+              <span v-else>
                 <el-tag
                   v-for="tag in user.tag"
                   @close="handleClose(tag)"
@@ -62,8 +77,8 @@
                   closable
                   effect="dark"
                 >
-                {{tag}}
-              </el-tag>
+                  {{tag}}
+                </el-tag>
                 <el-input
                   class="input-new-tag"
                   v-if="inputVisible"
@@ -82,7 +97,8 @@
       </div>
       <div class="card-body">
         <div class="card-left">
-          <el-input v-model="user.sign" maxlength="50" placeholder="编辑个人签名"></el-input>
+          <sapn v-if="userId !== this.$store.state.user.userInfo.id">{{user.sign}}</sapn>
+          <el-input v-else v-model="user.sign" maxlength="50" placeholder="编辑个人签名"></el-input>
         </div>
         <div class="card-right">
           <i v-if="!isUpdate">By {{userInfo.createTime}}</i>
@@ -103,7 +119,7 @@
         </div>
       </div>
     </el-card>
-    <el-tabs class="tabs" v-model="activeName" @tab-click="handleTabClick">
+    <el-tabs class="tabs" v-if="userId === this.$store.state.user.userInfo.id" v-model="activeName" @tab-click="handleTabClick">
       <el-tab-pane label="我的歌单" name="first" :lazy="true">
         <div class="my-playlist">
           <Block v-for="item in collect.musicFormList" :key="item.id">
@@ -180,10 +196,10 @@ export default {
   name: 'myHome',
   components: { Block, Settings },
   created () {
-    this.user = { ...this.userInfo }
+    // this.user = { ...this.userInfo }
   },
   mounted () {
-    getUser().then(res => {
+    getUser(this.userId).then(res => {
       this.user = res.data
     })
   },
@@ -197,7 +213,7 @@ export default {
       // 表单正则
       rules: {
         name: [
-          { pattern: /^[a-zA-Z0-9]{3,15}$/, message: '请填写3到15位不包含特殊字符的昵称', trigger: 'change' }
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]{3,15}$/, message: '请填写3到15位不包含特殊字符的昵称', trigger: 'change' }
         ],
         phone: [
           { pattern: /^1[3-9]\d{9}$/, message: '请填写正确手机号', trigger: 'change' }
@@ -237,7 +253,9 @@ export default {
   computed: {
     ...mapState('user', ['userInfo']),
     ...mapGetters('user', ['getProperty']),
-    ...mapState('collect', ['collect'])
+    ...mapState('collect', ['collect']),
+    userId () { return +this.$route.params.id },
+    isMy () { return this.user.id === this.userInfo.id }
     // name: {
     //   get () {
     //     return this.getProperty('name')
@@ -331,7 +349,7 @@ export default {
         message: '恭喜您，修改成功',
         type: 'success'
       })
-      const { data } = await getUser()
+      const { data } = await getUser(this.userId)
       this.user = data
       this.setUserInfo(data)
       this.exitUpdate()
