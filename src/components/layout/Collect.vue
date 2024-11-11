@@ -1,5 +1,5 @@
 <script>
-import MusicFormItem from '@/components/MusicFormItem.vue'
+import MusicFormItem from '@/components/block/CollectItem.vue'
 import { mapState, mapActions, mapGetters } from 'vuex'
 import { addMusicForm } from '@/api/muiscForm'
 
@@ -11,22 +11,22 @@ export default {
     }
   },
   methods: {
-    ...mapActions('collect', ['playSong', 'getCollectForm']),
+    ...mapActions('collect', ['getCollectForm']),
     // 添加歌单
     async addMusicForm () {
       if (!this.isLogin) await this.$router.replace('/login')
       else {
         // 添加歌单api
-        await addMusicForm().then(res => {
-          // 获取用户收藏
-          this.getCollectForm()
-        })
+        await addMusicForm()
+        // 获取用户收藏
+        await this.getCollectForm()
       }
     }
   },
   computed: {
     ...mapGetters('common', ['isBerth']),
-    ...mapState('collect', ['collect', 'currentCol', 'currentSong']),
+    ...mapState('collect', ['collect']),
+    ...mapState('player', ['currentCol', 'currentSong']),
     // 是否登录
     isLogin () {
       return this.$store.getters.token
@@ -44,7 +44,8 @@ export default {
   <div class="collect">
     <div class="menu-list">
       <span class="icon">
-        <svg :width="this.isBerth ? 22 : 15" :height="isBerth ? 22 : 15" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M488.680727 124.090182a104.727273 104.727273 0 0 1 93.184 0l279.272728 139.636363A104.727273 104.727273 0 0 1 919.272727 357.469091v332.706909a104.727273 104.727273 0 0 1-58.042182 93.696l-279.272727 139.636364a104.727273 104.727273 0 0 1-93.696 0L208.896 783.825455a104.634182 104.634182 0 0 1-57.623273-94.021819V357.469091a104.727273 104.727273 0 0 1 58.042182-93.696L342.574545 197.073455a35.048727 35.048727 0 0 1 5.352728-2.653091z m-267.636363 246.597818v319.348364a34.909091 34.909091 0 0 0 19.130181 31.371636l260.189091 130.094545v-341.178181l-279.272727-139.636364z m628.363636 0l-279.272727 139.636364v340.992l259.956363-129.954909a34.909091 34.909091 0 0 0 19.037091-26.298182l0.325818-4.887273V370.688zM360.913455 266.053818L264.378182 314.274909 535.272727 449.629091l96.442182-48.221091-270.894545-135.447273z m189.905454-79.453091a34.909091 34.909091 0 0 0-30.952727 0l-80.849455 40.401455 270.848 135.400727 96.302546-48.128z"></path></svg>
+        <i class="iconfont icon-kucunguanli" :class="{'hover' : this.isBerth}"></i>
+<!--        <svg :width="this.isBerth ? 22 : 15" :height="isBerth ? 22 : 15" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M488.680727 124.090182a104.727273 104.727273 0 0 1 93.184 0l279.272728 139.636363A104.727273 104.727273 0 0 1 919.272727 357.469091v332.706909a104.727273 104.727273 0 0 1-58.042182 93.696l-279.272727 139.636364a104.727273 104.727273 0 0 1-93.696 0L208.896 783.825455a104.634182 104.634182 0 0 1-57.623273-94.021819V357.469091a104.727273 104.727273 0 0 1 58.042182-93.696L342.574545 197.073455a35.048727 35.048727 0 0 1 5.352728-2.653091z m-267.636363 246.597818v319.348364a34.909091 34.909091 0 0 0 19.130181 31.371636l260.189091 130.094545v-341.178181l-279.272727-139.636364z m628.363636 0l-279.272727 139.636364v340.992l259.956363-129.954909a34.909091 34.909091 0 0 0 19.037091-26.298182l0.325818-4.887273V370.688zM360.913455 266.053818L264.378182 314.274909 535.272727 449.629091l96.442182-48.221091-270.894545-135.447273z m189.905454-79.453091a34.909091 34.909091 0 0 0-30.952727 0l-80.849455 40.401455 270.848 135.400727 96.302546-48.128z"></path></svg>-->
       </span>
       <div class="title" v-if="!this.isBerth">音乐库
         <button class="item-add" @click="addMusicForm" >
@@ -99,12 +100,18 @@ export default {
     border-radius: 4px;
     display: flex;
     align-items: center;
-    padding: 0 11px;
+    padding: 0 12px;
     margin-bottom: 10px;
-    fill: #000000;
+    .hover{
+      margin-left: 10px;
+    }
     .icon{
-      margin: 10px;
+      line-height: 40px;
       transition: all .1s ease-in-out;
+      .iconfont{
+        color: var(--fill-color);
+        margin-right: 20px;
+      }
     }
     .title{
       width: 100%;
@@ -121,8 +128,10 @@ export default {
       align-items: center;
       justify-content: center;
       margin-left: 20px;
+      fill: var(--fill-color);
+      background-color: var(--main-background-color);
       &:hover{
-        background-color: #e9e9e9;
+        background-color: var(--fill-no-active);
       }
     }
   }
@@ -134,11 +143,12 @@ export default {
     height: 500px;
     overflow-y: scroll;
     .active{
-      background-color: #E4E7ED;
+      background-color: var(--active-color);
     }
     .collect-tips{
       border-radius: 5px;
-      background-color: #E4E7ED;
+      background-color: var(--main-background-color);
+      //background-color: #E4E7ED;
       margin: 20px 10px 20px 10px;
       padding: 10px 0 10px 20px;
       .setUp{
@@ -147,7 +157,8 @@ export default {
         display: block;
         padding: 8px 10px 8px 10px;
         width: 80px;
-        background-color: #FFFFFF;
+        background-color: var(--aside-background-color);
+        //background-color: #FFFFFF;
         &:hover{
           transform: scale(1.1);
         }

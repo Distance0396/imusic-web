@@ -2,8 +2,6 @@ import Request from '@/utils/request'
 
 /**
  * 根据歌单id查询歌单
- * @param id
- * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const getMusicFormById = (id) => {
   return Request.get(`/music-form/${id}`)
@@ -11,7 +9,6 @@ export const getMusicFormById = (id) => {
 
 /**
  * 添加歌单
- * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const addMusicForm = () => {
   return Request.post('/music-form/save')
@@ -19,9 +16,6 @@ export const addMusicForm = () => {
 
 /**
  * 添加歌曲至歌单
- * @param musicId
- * @param musicFormId
- * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const appendMusicForm = (musicFormId, musicId) => {
   return Request.post('/music-form', {
@@ -32,9 +26,6 @@ export const appendMusicForm = (musicFormId, musicId) => {
 
 /**
  * 删除歌单歌曲
- * @param musicFormId
- * @param musicId
- * @returns {Promise<axios.AxiosResponse<any>>}
  */
 export const deleteMusic = (musicFormId, musicId) => {
   return Request.delete('/music-form', {
@@ -52,4 +43,8 @@ export const updateMusicForm = (musicForm) => {
     image: musicForm.image,
     description: musicForm.description
   })
+}
+
+export const deleteById = (id) => {
+  return Request.delete(`/music-form/${id}`)
 }

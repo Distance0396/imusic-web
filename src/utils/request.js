@@ -20,7 +20,7 @@ request.interceptors.response.use((response) => {
   }
   if (data.code === 401) {
     Notification.error({
-      title: 'token失效',
+      title: data.msg,
       message: '请重新登陆',
       showClose: false
     })

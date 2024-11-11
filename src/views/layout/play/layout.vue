@@ -14,7 +14,7 @@ export default {
 </script>
 
 <template>
-  <div>
+  <div style="height: calc(100vh - 40px); background-color: var(--main-background-color)">
     <Header></Header>
     <router-view :key="key"/>
   </div>

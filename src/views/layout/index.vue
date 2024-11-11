@@ -1,15 +1,15 @@
 <template>
   <el-container class="container">
     <el-aside class="el-aside" ref="aside" :style="{ width: this.asideWidth + 'px' }" style="height: 100vh;">
-      <Navbar></Navbar>
+      <Navbar />
       <div class="resizer" @mousedown="startResize"></div>
     </el-aside>
     <el-main class="el-main" :style="{ marginLeft: this.asideWidth + 'px' }">
       <transition name="component-fade" mode="out-in">
-        <router-view :key="key"></router-view>
+        <router-view :key="key" />
       </transition>
-      <el-footer style="height: ;">
-        <Footer></Footer>
+      <el-footer style="height: px;">
+        <Footer />
       </el-footer>
     </el-main>
   </el-container>
@@ -17,13 +17,16 @@
 
 <script>
 import Navbar from '@/components/layout/NavBar.vue'
-import Footer from '@/components/layout/footer.vue'
-import { mapActions, mapMutations, mapState } from 'vuex'
+import Footer from '@/components/layout/Footer.vue'
+import { mapMutations, mapState } from 'vuex'
 export default {
   name: 'LayoutIndex',
   components: { Navbar, Footer },
   computed: {
     ...mapState('common', ['asideWidth']),
+    // key () {
+    //   return this.$route.name !== undefined ? this.$route.name + +new Date() : this.$route + +new Date()
+    // }
     key () { return this.$route.fullPath || 'default-route' }
   },
   data () {
@@ -32,7 +35,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('common', ['query']),
+    // ...mapActions('common', ['query']),
     ...mapMutations('common', ['setAsideWidth']),
     startResize (event) {
       // 开始拖动时设置标记
@@ -63,13 +66,12 @@ export default {
       document.removeEventListener('mousemove', this.resize)
       document.removeEventListener('mouseup', this.stopResize)
     }
-  },
-  created () { this.query() }
+  }
+  // created () { this.query() }
 }
 </script>
 
 <style scoped lang="scss">
-
 .component-fade-enter-active, .component-fade-leave-active {
   transition: opacity .2s ease;
 }
@@ -77,13 +79,14 @@ export default {
   opacity: 0;
 }
 .container{
-  //width: 100%;
-  //height: 100vh;
+  width: 100%;
   .el-aside{
     position: fixed;
     display: flex;
     flex-direction: column;
-    background-color: rgb(242,243,245);
+    background-color: var(--aside-background-color);
+    box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+    //background-color: rgb(242,243,245);
     //transition: all .1s ease-in-out;
     .resizer {
       width: 5px;
@@ -99,10 +102,11 @@ export default {
     }
   }
   .el-main{
+    overflow: hidden;
     position: relative;
-    //height: 100%;
-    width: calc(100vw - var(--width));
+    width: calc(100% - var(--width));
     padding: 0 0 0 0;
+    background-color: var(--main-background-color);
   }
 }
 </style>

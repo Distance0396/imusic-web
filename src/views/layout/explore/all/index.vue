@@ -17,15 +17,10 @@
           <el-image
             v-if="item.avatar !== undefined || item.image !== undefined"
             :src="item.avatar || item.image"
-            style="width: 100%;
-            height: 100%;
-            cursor: pointer;
-            border-radius: 50%;"
-            fit="cover"
+            style="width: 100%; height: 100%; cursor: pointer; border-radius: 50%;" fit="cover"
             :lazy="true"
-            alt=""
             @click="$router.push(`/detail/singer/${item.id}`)"
-          ></el-image>
+          />
         </template>
         <template #nameOne>
           <i @click="$router.push(`/detail/singer/${item.id}`)">{{item.name}}</i>
@@ -38,7 +33,7 @@
   </div>
 </template>
 <script>
-import Block from '@/components/bolck/Block.vue'
+import Block from '@/components/block/Block.vue'
 import { getSingerList } from '@/api/singer'
 export default {
   name: 'exploreIndex',
@@ -98,10 +93,12 @@ export default {
 .explore{
   padding: 60px 20px 0 20px;
   //max-width: 1200px;
+  min-height: calc(100vh - 40px);
   .tab{
     display: flex;
     align-items: center;
     .title{
+      color: var(--text-color);
       font-size: 2rem;
     }
     .item-list > i{
@@ -118,10 +115,6 @@ export default {
     margin-top: 2vh;
     display: flex;
     flex-wrap: wrap;
-    //justify-content: space-between;
-    //display: grid;
-    //grid-gap: 3vh 2vh;
-    //grid-template-columns: repeat(auto-fill, 27vh);
     .block{
     }
     .block:last-child{

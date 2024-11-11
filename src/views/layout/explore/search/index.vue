@@ -1,17 +1,15 @@
 <script>
 import { getSearchHistory, setSearchHistory } from '@/utils/storage'
 import { mapGetters } from 'vuex'
-import Block from '@/components/bolck/Block.vue'
-import MusicItem from '@/components/bolck/MusicItem.vue'
+import MusicItem from '@/components/block/MusicItem.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
-import History from '@/components/history.vue'
+import History from '@/views/layout/explore/search/history.vue'
 import { useContextMenu } from '@/utils/useContextMenu'
 import { search } from '@/api/user'
 
 export default {
   name: 'searchObject',
   components: {
-    Block,
     MusicItem,
     ContextMenu,
     History
@@ -62,7 +60,8 @@ export default {
       // MusicItem组件省略号位置
       position: {},
       // 选中的歌曲
-      pickMusicItem: {}
+      pickMusicItem: {},
+      firstSinger: null
     }
   },
   methods: {
@@ -78,12 +77,16 @@ export default {
       if (this.keyword.trim().length > 0) {
         await search(this.keyword).then(res => {
           this.result = res.data
+          this.firstSinger = res.data.singerList?.slice(-1)[0]
         })
       }
     },
     // 选中的菜单选项
     pickMenu (e) {
       useContextMenu(e, this.pickMusicItem, this.getMusicFormId)
+    },
+    player () {
+      // console.log('321')
     }
   },
   beforeRouteLeave: function (to, from, next) {
@@ -149,36 +152,30 @@ export default {
       </div>
     </transition>
     <transition name="el-fade-in">
-      <div class="result">
-        <div class="singer">
-          <Block v-for="item in result.singerList" :key="item.id">
-            <template #img>
-              <img :src="item.avatar || item.image"
-                   style="width: 100%;
-                 height: 100%;
-                 cursor: pointer;
-                 border-radius: 50%;
-                 object-fit: cover;"
-                   alt=""
-                   @click="$router.push(`/detail/singer/${item.id}`)"
-              >
-            </template>
-            <template #nameOne>
-              <i @click="$router.push(`/detail/singer/${item.id}`)">{{ item.name }}</i>
-            </template>
-            <template #nameTwo>
-              艺人
-            </template>
-          </Block>
+      <div class="result" v-if="firstSinger">
+        <div class="singer-card" v-if="firstSinger != null" @click="$router.push(`/detail/singer/${firstSinger.id}`)">
+          <div style="display: flex; flex-direction: column;">
+            <el-image
+              :src="firstSinger.avatar || firstSinger.image"
+              style="border-radius: 50%; width: 100px; height: 100px;"
+            />
+            <div class="card-info">
+              <span style="font-size: 35px;">{{firstSinger.name}}</span>
+              <span class="info-but">
+                <i>艺人</i>
+                <button @click.stop="player" style="color: var(--info-text);" class="btn iconfont icon-icon_play" />
+            </span>
+            </div>
+          </div>
         </div>
-        <div class="music">
+        <div class="music-card" style="margin-left: 20px;">
           <ContextMenu
             :menu="menu"
             :position="position"
             @select-menu="pickMenu"
           >
             <MusicItem
-              v-for="(item,index) in result.musicList"
+              v-for="(item,index) in result.musicList?.slice(0, 4)"
               @select-music="pickMusicItem = $event"
               @position="position = $event"
               :key="item.id"
@@ -195,7 +192,7 @@ export default {
 <style scoped lang="scss">
 .search {
   width: 100%;
-  height: calc(100vh - 60px);
+  height: calc(100vh - 40px);
   padding: 90px 20px 0 20px;
   .search-box {
     border-radius: 30px;
@@ -241,6 +238,51 @@ export default {
     margin-top: 20px;
     display: flex;
     width: 100%;
+    .singer-card{
+      background-color: var(--singer-card-bg);
+      width: 400px;
+      height: 224px;
+      padding: 15px;
+      border-radius: 8px;
+      border: 1px solid var(--block);
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+      cursor: pointer;
+      transition: all .2s ease-in-out;
+      position: relative;
+      .card-info{
+        margin-top: 15px;
+        color: var(--text-color);
+        .info-but{
+          display: flex;
+          .btn{
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: #409EFF;
+            transform: translateY(15px); /* 初始状态下，按钮向下移动 */
+            transition: opacity 0.4s ease, transform 0.4s ease; /* 添加过渡效果 */
+            opacity: 0;
+            width: 50px; height: 50px; margin-left: auto; border-radius: 50%;
+          }
+        }
+      }
+      &:hover {
+        background-color: var(--singer-card-bg-h);
+      }
+      &:hover .card-info .btn{
+        opacity: 1;
+        transform: translateY(0); /* 悬停时按钮回到原位 */
+      }
+    }
+    .music-card{
+      height: 224px;
+      border-radius: 8px;
+      border: 1px solid var(--block);
+      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+      cursor: pointer;
+      transition: all .2s ease-in-out;
+      overflow: hidden;
+    }
   }
 }
 </style>

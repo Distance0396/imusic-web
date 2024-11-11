@@ -1,26 +1,21 @@
 <script>
-import Reply from '@/components/bolck/reply.vue'
+import Reply from '@/components/block/reply.vue'
 import ActionBar from '@/components/layout/ActionBar.vue'
-import MusicItem from '@/components/bolck/MusicItem.vue'
+import MusicItem from '@/components/block/MusicItem.vue'
 import Header from '@/components/layout/Header.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
-import ReplyInput from '@/components/bolck/replyInput.vue'
+import ReplyInput from '@/components/block/replyInput.vue'
 import { useContextMenu } from '@/utils/useContextMenu'
 import { getAlbumById } from '@/api/album'
 import { collect, unfollow } from '@/api/collect'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { moreComment, saveComment, select } from '@/api/comment'
-import { likeApi } from '@/api/support'
+import { likeApi, unlikeApi } from '@/api/support'
 
 export default {
   name: 'albumDetail',
   components: {
-    ContextMenu,
-    ActionBar,
-    MusicItem,
-    Header,
-    Reply,
-    ReplyInput
+    ContextMenu, ActionBar, MusicItem, Header, Reply, ReplyInput
   },
   data () {
     return {
@@ -71,10 +66,13 @@ export default {
         objType: 2,
         userId: this.$store.state.user.userInfo.id,
         root: 0,
-        parent: 0,
-        content: ''
+        parent: 0
+        // content: ''
       },
-      loading: true
+      loading: true,
+      replyLoading: false,
+      timeout: null,
+      is_end: false
     }
   },
   methods: {
@@ -96,14 +94,14 @@ export default {
     },
     // 关注
     async attention () {
-      await collect(null, this.getAlbumId, null).then(res => {
+      await collect(2, this.getAlbumId).then(res => {
         this.getCollectForm()
         this.isAlbumCollect(this.getAlbumId)
       })
     },
     // 取消关注
     async unfollow () {
-      await unfollow(null, this.getAlbumId, null).then(res => {
+      await unfollow(2, this.getAlbumId).then(res => {
         this.getCollectForm()
         this.isAlbumCollect(this.getAlbumId)
       })
@@ -115,44 +113,65 @@ export default {
       useContextMenu(e, this.pickMusicItem, this.getMusicFormId)
     },
     // 提交评论
-    async submit (data) {
-      this.content = data
+    async submit () {
       await saveComment({
         ...this.comment,
         replyUserId: this.replyUserId,
         root: this.rootId,
-        parent: this.parent
-      }, this.content)
-      await this.getComment()
+        parent: this.parent,
+        content: this.content
+      })
       this.clear()
-      this.comment = {
-        objId: +this.$route.params.id,
-        objType: 2,
-        userId: this.$store.state.user.userInfo.id,
-        root: 0,
-        parent: 0
-      }
     },
     async getComment () {
-      const { data } = await select(this.comment)
+      const { data } = await select({
+        objId: +this.$route.params.id,
+        objType: 2,
+        id: 0
+      })
       this.reply = data.comment
       this.total = data.count
     },
-    async more ({ pagination, objId, objType, rootId }) {
-      const { data } = await moreComment({
-        ...pagination,
-        objId: objId,
-        objType: objType,
-        rootId: rootId
-      })
+    // 更多评论
+    async more ({ pagination, objId, rootId }) {
+      const { data } = await moreComment({ ...pagination, objId: objId, objType: 2, rootId: rootId })
+      // 将子评论添加到对应根评论
       const find = this.reply.find(item => item.id === rootId)
-      if (find) {
-        find.children = data.page
-      }
+      if (find) find.children = data.page
     },
-    // 点赞
-    async like ({ objId, objType, objUserId }) {
-      await likeApi({ objId, objType, objUserId, likeTimestamp: new Date(), likeAction: 1 })
+    // 点赞 点赞表1为评论
+    async like ({ objId, objUserId }) {
+      await likeApi({ objId, objType: 1, objUserId, likeTimestamp: new Date(), likeAction: 1 })
+    },
+    // 取消点赞
+    async unlike ({ objId, objUserId }) {
+      await unlikeApi({ objId, objType: 1, objUserId, likeTimestamp: new Date(), likeAction: 2 })
+    },
+    // 加载评论
+    async load () {
+      if (this.replyLoading) return
+      if (this.is_end) return
+      this.replyLoading = true
+      clearTimeout(this.timeout)
+      this.timeout = setTimeout(async () => {
+        const { data } = await select({
+          objId: +this.$route.params.id,
+          objType: 2,
+          id: this.reply.slice(-1)[0].id
+        })
+        this.reply.push(...data.comment)
+        this.replyLoading = false
+        this.is_end = data.is_end
+      }, 1000)
+    },
+    // 检测页面触底
+    handleScroll () {
+      const offset = 21
+      const bottomOfWindow = document.documentElement.scrollTop + window.innerHeight >=
+        document.documentElement.offsetHeight - offset
+      if (bottomOfWindow) {
+        this.load()
+      }
     }
   },
   created () {
@@ -162,20 +181,27 @@ export default {
   mounted () {
     // 将会话中的歌单数据赋值给菜单
     this.menu[0].menu = this.getUserMusicForm
+    window.addEventListener('scroll', this.handleScroll)
+  },
+  beforeDestroy () {
+    window.removeEventListener('scroll', this.handleScroll)
   },
   computed: {
-    isLogin () { return this.$store.getters.token },
+    // isLogin () { return this.$store.getters.token },
     getAlbumId () { return +this.$route.params.id },
     // 用户信息
     // isAlbumCollect判断专辑是否收藏 getUserMusicForm返回收藏夹歌单
     ...mapGetters('collect', ['isAlbumCollect', 'getUserMusicForm']),
     ...mapState('comment', ['content', 'replyUserId', 'rootId', 'parent'])
+    // disabled () {
+    //   return this.replyLoading
+    // }
   }
 }
 </script>
 
 <template>
-  <div class="album" v-title data-title="专辑详情">
+  <div class="album infinite-list-wrapper" v-title data-title="专辑详情">
     <Header :color="album.color">
       <p>{{ album.name }}</p>
     </Header>
@@ -199,8 +225,9 @@ export default {
         <template>
           <el-image
             ref="image"
-            style="min-width: 225px; min-height: 225px;"
+            style="min-width: 250px; min-height: 250px;"
             class="img"
+            fit="cover"
             :src="album.image"
             :preview-src-list="[album.image]"
             alt="">
@@ -216,7 +243,12 @@ export default {
           <div class="album-detail">
             <span>专辑</span>
             <span style="font-size: 5rem; font-weight: bold">{{ album.name }}</span>
-            <span>{{ album.singerName }}</span>
+<!--            <span>{{ album.singerName }}</span>-->
+<!--            <span style="font-size: 10px;">{{album.description}}</span>-->
+            <span style="margin-top: 10px;">
+              <i @click="$router.push(`/detail/singer/${album.singerId}`)">{{ album.singerName }}</i> ·
+              {{ album?.musicList?.length }}首歌曲
+            </span>
           </div>
         </template>
       </el-skeleton>
@@ -228,7 +260,7 @@ export default {
           @submitPlay="submitPlay"
           @attention="attention"
           @unfollow="unfollow"
-          :isExist="isAlbumCollect(this.getAlbumId)"
+          :isExist="this.isAlbumCollect(this.getAlbumId)"
         >
           <span @click="isReply = !isReply" style="fill: #aaaaaa; min-width: 40px; min-height: 40px;">
             <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M853.333333 768c35.413333 0 64-20.650667 64-55.978667V170.581333A63.978667 63.978667 0 0 0 853.333333 106.666667H170.666667C135.253333 106.666667 106.666667 135.253333 106.666667 170.581333v541.44C106.666667 747.285333 135.338667 768 170.666667 768h201.173333l110.016 117.44a42.752 42.752 0 0 0 60.586667 0.042667L651.904 768H853.333333z m-219.029333-42.666667h-6.250667l-115.797333 129.962667c-0.106667 0.106667-116.010667-129.962667-116.010667-129.962667H170.666667c-11.776 0-21.333333-1.621333-21.333334-13.312V170.581333A21.205333 21.205333 0 0 1 170.666667 149.333333h682.666666c11.776 0 21.333333 9.536 21.333334 21.248v541.44c0 11.754667-9.472 13.312-21.333334 13.312H634.304zM341.333333 490.666667a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z"></path></svg>
@@ -236,21 +268,18 @@ export default {
         </ActionBar>
       </div>
       <div v-if="isReply" class="musicList">
-        <ContextMenu
-          v-if="isReply"
+        <ContextMenu v-if="isReply"
           :menu="menu"
           :position="position"
           @select-menu="pickMenu"
         >
-          <MusicItem
-            v-for="(item, index) in musicList"
-            @select-music="pickMusicItem = $event"
-            @position="position = $event"
+          <MusicItem v-for="(item, index) in musicList"
             :key="item.id"
             :index="index+1"
             :music="item"
-          >
-          </MusicItem>
+            @select-music="pickMusicItem = $event"
+            @position="position = $event"
+          />
         </ContextMenu>
       </div>
       <div v-if="!isReply" class="replyView">
@@ -261,15 +290,17 @@ export default {
           </li>
           <li></li>
         </ul>
-        <ReplyInput @sub="submit" @focus="clear"></ReplyInput>
-        <Reply
-          v-for="item in reply"
-          :key=" 'reply' + item.id"
-          :item="item"
+        <ReplyInput @sub="submit" @focus="clear" />
+        <Reply v-for="item in reply" :key=" 'reply' + item.id" :item="item"
           @more="more"
           @submit="submit"
           @like="like"
+          @unlike="unlike"
         />
+        <p style="text-align: center;">
+          <i v-show="replyLoading" class="loader"></i>
+          <i v-show="is_end" class="end"></i>
+        </p>
       </div>
     </div>
   </div>
@@ -282,7 +313,8 @@ $action-height: 5rem;
 .album {
   position: relative;
   z-index: 1;
-
+  overflow-x: hidden;
+  //overflow-y: auto;
   .head {
     min-height: $min-height;
     width: 100%;
@@ -326,7 +358,12 @@ $action-height: 5rem;
         align-content: space-between;
         margin-left: 20px;
         span {
-          color: #ffffff;
+          width: 50rem;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+          color: var(--info-text)
+          //color: #ffffff;
         }
       }
     }
@@ -345,7 +382,7 @@ $action-height: 5rem;
       min-height: 20rem;
       position: absolute;
       width: 100%;
-      background-image: linear-gradient(rgba(0, 0, 0, .4) 0, #ffffff 100%);
+      background-image: linear-gradient(rgba(0, 0, 0, .4) 0, var(--main-background-color) 100%);
     }
 
     .album-plank {
@@ -370,22 +407,16 @@ $action-height: 5rem;
     .replyView {
       width: 100%;
       height: 100%;
-      min-height: 15rem;
-      //height: 30rem;
       padding: 0 40px 0 40px;
       position: relative;
-      //top: -350px;
       margin-top: 5rem;
       z-index: 10;
-
       .nav-bar {
         margin-bottom: 10px;
-
         .nav-title {
+          color: var(--text-color);
           font-size: 20px;
-
           .title-text {
-            color: #18191C;
             margin-right: 5px;
           }
 
@@ -419,6 +450,34 @@ $action-height: 5rem;
             transition: all .2s ease-in-out;
           }
         }
+      }
+      .loader {
+        width: fit-content;
+        font-weight: bold;
+        font-family: monospace;
+        font-size: 14px;
+        clip-path: inset(0 3ch 0 0);
+        animation: l4 1s steps(4) infinite;
+      }
+      .loader:before {
+        content:"Loading..."
+      }
+      @keyframes l4 {
+        to { clip-path: inset(0 -1ch 0 0) }
+      }
+      .end {
+        width: fit-content;
+        font-weight: bold;
+        font-family: monospace;
+        font-size: 14px;
+        //clip-path: inset(0 3ch 0 0);
+        //animation: l3 1s steps(4) infinite;
+      }
+      .end:before {
+        content:"已经到底了..."
+      }
+      @keyframes l3 {
+        to { clip-path: inset(0 -1ch 0 0) }
       }
     }
   }

@@ -72,7 +72,6 @@ export default {
     background-color: #409EFF;
     justify-content: center;
     align-items: center;
-    //margin-right: 20px;
     &:hover{
       background-color: #3b76ff;
       transition: background-color .3s;
@@ -89,9 +88,11 @@ export default {
       font-size: 15px;
     }
     .icon{
+      color: #aeaeae;
       fill: #aeaeae;
       transition: all .2s;
       &:hover{
+        color: #FFFFFF;
         fill: #FFFFFF;
       }
     }
@@ -102,6 +103,7 @@ export default {
     border-radius: 20px;
     color: #FFFFFF;
     border: solid 2px #aeaeae;
+    transition: all .2s;
     &:hover{
       border: solid 2px #FFFFFF;
     }

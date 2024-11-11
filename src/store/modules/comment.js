@@ -32,7 +32,7 @@ export default {
   },
   actions: {
     clear ({ commit }) {
-      // commit('setContent', '')
+      commit('setContent', '')
       commit('setActionUserId', null)
       commit('setRootId', 0)
       commit('setParent', 0)

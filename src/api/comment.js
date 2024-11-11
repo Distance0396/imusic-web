@@ -8,9 +8,9 @@ export const select = (dto) => {
   })
 }
 
-export const saveComment = (dto, content) => {
+export const saveComment = (dto) => {
   return request.post('/comment', {
-    ...dto, content
+    ...dto
   })
 }
 

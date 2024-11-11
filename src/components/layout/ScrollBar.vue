@@ -84,6 +84,7 @@ export default {
 <style scoped lang="scss">
 .scroll-bar{
   min-height: 270px;
+  color: var(--text-color);
   .scroll-bar-navbar {
     display: flex;
     justify-content: space-between;

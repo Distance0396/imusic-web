@@ -77,8 +77,6 @@ export default {
     transition: background-color .4s;
   }
   .block-img{
-    //width: 23vh;
-    //height: 23vh;
     width: 9rem;
     height: 9rem;
     min-width: 120px;

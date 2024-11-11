@@ -14,7 +14,7 @@ export default {
   methods: {
     ...mapActions('comment', ['updateCommentProperty', 'clear']),
     sub () {
-      this.$emit('sub', this.content)
+      this.$emit('sub')
       this.isSubmit = false
     },
     focus () {
@@ -73,7 +73,8 @@ export default {
 
 <style scoped lang="scss">
 .reply-tool{
-  padding: 20px 0;
+  //padding: 20px 0;
+  padding-bottom: 20px;
   margin-bottom: 10px;
   display: flex;
   .input{

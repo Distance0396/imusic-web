@@ -3,15 +3,10 @@ export default {
   state () {
     return {
       // 音乐队列
-      playlist: [],
-      // 播放状态
-      status: null
+      playlist: []
     }
   },
   mutations: {
-    setStatus (state, obj) {
-      state.status = obj
-    },
     // 清空播放队列 添加新的播放队列
     setPlayList (state, obj) {
       state.playlist = []
@@ -39,7 +34,7 @@ export default {
         state.playlist.unshift(play)
       }
     },
-    // 指定歌曲
+    // 指定播放歌曲
     appoint (state, song) {
       const index = state.playlist.findIndex(music => music.id === song.id)
       if (index === -1) {
@@ -51,7 +46,6 @@ export default {
     }
   },
   actions: {
-
   },
   getters: {
     // 获取第一个播放对象

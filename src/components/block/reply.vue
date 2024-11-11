@@ -1,6 +1,6 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import replyInput from '@/components/bolck/replyInput.vue'
+import replyInput from '@/components/block/replyInput.vue'
 
 export default {
   name: 'replyBlock',
@@ -65,8 +65,6 @@ export default {
       if (type === 1) {
         this.$emit('like', {
           objId: this.item.id,
-          // 1为评论
-          objType: 1,
           objUserId: this.item.userInfo.id
         })
         reload.islike = true
@@ -74,11 +72,20 @@ export default {
       if (type === 2) {
         this.$emit('like', {
           objId: reload.id,
-          // 1为评论
-          objType: 1,
           objUserId: reload.userInfo.id
         })
         reload.islike = true
+      }
+    },
+    // 取消点赞
+    unLike (type, reload) {
+      if (type === 1) {
+        this.$emit('unlike', { objId: this.item.id, objUserId: this.item.userInfo.id })
+        reload.islike = false
+      }
+      if (type === 2) {
+        this.$emit('unlike', { objId: reload.id, objUserId: reload.userInfo.id })
+        reload.islike = false
       }
     }
   },
@@ -104,8 +111,9 @@ export default {
             <span class="reply-time">{{ item.createTime }}</span>
             <span class="reply-like" :class="{ like:  item.islike}">
               <i v-if="!item.islike" @click="onLike(1, item)" class="iconfont icon-dianzan2-copy" />
-              <i v-else class="iconfont icon-dianzan-copy" />
-              {{ item.islike ? item.likeCount + 1 : item.likeCount}}
+              <i v-else @click="unLike(1, item)" class="iconfont icon-dianzan-copy" />
+<!--              {{ item.islike ? item.likeCount + 1 : item.likeCount}}-->
+              {{ item.likeCount }}
             </span>
             <span style="transform: rotateX(180deg);">
               <i class="iconfont icon-dianzan2-copy"></i>
@@ -128,20 +136,21 @@ export default {
           >
             {{ children.userInfo?.name }}
           </span>
-          <span v-if="children.replyToUser">
+          <span v-if="children.replyToUser" style="color: var(--text-color)">
             回复
             <i style="color: #409EFF; margin-right: 10px" @click="$router.push(`/user/${children.replyToUser.id}`)">
               @{{ children.replyToUser?.name }}
             </i>
           </span>
-            <span class="children-content">{{ children.content }}</span>
+            <span class="children-content">: {{ children.content }}</span>
           </div>
           <div class="reply-info">
             <span class="reply-time">{{ children.createTime }}</span>
             <span class="reply-like" :class="{ like:  children.islike}">
               <i v-if="!children.islike" @click="onLike(2, children)" class="iconfont icon-dianzan2-copy" />
-              <i v-else class="iconfont icon-dianzan-copy"/>
-              {{ children.islike ? children.likeCount + 1 : children.likeCount }}
+              <i v-else @click="unLike(2, children)" class="iconfont icon-dianzan-copy"/>
+<!--              {{ children.islike ? children.likeCount + 1 : children.likeCount }}-->
+              {{ children.likeCount }}
             </span>
             <span style="transform: rotateX(180deg);">
               <i class="iconfont icon-dianzan2-copy" />
@@ -184,18 +193,21 @@ export default {
       .user-name{
         cursor: pointer;
         font-size: 15px;
-        color: #61666d;
+        color: var(--text-color);
+        //color: #61666d;
       }
       .root-reply{
         margin-top: 15px;
         white-space: pre-wrap;
         .reply-content{
+          color: var(--text-color);
           word-wrap: break-word;
           height: 100%;
-          width: 800px;
+          min-width: 800px;
         }
         .reply-info{
-          color: #9499A0;
+          color: var(--text-color);
+          //color: #9499A0;
           display: flex;
           align-items: center;
           font-size: 13px;
@@ -226,18 +238,21 @@ export default {
           align-items: center;
           .user-name{
             font-size: 15px;
-            color: #61666d;
+            color: var(--text-color);
+            //color: #61666d;
             margin-right: 10px;
             cursor: pointer;
           }
           .children-content{
+            color: var(--text-color);
             cursor: auto;
             font-size: 14px;
           }
         }
       }
       .reply-info{
-        color: #9499A0;
+        color: var(--text-color);
+        //color: #9499A0;
         font-size: 13px;
         margin-top: 10px;
         display: flex;

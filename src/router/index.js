@@ -1,16 +1,16 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Home from '@/views/layout/home/home.vue'
-import SingerList from '@/views/layout/explore/singer.vue'
+import SingerList from '@/views/layout/explore/all/index.vue'
 import Login from '@/views/login/index.vue'
-import Singer from '@/views/detail/singer.vue'
-import Album from '@/views/detail/album.vue'
-import SongList from '@/views/detail/musicForm.vue'
+import Singer from '@/views/detail/singer/index.vue'
+import Album from '@/views/detail/album/index.vue'
+import SongList from '@/views/detail/playlist/index.vue'
 import Layout from '@/views/layout/index.vue'
-import Search from '@/views/layout/explore/search.vue'
+import Search from '@/views/layout/explore/search/index.vue'
 import PlayList from '@/views/layout/play/index.vue'
-import ExploreLayout from '@/components/layout/ExploreLayout.vue'
-import PlayListLayout from '@/components/layout/PlayListLayout.vue'
+import ExploreLayout from '@/views/layout/explore/layout.vue'
+import PlayListLayout from '@/views/layout/play/layout.vue'
 import My from '@/views/my/index.vue'
 Vue.use(VueRouter)
 
@@ -31,6 +31,11 @@ const router = new VueRouter({
           path: 'home',
           name: 'Home',
           component: Home
+        },
+        {
+          path: 'daily',
+          name: 'dailyCharts',
+          component: () => import('@/views/layout/home/dailyCharts.vue')
         },
         {
           path: 'explore',
@@ -82,10 +87,6 @@ const router = new VueRouter({
           component: SongList
         },
         {
-          path: 'reply',
-          component: () => import('@/views/layout/reply/index.vue')
-        },
-        {
           path: 'user/:id',
           name: 'MyHome',
           component: My
@@ -124,6 +125,8 @@ router.beforeEach((to, from, next) => {
     }
   } else {
     // 允许访问
+    const theme = localStorage.getItem('theme') || 'light'
+    document.documentElement.setAttribute('data-theme', theme)
     next()
   }
 })

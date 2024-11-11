@@ -40,13 +40,14 @@ export default {
 
 <style lang="scss" scoped>
 .wscn-http404-container{
-  transform: translate(-50%,-50%);
-  position: absolute;
-  top: 40%;
-  left: 50%;
+  height: 100vh;
+  width: 100%;
+  background-color: var(--main-background-color);
 }
 .wscn-http404 {
+  margin: 0 auto;
   position: relative;
+  top: 20%;
   width: 1200px;
   padding: 0 50px;
   overflow: hidden;
@@ -181,7 +182,8 @@ export default {
     &__headline {
       font-size: 20px;
       line-height: 24px;
-      color: #222;
+      //color: #222;
+      color: var(--text-color);
       font-weight: bold;
       opacity: 0;
       margin-bottom: 10px;

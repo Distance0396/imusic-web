@@ -11,6 +11,7 @@
     "axios": "^1.6.8",
     "babel-plugin-component": "^1.1.1",
     "core-js": "^3.8.3",
+    "dayjs": "^1.11.13",
     "element-ui": "^2.15.14",
     "sass": "^1.77.8",
     "sass-loader": "^16.0.1",

@@ -1,15 +1,15 @@
 <script>
-import MusicItem from '@/components/bolck/MusicItem.vue'
+import MusicItem from '@/components/block/MusicItem.vue'
 import ActionBar from '@/components/layout/ActionBar.vue'
 import Header from '@/components/layout/Header.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import { useContextMenu } from '@/utils/useContextMenu'
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
 import { collect, unfollow } from '@/api/collect'
-import { updateMusicForm } from '@/api/muiscForm'
+import { deleteById, updateMusicForm } from '@/api/muiscForm'
 
 export default {
-  name: 'songList',
+  name: 'PlayList',
   mounted () {
     this.menu[0].menu = this.getUserMusicForm
   },
@@ -57,7 +57,7 @@ export default {
       收藏夹
      */
     ...mapActions('collect', ['getCollectForm']),
-    ...mapMutations('collect', ['setCurrentCol']),
+    ...mapMutations('player', ['setCurrentCol']),
     /*
       播放器
      */
@@ -127,6 +127,10 @@ export default {
     },
     playLocation () {
       this.setCurrentCol(this.musicForm)
+    },
+    async delPlaylist () {
+      await deleteById(this.musicForm.id)
+      await this.$store.dispatch('collect/getCollectForm')
     }
   },
   computed: {
@@ -199,7 +203,8 @@ export default {
       <div class="album-detail">
         <span>歌单</span>
         <span style="font-size: 5rem; font-weight: bold">{{musicForm.name}}</span>
-        <span>{{musicForm.architect}} · {{musicList.length}}首歌曲</span>
+        <span style="font-size: 10px;">{{musicForm.description}}</span>
+        <span style="margin-top: 10px;">{{musicForm.architect}} · {{musicList.length}}首歌曲</span>
       </div>
     </div>
     <div class="context">
@@ -209,10 +214,11 @@ export default {
           @submitPlay="submitPlay"
           @attention="attention"
           @unfollow="unfollow"
-          :is-exist="this.isMusicFormCollect(this.getMusicFormId)"
+          :is-exist="isMusicFormCollect(this.getMusicFormId)"
         >
-          <div @click="dialogVisible = true" v-if="musicForm.architect === this.userInfo.name">
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
+          <div v-if="this.musicForm.architectId === this.userInfo.id" style="display: flex; align-items: center;">
+            <svg @click="dialogVisible = true" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
+            <i @click="delPlaylist" style="margin-left: 20px; font-size: 30px;" class="iconfont icon-jianpanshouqi icon"></i>
           </div>
         </ActionBar>
       </div>
@@ -240,7 +246,7 @@ export default {
       :append-to-body="true"
       width="500px"
     >
-      <div style="display: flex; justify-content: space-between">
+      <div style="display: flex; justify-content: space-between;">
         <!-- 图片上传组件 -->
         <el-upload
           v-loading="loading"
@@ -260,7 +266,6 @@ export default {
             </span>
           </div>
 <!--          <i v-if="!musicForm.image" slot="default" class="el-icon-plus"></i>-->
-
           <!-- 如果有图片，显示图片及操作图标 -->
           <div v-else style="position: relative; width: 200px; height: 200px">
             <img
@@ -344,7 +349,7 @@ $action-height: 5rem;
       align-content: space-between;
       flex-direction: column;
       span{
-        color: #ffffff;
+        color: var(--info-text);
       }
     }
   }
@@ -357,7 +362,7 @@ $action-height: 5rem;
       z-index: 1;
       float: left;
       width: 100%;
-      background-image: linear-gradient(rgba(0, 0, 0, .4) 0, #ffffff 100%);
+      background-image: linear-gradient(rgba(0, 0, 0, .4) 0, var(--main-background-color) 100%);
     }
     .album-plank{
       display: flex;
@@ -377,6 +382,15 @@ $action-height: 5rem;
     }
   }
 }
+.el-dialog__wrapper{
+  ::v-deep .el-dialog{
+    background-color: var(--aside-background-color);
+    .el-dialog__title{
+      color: var(--text-color);
+    }
+  }
+}
+
 .upload{
   .img{
     border-radius: 5px;
@@ -400,10 +414,10 @@ $action-height: 5rem;
     .icon{
       width: 50px;
       height: 50px;
-      fill: #FFFFFF;
+      fill: var(--playlist-img-fill);
     }
     &:hover{
-      background-color: rgb(0 0 0 / 50%);
+      background-color: rgb(0 0 0 / 30%);
       opacity: 1;
       transition: all .2s;
     }
@@ -411,10 +425,20 @@ $action-height: 5rem;
 }
 .context{
   width: 250px;
+  ::v-deep .el-input{
+    .el-input__inner{
+      background-color: var(--aside-background-color);
+      color: var(--text-color);
+    }
+  }
   .title{
     margin-bottom: 2px;
   }
-  .description{
+  ::v-deep .description{
+    .el-textarea__inner{
+      color: var(--text-color);
+      background-color: var(--aside-background-color);
+    }
   }
 }
 </style>

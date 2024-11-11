@@ -1,5 +1,5 @@
 <template>
-  <div class="myHome">
+  <div class="myHome" v-title :data-title="this.userInfo.name">
     <el-card class="card">
       <div slot="header" class="avatar">
         <el-upload
@@ -35,7 +35,7 @@
         <div class="user-info">
           <el-form class="form" :rules="rules" :model="user" label-position="right" label-width="60px">
             <el-form-item label="昵称" prop="name">
-              <sapn v-if="!isMy">{{user.name}}</sapn>
+              <span v-if="!isMy">{{user.name}}</span>
               <el-input
                 v-else
                 size="small"
@@ -120,9 +120,9 @@
       </div>
     </el-card>
     <el-tabs class="tabs" v-if="userId === this.$store.state.user.userInfo.id" v-model="activeName" @tab-click="handleTabClick">
-      <el-tab-pane label="我的歌单" name="first" :lazy="true">
+      <el-tab-pane class="form" label="我的歌单" name="first" :lazy="true">
         <div class="my-playlist">
-          <Block v-for="item in collect.musicFormList" :key="item.id">
+          <Block v-for="item in this.collect.musicFormList" :key="item.id">
             <template #img>
               <el-image
                 v-if="item.image !== undefined"
@@ -134,7 +134,7 @@
                 :lazy="true"
                 alt=""
                 @click="$router.push(`/detail/music-form/${item.id}`)"
-              ></el-image>
+              />
             </template>
             <template #nameOne>
               <i @click="$router.push(`/detail/music-form/${item.id}`)">{{item.name}}</i>
@@ -145,8 +145,8 @@
           </Block>
         </div>
       </el-tab-pane>
-      <el-tab-pane label="我的设置" name="setting">
-        <Settings></Settings>
+      <el-tab-pane class="setting" label="我的设置" name="setting">
+        <Settings />
       </el-tab-pane>
     </el-tabs>
     <el-dialog
@@ -190,8 +190,8 @@
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { getCodeApi, getUser, updateUserInfo } from '@/api/user'
 import { Notification } from 'element-ui'
-import Block from '@/components/bolck/Block.vue'
-import Settings from '@/components/layout/Settings.vue'
+import Block from '@/components/block/Block.vue'
+import Settings from '@/views/my/settings.vue'
 export default {
   name: 'myHome',
   components: { Block, Settings },
@@ -213,13 +213,13 @@ export default {
       // 表单正则
       rules: {
         name: [
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]{3,15}$/, message: '请填写3到15位不包含特殊字符的昵称', trigger: 'change' }
+          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]{3,15}$/, message: '请填写3到15位不包含特殊字符的昵称', trigger: 'blur' }
         ],
         phone: [
-          { pattern: /^1[3-9]\d{9}$/, message: '请填写正确手机号', trigger: 'change' }
+          { pattern: /^1[3-9]\d{9}$/, message: '请填写正确手机号', trigger: 'blur' }
         ],
         email: [
-          { pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: '请填写正确的邮箱格式', trigger: 'change' }
+          { pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: '请填写正确的邮箱格式', trigger: 'blur' }
         ]
       },
       // 控制上传头像loading效果显示
@@ -490,9 +490,15 @@ export default {
 .myHome{
   $wth: 800px;
   margin: 20px;
+  //height: 100vh;
   position: relative;
   .card{
     min-width: $wth;
+    background-color: var(--main-background-color);
+    border: 1px solid var(--border);
+    ::v-deep .el-card__header{
+      border-bottom: 1px solid var(--border);
+    }
     .avatar{
       display: flex;
       align-items: center;
@@ -507,7 +513,7 @@ export default {
             width: 18rem;
             @include updateInput();
             &:nth-last-child(1){
-              width: $wth - 200px;
+              width: calc($wth - 200px);
             }
           }
         }
@@ -535,7 +541,8 @@ export default {
           .icon{
             width: 50px;
             height: 50px;
-            fill: #FFFFFF;
+            fill: var(--fill-color);
+            //fill: #FFFFFF;
           }
           &:hover{
             background-color: rgb(0 0 0 / 50%);
@@ -546,7 +553,7 @@ export default {
       }
     }
     .card-body{
-      $body-width: $wth / 2 + 100px;
+      $body-width: calc($wth / 2 + 100px);
       display: flex;
       align-items: center;
       .card-left{
@@ -558,7 +565,8 @@ export default {
       .card-right{
         margin-left: auto;
         i{
-          color: #C0C4CC;
+          color: var(--text-color);
+          //color: #C0C4CC;
           font-size: 14px;
         }
         .btn{
@@ -571,8 +579,15 @@ export default {
   }
   .tabs{
     margin-top: 20px;
+    //height: 100%;
+    min-height: calc(100vh - 427px);
     .my-playlist{
       display: flex;
+    }
+    ::v-deep .el-tabs__content{
+    }
+    .setting{
+      //overflow: auto;
     }
   }
 }

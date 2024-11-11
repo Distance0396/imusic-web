@@ -6,6 +6,15 @@ import { setToken } from '@/utils/storage'
 export default {
   name: 'LoginIndex',
   data () {
+    const checkEmail = (rule, value, cb) => {
+      // 验证邮箱的正则表达式
+      const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
+      if (regEmail.test(value)) {
+        // 合法的邮箱
+        return cb()
+      }
+      cb(new Error('请输入合法的邮箱'))
+    }
     return {
       hidden: true,
       active: true,
@@ -26,13 +35,37 @@ export default {
         email: ''
       },
       rules: {
-        account: [
-          // { required: true, message: '账号不能为空', trigger: 'blur' },
-          { pattern: /^[a-zA-Z0-9]{6,13}$/, message: '请填写6-13位账号不包含特殊字符', trigger: 'change' }
-        ],
-        password: [
-          // { required: true, message: '密码不能为空', trigger: 'blur' }
-        ]
+        loginIn: {
+          account: [
+            // { required: true, message: '账号不能为空', trigger: 'blur' },
+            { pattern: /^[a-zA-Z0-9]{6,13}$/, message: '请填写6-13位账号不包含特殊字符', trigger: 'change' }
+          ],
+          password: [
+            // { required: true, message: '密码不能为空', trigger: 'blur' }
+          ]
+        },
+        loginUp: {
+          name: [
+            // { required: true, message: '昵称不能为空', trigger: 'blur' },
+            { pattern: /^[a-zA-Z0-9]{3,15}$/, message: '请填写3到15位不包含特殊字符的昵称', trigger: 'change' }
+          ],
+          account: [
+            // { required: true, message: '账号不能为空', trigger: 'blur' },
+            { pattern: /^[a-zA-Z0-9]{6,13}$/, message: '请填写6-13位账号不包含特殊字符', trigger: 'change' }
+          ],
+          password: [
+            // { required: true, message: '密码不能为空', trigger: 'blur' },
+            { pattern: /[^[^\u4e00-\u9fa5]{6,20}$/, message: '请填写6到20位不包含中文字符', trigger: 'change' }
+          ]
+        },
+        emailRules: {
+          email: [
+            {
+              validator: checkEmail,
+              trigger: 'blur'
+            }
+          ]
+        }
       },
       registerRules: {
         name: [
@@ -102,11 +135,10 @@ export default {
     async getCode () {
       // 判断是否填写邮箱
       if (this.sign.email === '') {
-        return Notification.error({
-          title: '错误',
-          message: '数据不能为空',
-          showClose: false
-        })
+        return Notification.error({ title: '错误', message: '邮箱为空', showClose: false })
+      }
+      if (/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/.test(this.sign.email) === false) {
+        return Notification.error({ title: '错误', message: '邮箱格式错误', showClose: false })
       }
       // 人机验证
       const recaptcha = await this.$recaptcha('email')
@@ -147,17 +179,6 @@ export default {
       this.hidden === true ? this.sign.type = 'signIn' : this.sign.type = 'signUp'
     }
   }
-  // watch: {
-  //   hidden: {
-  //     handler (newVal) {
-  //       this.sign = {
-  //         code: '',
-  //         type: this.activeIndex,
-  //         email: ''
-  //       }
-  //     }
-  //   }
-  // }
 }
 </script>
 
@@ -178,7 +199,7 @@ export default {
         <el-menu-item index="signIn">{{hidden ? "账号登陆" : "注册账号"}}</el-menu-item>
         <el-menu-item index="signUp">{{hidden ? "邮箱登陆" : "邮箱注册"}}</el-menu-item>
         <div>
-          <el-form size="medium" v-if="hidden && !showEmail" :model="landing" :rules="rules" ref="ruleForm" label-width="100px" class="form-left public">
+          <el-form size="medium" v-if="hidden && !showEmail" :model="landing" :rules="rules.loginIn" ref="ruleForm" label-width="100px" class="form-left public">
             <el-form-item prop="account">
               <el-input class="input-item" placeholder="请输入账号" v-model.trim="landing.account" prefix-icon="el-icon-user-solid" clearable></el-input>
             </el-form-item>
@@ -187,11 +208,7 @@ export default {
             </el-form-item>
             <el-button size="medium" class="input-item" type="primary" @click="login">登陆</el-button>
           </el-form>
-          <el-form size="small" v-if="hidden && showEmail" :model="sign" :rules="{
-            email: [{
-              pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: '请填写正确邮箱', trigger: 'change'
-            }]
-          }" ref="ruleForm" label-width="100px" class="form-left public">
+          <el-form size="medium" v-if="hidden && showEmail" :model="sign" :rules="rules.emailRules" label-width="100px" class="form-left public">
             <el-form-item prop="email">
               <el-input :disabled="isSendCode" size="medium" class="input-item" placeholder="请输入邮箱" v-model.trim="sign.email" prefix-icon="el-icon-s-promotion" clearable>
                 <template slot="append">
@@ -206,7 +223,7 @@ export default {
           </el-form>
         </div>
         <div>
-          <el-form size="medium" v-if="!hidden && !showEmail" :model="register" :rules="registerRules" class="form-right public">
+          <el-form size="medium" v-if="!hidden && !showEmail" :model="register" :rules="rules.loginUp" class="form-right public">
             <el-form-item prop="name">
               <el-input class="input-item" placeholder="昵称" v-model.trim="register.name" clearable></el-input>
             </el-form-item>
@@ -218,15 +235,11 @@ export default {
             </el-form-item>
             <el-button size="medium" type="primary" @click="RegAccount">注册账号</el-button>
           </el-form>
-          <el-form size="medium" v-if="!hidden && showEmail" :model="sign" :rules="{
-            email: [{
-              pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: '请填写正确邮箱', trigger: 'change'
-            }]
-          }" class="form-right public">
+          <el-form size="medium" v-if="!hidden && showEmail" :model="sign" :rules="rules.emailRules" class="form-right public">
             <el-form-item prop="email">
-              <el-input class="input-item" placeholder="请输入邮箱" v-model.trim="sign.email" prefix-icon="el-icon-s-promotion" clearable>
+              <el-input :disabled="isSendCode" class="input-item" placeholder="请输入邮箱" v-model.trim="sign.email" prefix-icon="el-icon-s-promotion" clearable>
                 <template slot="append">
-                  <el-button size="medium" class="input-item" type="primary" @click="getCode">获取验证码</el-button>
+                  <el-link :disabled="isSendCode" size="success" class="input-item" @click="getCode">{{codeName}}</el-link>
                 </template>
               </el-input>
             </el-form-item>

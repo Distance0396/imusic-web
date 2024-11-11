@@ -5,11 +5,7 @@ export default {
   state () {
     return {
       // 收藏夹
-      collect: getMusicFormList(),
-      // 当前播放音乐
-      currentSong: null,
-      // 当前播放的音乐所在
-      currentCol: null
+      collect: getMusicFormList()
     }
   },
   mutations: {
@@ -18,14 +14,6 @@ export default {
       state.collect = obj
       // 将用户收藏信息存至会话
       setMusicFormList(obj)
-    },
-    // 修改当前播放音乐
-    setCurrentSong (state, song) {
-      state.currentSong = song
-    },
-    // 修改当前播放的音乐所在
-    setCurrentCol (state, obj) {
-      state.currentCol = obj
     }
   },
   actions: {
@@ -36,13 +24,6 @@ export default {
         const { data } = res
         commit('setCollectForm', data)
       })
-    },
-    // 修改当前播放音乐
-    playSong ({ commit }, song) {
-      commit('setCurrentSong', song)
-    },
-    playCol ({ commit }, col) {
-      commit('setCurrentCol', col)
     }
   },
   getters: {

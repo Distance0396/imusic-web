@@ -20,6 +20,7 @@ export default {
         createTime: '',
         updateTime: ''
       },
+      dark: localStorage.getItem('theme'),
       action: true,
       password: '',
       rewritePassword: ''
@@ -51,6 +52,10 @@ export default {
       removeToken()
       removeMusicFormList()
       location.reload()
+    },
+    changeDark (e) {
+      document.documentElement.setAttribute('data-theme', e)
+      localStorage.setItem('theme', e)
     }
   }
 }
@@ -133,10 +138,22 @@ export default {
         </el-switch>
       </span>
     </el-form-item>
+    <el-form-item label="主题样式">
+      <span>黑夜主题</span>
+      <span class="form-right">
+        <el-switch
+          v-model="dark"
+          @change="changeDark"
+          active-value="dark"
+          inactive-value="light"
+        >
+        </el-switch>
+      </span>
+    </el-form-item>
     <el-form-item label="账号">
-      <span>
+      <span class="password">
         <i v-if="action">确保密码安全，以增强帐户安全性。</i>
-        <el-form v-if="!action" class="password" label-position="top" label-width="80px">
+        <el-form v-if="!action" label-position="top" label-width="80px">
           <el-form-item label="新的密码" style="width: 300px">
             <el-input v-model="password" show-password size="mini"></el-input>
           </el-form-item>
@@ -154,27 +171,44 @@ export default {
 </template>
 
 <style scoped lang="scss">
+@import "@/assets/scss/mixin";
 .my-form{
-  margin: auto;
+  margin-left: 100px;
   width: 800px;
   ::v-deep .el-form-item{
     .el-form-item__label{
-      color: black;
+      color: var(--text-color);
       font-size: 20px;
     }
     .el-form-item__content{
       display: flex;
-      //align-items: center;
       color: #606266;
       .form-right{
         margin-left: auto;
       }
+      .password{
+        font-size: 14px;
+        color: var(--text-color);
+        .el-form{
+          .el-form-item{
+            .el-form-item__label{
+              font-size: 14px;
+            }
+            .el-form-item__content{
+              .el-input{
+                .el-input__inner{
+                  background-color: var(--el-input);
+                  border: 1px solid var(--el-input-border);
+                  &:hover{
+                    border: 1px solid var(--el-input-hover);
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
     }
-  }
-  ::v-deep .password .el-form-item__label{
-    padding: 0;
-    font-size: 14px;
-    color: #606266;
   }
 }
 </style>

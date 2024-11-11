@@ -1,7 +1,7 @@
 <script>
 import Header from '@/components/layout/Header.vue'
 import { mapState, mapGetters } from 'vuex'
-import MusicItem from '@/components/bolck/MusicItem.vue'
+import MusicItem from '@/components/block/MusicItem.vue'
 export default {
   name: 'playList',
   components: {
@@ -17,11 +17,11 @@ export default {
 <template>
   <div class="playList" v-title data-title="播放队列">
     <Header></Header>
-    <div class="main">
+    <div class="main" style="color: var(--text-color)">
       <h2>队列</h2>
       <div class="be-play">
         <i class="title">当前播放</i>
-        <MusicItem :music="firstPlayList"></MusicItem>
+        <MusicItem :music="this.firstPlayList"></MusicItem>
       </div>
       <div>
         <i class="title">下一首来自：<i @click="$router.push(`/detail/album/${playlist[0].albumId}`)">{{playlist[0].albumName}}</i></i>

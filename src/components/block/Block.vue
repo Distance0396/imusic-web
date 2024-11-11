@@ -43,7 +43,7 @@ export default {
         </div>
       </template>
       <template>
-        <span class="block-img">
+        <div class="block-img" style="width: 8.5rem;height: 8.5rem;margin-bottom: 10px;position: relative;">
           <span
             v-if="this.$router.history.current.fullPath === '/explore/search'"
             @click="delHistory"
@@ -51,8 +51,9 @@ export default {
             <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M806.4 263.2l-45.6-45.6L512 467.2 263.2 217.6l-45.6 45.6L467.2 512 217.6 760.8l45.6 45.6L512 557.6l248.8 248.8 45.6-45.6L557.6 512z" p-id="5316"></path></svg>
           </span>
           <slot name="img"></slot>
-        </span>
-        <span class="block-name">
+          <button class="btn iconfont icon-icon_play" />
+        </div>
+        <span class="block-name" style="width:8.5rem; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
           <i>
             <slot name="nameOne"></slot>
           </i>
@@ -71,31 +72,46 @@ export default {
   margin: 1px;
   display: inline-flex;
   flex-direction: column;
-  background-color: #f7f7f7;
+  background-color: var(--block);
+  color: var(--text-color);
   border-radius: 5px;
   justify-content: center;
   cursor: pointer;
   .block-loading{
     display: inline-flex;
     flex-direction: column;
-    background-color: #f7f7f7;
+    background-color: var(--block);
     border-radius: 5px;
     justify-content: center;
     &:hover{
-      background-color: #d0d0d0;
+      background-color: var(--collect-item-color);
       transition: background-color .4s;
     }
   }
   &:hover{
-    background-color: #d0d0d0;
+    background-color: var(--collect-item-color);
     transition: background-color .4s;
+  }
+  &:hover .block-img .btn{
+    opacity: 1;
+    transform: translateY(0); /* 悬停时按钮回到原位 */
   }
   .block-img{
     width: 8.5rem;
     height: 8.5rem;
     margin-bottom: 10px;
     position: relative;
-    //overflow: hidden;
+    .btn{
+      color: var(--info-text);
+      position: absolute;
+      bottom: 0;
+      right: 0;
+      transform: translateY(15px); /* 初始状态下，按钮向下移动 */
+      transition: opacity 0.4s ease, transform 0.4s ease; /* 添加过渡效果 */
+      opacity: 0;
+      width: 50px; height: 50px; margin-left: auto; border-radius: 50%; background-color: #409EFF;
+    }
+
   }
   .block-name{
     font-size: 1rem;

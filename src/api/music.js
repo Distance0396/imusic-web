@@ -1,12 +1,10 @@
 import request from '@/utils/request'
 
 /**
- * 通过id查询歌词
- * @param id
- * @returns {Promise<axios.AxiosResponse<any>>}
+ * 通过id查询歌曲
  */
-export const getLyric = (id) => {
-  return request.get('/music/lyric', {
+export const getMusic = (id) => {
+  return request.get('/music/main', {
     params: {
       id: id
     }

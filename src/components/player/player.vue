@@ -1,6 +1,6 @@
 <script>
-import { mapState, mapGetters, mapMutations } from 'vuex'
-import Lyric from '@/components/Lyric.vue'
+import { mapState, mapGetters, mapMutations, mapActions } from 'vuex'
+import Lyric from '@/components/player/Lyric.vue'
 import screenfull from 'screenfull'
 export default {
   name: 'playerItem',
@@ -9,20 +9,9 @@ export default {
   },
   data () {
     return {
-      // audio: require('../assets/audio/宇多田ヒカル椎名林檎-二時間だけのバカンス (只有两小时的假期).mp3'),
-      // 控制播放
-      isPlay: false,
       // 控制播放器显示
       isShow: false,
-      // 总时长
-      endTime: 0,
-      // 播放进度时间
-      firstTime: 0,
-      // 进度条
-      sliderValue: 0,
       maxValue: 0,
-      // 音量大小
-      volume: 0,
       // 控制播放队列显示
       isDrawer: false,
       dialogVisible: false,
@@ -30,9 +19,12 @@ export default {
     }
   },
   methods: {
+    ...mapMutations('player', ['setTotalTime', 'setFirstTime', 'setStatus', 'setIsPlay']),
+    ...mapMutations('playlist', ['nextSong', 'lastSong']),
+    ...mapActions('player', ['getLyricAndAudio']),
     // 播放暂停
     play () {
-      this.isPlay = !this.isPlay
+      this.setIsPlay(!this.isPlay)
       if (this.isPlay) {
         this.setStatus(true)
         this.$refs.audio.play()
@@ -43,8 +35,11 @@ export default {
     },
     // 播放时
     current (e) {
-      this.firstTime = e.target.currentTime
-      this.sliderValue = (this.firstTime / this.endTime) * 100
+      const curr = e.target.currentTime
+      this.setFirstTime(curr)
+      this.sliderValue = (this.firstTime / this.totalTime) * 100
+      // this.firstTime = e.target.currentTime
+      // this.sliderValue = (this.firstTime / this.endTime) * 100
     },
     // 时间转换
     formatTime (seconds) {
@@ -55,13 +50,12 @@ export default {
     // 进度条
     dragChange (value) {
       const audio = this.$refs.audio
-      audio.currentTime = (value / 100) * this.endTime
+      audio.currentTime = (value / 100) * this.totalTime
     },
     // 加载完成
     loadMetadata (e) {
-      this.endTime = e.target.duration
-      // this.maxValue = e.target.duration
-      this.volume = e.target.volume * 100
+      const duration = e.target.duration
+      this.setTotalTime(duration)
     },
     // 是否循环
     isLoop (e) {
@@ -74,7 +68,6 @@ export default {
     volumeChange (value) {
       this.$refs.audio.volume = value * 0.01
     },
-    ...mapMutations('playlist', ['nextSong', 'lastSong', 'setStatus']),
     // 播放完
     overPlay () {
       this.sliderValue = 0
@@ -99,26 +92,38 @@ export default {
       }
     },
     // dialog关闭前
-    dialogClose () {
-      screenfull.exit()
-    }
+    dialogClose () { screenfull.exit() }
   },
   computed: {
-    ...mapState('playlist', ['playlist', 'status']),
-    ...mapGetters('playlist', ['firstPlayList'])
-  },
-  mounted () {
-    // 改变进度条样式
-    // const element = document.querySelector('.progress-bar .el-slider__runway .el-slider__button-wrapper .el-slider__button')
-    // element.style.backgroundColor = 'transparent'
-    // element.style.border = '2px solid transparent'
+    ...mapState('playlist', ['playlist']),
+    ...mapState('player', ['totalTime', 'firstTime', 'isPlay', 'status', 'lyric', 'audio']),
+    ...mapGetters('playlist', ['firstPlayList']),
+    sliderValue: {
+      get () {
+        return this.$store.state.player.sliderValue
+      },
+      set (newVal) {
+        this.$store.commit('player/setSliderValue', newVal)
+      }
+    },
+    volume: {
+      get () {
+        return this.$store.state.player.volume
+      },
+      set (newVal) {
+        this.$store.commit('player/setVolume', newVal)
+      }
+    }
   },
   watch: {
     playlist: {
       // 音乐队列改变触发
       handler (newVal) {
+        // console.log('音乐队列改变触发')
         this.isShow = true
-        this.isPlay = true
+        this.setIsPlay(true)
+        this.setStatus(true)
+        this.getLyricAndAudio(this.firstPlayList.id)
         setTimeout(() => {
           this.$refs.audio.play()
         }, 500)
@@ -128,10 +133,12 @@ export default {
       // musicItem点击播放暂停修改player播放暂停状态
       handler (newVal) {
         if (newVal) {
-          this.isPlay = true
+          this.setIsPlay(true)
+          // this.isPlay = true
           this.$refs.audio.play()
         } else {
-          this.isPlay = false
+          this.setIsPlay(false)
+          // this.isPlay = false
           this.$refs.audio.pause()
         }
       }
@@ -139,21 +146,20 @@ export default {
   }
 }
 </script>
-
 <template>
   <div class="player" v-if="isShow">
     <div class="player-left">
-      <el-image class="image" :src="firstPlayList.image"></el-image>
+      <el-image class="image" :src="firstPlayList?.image"></el-image>
       <div class="player-left-info">
-        <i>{{firstPlayList.name}}</i>
-        <i>{{firstPlayList.singerName}}</i>
+        <i>{{firstPlayList?.name}}</i>
+        <i @click="$router.push(`/detail/singer/${firstPlayList?.singerId}`)">{{firstPlayList?.singerName}}</i>
       </div>
     </div>
     <div class="play-controller">
       <div class="contr-top">
         <audio
           ref="audio"
-          :src="this.firstPlayList.audio"
+          :src="this.audio"
           @ended="overPlay"
           @loadedmetadata="loadMetadata"
           @timeupdate="current"
@@ -181,49 +187,60 @@ export default {
         </div>
       </div>
       <div class="contr-bottom">
-        <div class="play-first" style="width: 40px; color: #b3b3b3;">{{this.formatTime(firstTime) || '00:00'}}</div>
+        <div class="play-first" style="width: 40px; color: #b3b3b3;">{{this.formatTime(this.firstTime) || '00:00'}}</div>
         <el-slider
           class="progress-bar"
           v-model="sliderValue"
           :show-tooltip="false"
           @change="dragChange"
         />
-        <div class="play-end" style="width: 40px; color: #b3b3b3;">{{ this.formatTime(endTime) || '00:00'}}</div>
+        <div class="play-end" style="width: 40px; color: #b3b3b3;">{{ this.formatTime(this.totalTime) || '00:00'}}</div>
       </div>
     </div>
     <div class="player-right">
       <button>
-        <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M763 0C618.8 0 502 116.8 502 261c0 4.4 0.1 8.9 0.3 13.2L28.6 803.1c-37.5 37.5-37.5 98.3 0 135.8l56.6 56.6c18.7 18.8 43.3 28.1 67.9 28.1s49.1-9.4 67.9-28.1l528.9-473.8c4.4 0.2 8.8 0.3 13.2 0.3 144.2 0 261-116.9 261-261S907.2 0 763 0zM178.2 947.8l-1.3 1.2-1.2 1.3c-8.2 8.1-17.7 9.4-22.6 9.4s-14.5-1.2-22.6-9.4l-56.6-56.6c-12.5-12.5-12.5-32.8 0-45.3l1.3-1.2 1.2-1.3 442.2-493.6c26.4 70.8 82.6 127 153.4 153.4L178.2 947.8z m724.1-547.5c-20.7 20.7-45.3 36.3-72 46C809 454 786.3 458 763 458c-11.8 0-23.4-1-34.7-3-39.4-7-75.7-25.8-104.6-54.7S576 335.1 569 295.7c-2-11.3-3-22.9-3-34.7 0-23.3 4-46 11.7-67.3 9.7-26.8 25.2-51.3 46-72C660.9 84.5 710.4 64 763 64s102.1 20.5 139.3 57.7C939.5 158.9 960 208.4 960 261s-20.5 102.1-57.7 139.3z"></path><path d="M377.1 624.9c-12.5-12.5-12.5-32.8 0-45.3l90.5-90.5c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3l-90.5 90.5c-12.5 12.5-32.8 12.5-45.3 0z"></path></svg>
+        <i class="iconfont icon-changge1"></i>
       </button>
       <button @click="$router.push('/play/playlist')">
-        <svg class="icon" viewBox="0 0 1118 1024" xmlns="http://www.w3.org/2000/svg"  width="20" height="20"><path d="M972.33052618 601.48863669L128.58052618 601.48863669C107.41007157 601.48863669 90.22825308 584.30681821 90.22825308 563.13636358 90.22825308 541.94034103 107.41007157 524.78409131 128.58052618 524.78409131L972.33052618 524.78409131C993.5009808 524.78409131 1010.68279929 541.94034103 1010.68279929 563.13636358 1010.68279929 584.30681821 993.5009808 601.48863669 972.33052618 601.48863669ZM972.33052618 269.10227255L435.39870771 269.10227255C414.22825308 269.10227255 397.04643542 251.9204549 397.04643542 230.75000027 397.04643542 209.57954565 414.22825308 192.39772717 435.39870771 192.39772717L972.33052618 192.39772717C993.5009808 192.39772717 1010.68279929 209.57954565 1010.68279929 230.75000027 1010.68279929 251.9204549 993.5009808 269.10227255 972.33052618 269.10227255ZM155.8617759 360.25284131C140.82768515 375.28693207 116.43563977 375.28693207 101.40154902 360.25284131 97.79643515 356.62215869 95.1629126 352.42897744 93.2708675 348.00568152 93.2708675 347.98011358 93.24529873 347.95454565 93.24529873 347.95454565 91.17427647 343.01988613 90.15154929 337.8039769 90.22825308 332.53693179L90.22825308 129.75568207C90.22825308 129.42329565 90.22825308 129.11647717 90.22825308 128.78409076L90.22825308 128.4772731C90.22825308 125.53693207 91.27654902 122.95454538 91.89018515 120.21875027 92.35041287 118.37784103 92.29927618 116.46022717 93.01518487 114.69602256 98.56348053 100.35227255 112.29359439 90.09943207 128.58052618 90.09943207 139.70268542 90.09943207 149.52086695 95.00852283 156.52654873 102.55113613L282.91007157 203.51988641C290.5293895 211.13920435 294.21120798 221.13636387 294.10893542 231.13352255 294.21120798 241.13068206 290.5293895 251.15340869 282.91007157 258.74715869L155.8617759 360.25284131ZM128.58052618 857.17045462L972.33052618 857.17045462C993.5009808 857.17045462 1010.68279929 874.32670435 1010.68279929 895.5227269 1010.68279929 916.69318152 993.5009808 933.875 972.33052618 933.875L128.58052618 933.875C107.41007157 933.875 90.22825308 916.69318152 90.22825308 895.5227269 90.22825308 874.32670435 107.41007157 857.17045462 128.58052618 857.17045462Z"></path></svg>
+        <i class="iconfont icon-duilieguanli"></i>
       </button>
       <button class="volume" >
-        <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M512 947.2c-16 0-33.6-6.4-44.8-19.2l-224-224H160c-52.8 0-96-43.2-96-96V416c0-52.8 43.2-96 96-96h83.2l224-224c17.6-17.6 46.4-24 70.4-14.4C560 92.8 576 115.2 576 140.8v740.8c0 25.6-16 49.6-40 59.2-8 4.8-16 6.4-24 6.4zM160 384c-17.6 0-32 14.4-32 32v192c0 17.6 14.4 32 32 32h96c8 0 16 3.2 22.4 9.6L512 883.2V140.8L278.4 374.4C272 380.8 264 384 256 384h-96z m640 432c-9.6 0-17.6-3.2-24-11.2-11.2-14.4-9.6-33.6 4.8-44.8 72-62.4 115.2-152 115.2-248s-43.2-185.6-116.8-246.4c-14.4-11.2-16-32-4.8-44.8 11.2-14.4 32-16 44.8-4.8C908.8 289.6 960 396.8 960 512c0 115.2-51.2 222.4-139.2 296-6.4 4.8-14.4 8-20.8 8zM672 672c-9.6 0-19.2-4.8-25.6-12.8-11.2-14.4-8-33.6 6.4-44.8 32-24 51.2-62.4 51.2-102.4s-19.2-78.4-51.2-102.4c-14.4-11.2-17.6-30.4-6.4-44.8 11.2-14.4 30.4-17.6 44.8-6.4 48 36.8 76.8 92.8 76.8 153.6s-27.2 116.8-76.8 153.6c-6.4 4.8-12.8 6.4-19.2 6.4z"></path></svg>
+        <i class="iconfont icon-yinliang-F"></i>
+        <i v-show="false" class="iconfont icon-jingyin-F"></i>
         <el-slider
           class="volume-change"
           v-model="volume"
           :show-tooltip="false"
-          @change="volumeChange"
+          @input="volumeChange"
         />
       </button>
-      <button @click="toggleFullScreen">
+      <button @click="toggleFullScreen" style="margin: 0 20px 0 25px">
         <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M919.272727 46.545455A34.909091 34.909091 0 0 1 954.181818 81.454545v272.104728a34.909091 34.909091 0 1 1-69.818182 0v-187.810909L613.655273 436.433455a34.792727 34.792727 0 0 1-24.669091 10.216727 34.909091 34.909091 0 0 1-24.692364-59.578182L835.025455 116.363636h-187.81091a34.909091 34.909091 0 1 1 0-69.818181H919.272727zM387.072 564.293818a34.909091 34.909091 0 1 1 49.361455 49.361455L165.725091 884.363636h187.857454a34.909091 34.909091 0 1 1 0 69.818182H81.454545A34.909091 34.909091 0 0 1 46.545455 919.272727V647.168a34.909091 34.909091 0 1 1 69.818181 0v187.810909l270.708364-270.661818z" fill="#797979"></path></svg>
       </button>
     </div>
     <el-dialog
-      @close="dialogClose"
       :visible.sync="dialogVisible"
       :fullscreen="true"
       :modal="true"
       :append-to-body="true"
+      @close="dialogClose"
     >
-      <Lyric :id="firstPlayList.id" :first-time="firstTime"></Lyric>
+      <Lyric :music="firstPlayList"
+             :lyrics="this.lyric"
+             :isPlay="isPlay"
+             @play="play"
+             @drag="e => dragChange(e)"
+             @next="this.nextSong"
+             @last="this.lastSong"
+      />
     </el-dialog>
   </div>
 </template>
 
 <style scoped lang="scss">
+.iconfont{
+  font-size: 20px;
+}
 .player{
   position: fixed;
   //top: 0;
@@ -231,7 +248,8 @@ export default {
   width: 100%;
   z-index: 1000;
   //min-width: 800px;
-  background-color: #303133;
+  background-color: #151b23;
+  //background-color: #303133;
   padding: 10px 20px 10px 20px;
   display: flex;
   justify-content: space-between;
@@ -296,19 +314,13 @@ export default {
     .contr-bottom{
       display: flex;
       align-items: center;
-      //justify-content: center;
       justify-content: space-around;
-      //flex-wrap: nowrap;
       width: 100%;
       .progress-bar{
-        //margin: 0 10px 0 10px;
         width: 350px;
         height: 20px;
         display: flex;
         align-items: center;
-        //.el-slider__runway{
-        //  margin: 0;
-        //}
       }
     }
   }
@@ -319,9 +331,9 @@ export default {
     justify-content: flex-end;
     button{
       background-color: transparent;
-      .icon{
+      .iconfont{
         fill: currentcolor;
-        margin-left: 20px;
+        margin-left: 15px;
       }
       .dr{
         z-index: 1;
@@ -342,4 +354,19 @@ export default {
     }
   }
 }
+.el-dialog__wrapper{
+  ::v-deep .el-dialog{
+    background-color: var(--main-background-color);
+    .el-dialog__header{
+      padding: 0;
+      .el-dialog__headerbtn{
+        z-index: 1000;
+      }
+    }
+    .el-dialog__body{
+      padding: 0;
+    }
+  }
+}
+
 </style>

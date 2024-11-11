@@ -1,13 +1,11 @@
 <template>
   <div id="app">
-<!--    <keep-alive include="albumDetail">-->
-      <router-view />
-<!--    </keep-alive>-->
-    <player v-if="isHidden"></player>
+    <router-view />
+    <player v-if="isHidden" />
   </div>
 </template>
 <script>
-import player from '@/components/player.vue'
+import player from '@/components/player/player.vue'
 export default {
   components: {
     player
@@ -17,9 +15,18 @@ export default {
       return this.$route.name !== undefined ? this.$route.name + +new Date() : this.$route + +new Date()
     }
   },
+  methods: {
+    toggleTheme () {
+      const res = localStorage.getItem('theme')
+      // const newTheme = this.isDarkMode ? 'dark' : 'light'
+      document.documentElement.setAttribute('data-theme', res !== null ? res : 'light')
+      localStorage.setItem('theme', res !== null ? res : 'light')
+    }
+  },
   data () {
     return {
-      isHidden: true
+      isHidden: true,
+      isDarkMode: false
     }
   },
   watch: {
@@ -42,9 +49,8 @@ export default {
     document.onselect = function () {
       return false
     }
+    this.toggleTheme()
   }
 }
 </script>
-<style lang="scss">
-
-</style>
+<style lang="scss"></style>

@@ -1,5 +1,5 @@
 <script>
-import Block from '@/components/bolck/Block.vue'
+import Block from '@/components/block/Block.vue'
 import ScrollBar from '@/components/layout/ScrollBar.vue'
 import { getSearchHistory, setSearchHistory } from '@/utils/storage'
 export default {

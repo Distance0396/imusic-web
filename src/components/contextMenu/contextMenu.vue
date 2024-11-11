@@ -111,9 +111,9 @@ export default {
 .context-menu{
   width: 170px;
   position: fixed;
-  background-color: #303133;
+  background-color: #212830;
+  box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
   border-radius: 3px;
-  box-shadow: 1px 1px 2px rgba(0,0,0,1.2), -1px 1px 2px rgba(0,0,0,1.2);
   white-space: nowrap;
   overflow: hidden;
   z-index: 1000;

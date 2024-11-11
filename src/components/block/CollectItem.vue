@@ -1,6 +1,6 @@
 <script>
 export default {
-  name: 'MusicFormItem',
+  name: 'CollectItem',
   props: {
     musicForm: {
       type: Object
@@ -55,20 +55,30 @@ export default {
           <i class="el-icon-picture-outline"></i>
         </div>
       </el-image>
-      <div class="musicForm-info" style="display: flex; flex-direction: column; margin-left: 10px">
+      <div class="musicForm-info" style="width: 100px;
+        margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+        color: var(--text-color);"
+      >
         <span>{{ musicForm.name }}</span>
         <span>歌单·{{ musicForm.architect }}</span>
       </div>
       <div></div>
     </template>
     <template v-if="singer">
-      <el-image class="image" :src="singer.avatar || singer.image" style="border-radius: 50%; object-fit: cover"
-                fit="cover">
+      <el-image class="image" :src="singer.avatar || singer.image"
+                style="border-radius: 50%;object-fit: cover" fit="cover">
         <div slot="error" class="image-slot">
           <i class="el-icon-picture-outline"></i>
         </div>
       </el-image>
-      <div class="musicForm-info" style="display: flex; flex-direction: column; margin-left: 10px">
+      <div class="musicForm-info" style="width: 100px;
+        margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+        color: var(--text-color);"
+      >
         <span>{{ singer.name }}</span>
         <span>歌手</span>
       </div>
@@ -80,7 +90,12 @@ export default {
           <i class="el-icon-picture-outline"></i>
         </div>
       </el-image>
-      <div class="musicForm-info" style="display: flex; flex-direction: column; margin-left: 10px">
+      <div class="musicForm-info" style="width: 100px;
+        margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+        color: var(--text-color);"
+      >
         <span>{{ album.name }}</span>
         <span>专辑·{{ album.singerName }}</span>
       </div>
@@ -107,7 +122,8 @@ export default {
   margin-bottom: 2px;
 
   &:hover {
-    background-color: #E4E7ED;
+    //background-color: #E4E7ED;
+    background-color: var(--collect-item-color);
     transition: background-color .2s linear;
   }
 
@@ -122,8 +138,6 @@ export default {
     height: 50px;
     min-width: 50px;
     min-height: 50px;
-    //max-width: 50px;
-    //max-height: 50px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -132,12 +146,16 @@ export default {
   .musicForm-info {
     width: 100px;
     margin-left: 10px;
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
-
+    color: var(--text-color);
     span:nth-child(2) {
       margin-top: 3px;
       font-size: 13px;
+    }
+    &:hover{
+      //color: #FFFFFF;
+      //color: var(--text-color);
     }
   }
 }

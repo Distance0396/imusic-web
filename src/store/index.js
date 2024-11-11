@@ -7,18 +7,17 @@ import collect from '@/store/modules/collect'
 import reply from '@/store/modules/reply'
 import common from './modules/common'
 import comment from '@/store/modules/comment'
+import player from '@/store/modules/player'
 
 Vue.use(Vuex)
 export default new Vuex.Store({
   state: {},
   getters: {
-    token (state) {
-      return state.user.token.token
-    }
+    token (state) { return state.user.token }
   },
   mutations: {},
   actions: {},
   modules: {
-    user, musicForm, playlist, collect, reply, common, comment
+    user, musicForm, playlist, collect, reply, common, comment, player
   }
 })
