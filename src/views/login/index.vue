@@ -89,7 +89,8 @@ export default {
       // 等待总时
       totalTime: 60,
       timer: null,
-      codeName: '发送验证码'
+      codeName: '发送验证码',
+      requestLoading: false
     }
   },
   methods: {
@@ -103,6 +104,7 @@ export default {
           showClose: false
         })
       }
+      this.requestLoading = true
       // 人机验证
       await this.$recaptcha('login').then((token) => {
         login(this.landing, token).then(res => {
@@ -112,6 +114,7 @@ export default {
           // 判断有无回调地址
           const url = this.$route.query.backUrl || '/'
           this.$router.replace(url)
+          this.requestLoading = false
         })
       })
     },
@@ -124,8 +127,10 @@ export default {
           showClose: false
         })
       }
+      this.requestLoading = true
       await register(this.register)
       this.hidden = !this.hidden
+      this.requestLoading = false
     },
     handleSelect (e) {
       this.activeIndex = e
@@ -161,18 +166,13 @@ export default {
             type: 'success'
           })
         }
-        // console.log(res)
-        const token = res.data
         // 响应数据携带数据将token存到vuex
-        if (token !== null) {
-          // console.log(token)
-          setToken(token)
-          // this.$store.commit('user/setToken', token)
+        if (res.data !== null) {
+          setToken(res.data)
           const url = this.$route.query.backUrl || '/'
           this.$router.replace(url)
         }
       })
-      // })
     },
     changeHidden () {
       this.hidden = !this.hidden
@@ -206,7 +206,7 @@ export default {
             <el-form-item prop="password">
               <el-input class="input-item" placeholder="请输入密码" v-model.trim="landing.password" prefix-icon="el-icon-message-solid" show-password></el-input>
             </el-form-item>
-            <el-button size="medium" class="input-item" type="primary" @click="login">登陆</el-button>
+            <el-button :loading="requestLoading" size="medium" class="input-item" type="primary" @click="login">登陆</el-button>
           </el-form>
           <el-form size="medium" v-if="hidden && showEmail" :model="sign" :rules="rules.emailRules" label-width="100px" class="form-left public">
             <el-form-item prop="email">
@@ -219,7 +219,7 @@ export default {
             <el-form-item prop="code">
               <el-input size="medium" class="input-item" placeholder="请输入验证码" v-model.trim="sign.code" ></el-input>
             </el-form-item>
-            <el-button size="medium" class="input-item" type="primary" @click="getCode">登陆</el-button>
+            <el-button :loading="requestLoading" size="medium" class="input-item" type="primary" @click="getCode">登陆</el-button>
           </el-form>
         </div>
         <div>
@@ -233,7 +233,7 @@ export default {
             <el-form-item prop="password">
               <el-input class="input-item" placeholder="密码" v-model.trim="register.password" show-password></el-input>
             </el-form-item>
-            <el-button size="medium" type="primary" @click="RegAccount">注册账号</el-button>
+            <el-button :loading="requestLoading" size="medium" type="primary" @click="RegAccount">注册账号</el-button>
           </el-form>
           <el-form size="medium" v-if="!hidden && showEmail" :model="sign" :rules="rules.emailRules" class="form-right public">
             <el-form-item prop="email">
@@ -246,7 +246,7 @@ export default {
             <el-form-item prop="code">
               <el-input class="input-item" placeholder="请输入验证码" v-model.trim="sign.code"></el-input>
             </el-form-item>
-            <el-button size="medium" type="primary" @click="getCode">注册账号</el-button>
+            <el-button :loading="requestLoading" size="medium" type="primary" @click="getCode">注册账号</el-button>
           </el-form>
         </div>
       </el-menu>
@@ -259,6 +259,7 @@ export default {
 </template>
 
 <style scoped lang="scss">
+@import "@/assets/scss/mixin";
 body {
   height: 100%;
   background: radial-gradient(ellipse at bottom, #1b2735 0%, #090a0f 100%);
@@ -325,9 +326,17 @@ body {
     }
   }
   .register{
+    @include respond-to('phone'){
+      width: 300px;
+      height: 500px;
+    }
+    @include respond-to('tv'){
+      width: 600px;
+      height: 300px;
+    }
     margin: auto;
-    width: 600px;
-    height: 300px;
+    //width: 600px;
+    //height: 300px;
     background-color: #ffffff;
     z-index: 100;
     position: relative;
@@ -337,6 +346,22 @@ body {
     .public{
       width: 600px;
       height: 210px;
+      @include respond-to('phone'){
+        width: 300px;
+        height: 500px;
+      }
+      @include respond-to('tv'){
+        width: 600px;
+        height: 210px;
+      }
+      //@include respond-to('tv'){
+      //  width: 600px;
+      //  height: 210px;
+      //}
+      //@include respond-to('tv'){
+      //  width: 600px;
+      //  height: 210px;
+      //}
       display: flex;
       flex-direction: column;
     }
@@ -351,9 +376,23 @@ body {
     }
     .form-left{
       padding: 35px 120px 0 120px;
+      @include respond-to('phone'){
+        padding: 100px 30px 0 30px;
+      }
+      @include respond-to('tv'){
+        padding: 35px 120px 0 120px;
+      }
+      //padding: 35px 120px 0 120px;
     }
     .form-right{
       padding: 15px 120px 0 120px;
+      @include respond-to('phone'){
+        padding: 100px 30px 0 30px;
+      }
+      @include respond-to('tv'){
+        padding: 15px 120px 0 120px;
+      }
+      //padding: 15px 120px 0 120px;
     }
     .click-rolling{
       position: absolute;

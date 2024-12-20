@@ -139,7 +139,6 @@ export default {
      display:none
    }
   .collect-content{
-
     height: 500px;
     overflow-y: scroll;
     .active{

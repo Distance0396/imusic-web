@@ -29,7 +29,6 @@ export default {
     async reply () {
       await this.clear()
       this.setRootId(this.item.id)
-      this.setActionUserId(this.item.userId)
       this.setParent(this.item.id)
       this.setActionUserName(this.item.userInfo.name)
       this.isInput = true

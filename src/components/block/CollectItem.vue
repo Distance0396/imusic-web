@@ -120,7 +120,6 @@ export default {
   align-items: center;
   cursor: pointer;
   margin-bottom: 2px;
-
   &:hover {
     //background-color: #E4E7ED;
     background-color: var(--collect-item-color);
