@@ -7,11 +7,24 @@ export default {
       singer: null,
       album: null,
       browse: null,
-      asideWidth: 250
+      asideWidth: 250,
+      x: 0,
+      y: 0,
+      focusUser: null,
+      isFocus: false
       // isBerth: false
     }
   },
   mutations: {
+    setIsFocus (state, obj) {
+      state.isFocus = obj
+    },
+    setFocus (state, obj) {
+      const { userInfo, x, y } = obj
+      state.focusUser = userInfo
+      state.x = x
+      state.y = y
+    },
     setSinger (state, obj) {
       state.singer = obj
     },
@@ -29,10 +42,7 @@ export default {
     async query ({ commit }) {
       await query().then(res => {
         if (res.data == null) return
-
         commit('collect/setCollectForm', { ...res.data.collect }, { root: true })
-        commit('user/setUserInfo', { ...res.data.user }, { root: true })
-        commit('user/setSettings', { ...res.data.user.settings }, { root: true })
         commit('setSinger', res.data.singer)
         commit('setAlbum', res.data.album)
         commit('setBrowse', res.data.browse)
@@ -40,6 +50,18 @@ export default {
     }
   },
   getters: {
+    getX (state) {
+      return state.x
+    },
+    getY (state) {
+      return state.y
+    },
+    getFocusUser (state) {
+      return state.focusUser
+    },
+    getIsFocus (state) {
+      return state.isFocus
+    },
     isBerth (state) {
       return state.asideWidth <= 120
     }

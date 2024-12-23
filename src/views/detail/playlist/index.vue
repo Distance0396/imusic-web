@@ -355,9 +355,9 @@ $action-height: 5rem;
   }
   .context{
     width: 100%;
-    min-height: calc(100vh - $min-height - 40px);
+    min-height: calc(100vh - $min-height);
     .gradual-block{
-      height: calc(100vh - $min-height - 40px);
+      height: calc(100vh - $min-height);
       position: relative;
       z-index: 1;
       float: left;

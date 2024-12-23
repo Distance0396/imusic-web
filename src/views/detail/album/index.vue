@@ -314,7 +314,6 @@ $action-height: 5rem;
   position: relative;
   z-index: 1;
   overflow-x: hidden;
-  //overflow-y: auto;
   .head {
     min-height: $min-height;
     width: 100%;
@@ -363,7 +362,6 @@ $action-height: 5rem;
           text-overflow: ellipsis;
           white-space: nowrap;
           color: var(--info-text)
-          //color: #ffffff;
         }
       }
     }
@@ -374,7 +372,7 @@ $action-height: 5rem;
     z-index: -10;
     position: relative;
     width: 100%;
-    min-height: calc(100vh - $min-height - 40px);
+    min-height: calc(100vh - $min-height - 60px);
     overflow: hidden;
 
     .background {

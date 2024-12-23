@@ -1,5 +1,5 @@
 import { setToken, getToken } from '@/utils/storage'
-import { getUser } from '@/api/user'
+import { getUser, getUserAndSetting } from '@/api/user'
 import Vue from 'vue'
 export default {
   namespaced: true,
@@ -60,6 +60,12 @@ export default {
     },
     updateProperty ({ commit }, payload) {
       commit('setProperty', payload)
+    },
+    // 获取用户个人信息和设置数据
+    async getUserAndSetting ({ commit }, payload) {
+      const { data: { userInfo, userSetting } } = await getUserAndSetting(payload)
+      commit('setUserInfo', userInfo)
+      commit('setSettings', userSetting)
     }
   },
   getters: {

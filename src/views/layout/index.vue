@@ -8,9 +8,19 @@
       <transition name="component-fade" mode="out-in">
         <router-view :key="key" />
       </transition>
-      <el-footer style="height: px;">
+      <el-footer>
         <Footer />
       </el-footer>
+      <div class="UserInfoFloat" :style="{top: `${getY}px`, left: `${getX}px` }" v-show="getIsFocus">
+        <div style="display: flex; margin-bottom: 5px; align-items: center;">
+          <el-avatar :src="focusUser?.avatar"></el-avatar>
+          <p style="margin-left: 10px;">{{focusUser?.name}}</p>
+        </div>
+        <div style="font-size: 13px; color: #848484; margin-bottom: 10px;">@{{focusUser?.account}}</div>
+        <div>
+          {{focusUser?.sign}}
+        </div>
+      </div>
     </el-main>
   </el-container>
 </template>
@@ -18,12 +28,15 @@
 <script>
 import Navbar from '@/components/layout/NavBar.vue'
 import Footer from '@/components/layout/Footer.vue'
-import { mapMutations, mapState } from 'vuex'
+import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
+
 export default {
   name: 'LayoutIndex',
   components: { Navbar, Footer },
   computed: {
-    ...mapState('common', ['asideWidth']),
+    ...mapState('common', ['asideWidth', 'isFocus', 'focusUser']),
+    ...mapGetters('common', ['getY', 'getX', 'getIsFocus']),
+    // ...mapState('common', ['y', 'x', 'focusUser']),
     // key () {
     //   return this.$route.name !== undefined ? this.$route.name + +new Date() : this.$route + +new Date()
     // }
@@ -35,7 +48,7 @@ export default {
     }
   },
   methods: {
-    // ...mapActions('common', ['query']),
+    ...mapActions('user', ['getUserAndSetting']),
     ...mapMutations('common', ['setAsideWidth']),
     startResize (event) {
       // 开始拖动时设置标记
@@ -66,8 +79,16 @@ export default {
       document.removeEventListener('mousemove', this.resize)
       document.removeEventListener('mouseup', this.stopResize)
     }
+  },
+  mounted () {
+    this.getUserAndSetting()
+  },
+  created () {
+    // this.$EventBus.$on('focusAvatar', ({ userInfo, x, y }) => {
+    //   document.querySelector('.UserInfoFloat').style.setProperty('--width', `${x}px`)
+    //   document.querySelector('.UserInfoFloat').style.setProperty('--height', `${y}px`)
+    // })
   }
-  // created () { this.query() }
 }
 </script>
 
@@ -86,8 +107,6 @@ export default {
     flex-direction: column;
     background-color: var(--aside-background-color);
     box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-    //background-color: rgb(242,243,245);
-    //transition: all .1s ease-in-out;
     .resizer {
       width: 5px;
       cursor: grab;
@@ -108,5 +127,17 @@ export default {
     padding: 0 0 0 0;
     background-color: var(--main-background-color);
   }
+}
+.UserInfoFloat{
+  width: 300px;
+  height: 150px;
+  border: 0 solid black;
+  background-color: black;
+  position: fixed;
+  color: var(--text-color);
+  z-index: 10000;
+  border-radius: 4px;
+  padding: 10px 10px;
+  transition: all .5s ease-out;
 }
 </style>

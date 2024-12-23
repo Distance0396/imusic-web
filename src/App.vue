@@ -19,8 +19,8 @@ export default {
     toggleTheme () {
       const res = localStorage.getItem('theme')
       // const newTheme = this.isDarkMode ? 'dark' : 'light'
-      document.documentElement.setAttribute('data-theme', res !== null ? res : 'light')
-      localStorage.setItem('theme', res !== null ? res : 'light')
+      document.documentElement.setAttribute('data-theme', res !== null ? res : 'dark')
+      localStorage.setItem('theme', res !== null ? res : 'dark')
     }
   },
   data () {

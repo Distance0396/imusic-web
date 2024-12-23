@@ -1,5 +1,5 @@
 <template>
-  <div class="myHome" v-title :data-title="this.userInfo.name">
+  <div class="myHome" v-title :data-title="this.user.name">
     <el-card class="card">
       <div slot="header" class="avatar">
         <el-upload
@@ -51,7 +51,7 @@
               />
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
-              <sapn v-if="userId !== this.$store.state.user.userInfo.id">{{user.email}}</sapn>
+              <span v-if="userId !== this.$store.state.user.userInfo.id">{{user.email}}</span>
               <el-input
                 v-else
                 size="small"
@@ -59,14 +59,14 @@
               />
             </el-form-item>
             <el-form-item label="标签">
-              <sapn v-if="userId !== this.$store.state.user.userInfo.id">
+              <span v-if="userId !== this.$store.state.user.userInfo.id">
                 <el-tag
                   v-for="tag in user.tag"
                   :key="tag"
                 >
                   {{tag}}
                 </el-tag>
-              </sapn>
+              </span>
               <span v-else>
                 <el-tag
                   v-for="tag in user.tag"
@@ -97,7 +97,7 @@
       </div>
       <div class="card-body">
         <div class="card-left">
-          <sapn v-if="userId !== this.$store.state.user.userInfo.id">{{user.sign}}</sapn>
+          <span v-if="userId !== this.$store.state.user.userInfo.id">{{user.sign}}</span>
           <el-input v-else v-model="user.sign" maxlength="50" placeholder="编辑个人签名"></el-input>
         </div>
         <div class="card-right">
@@ -490,7 +490,7 @@ export default {
 .myHome{
   $wth: 800px;
   margin: 20px;
-  //height: 100vh;
+  min-height: calc(100vh - 80px);
   position: relative;
   .card{
     min-width: $wth;

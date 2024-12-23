@@ -27,6 +27,7 @@ export default {
   },
   methods: {
     initialize (lyric) {
+      if (lyric == null) return
       // 去掉歌词字符串中的所有 \r\n
       const cleanedLyric = lyric.replace(/\r\n/g, '\n')
       // 将清理后的歌词字符串按照 '[' 分割成数组，然后去掉第一个空元素
@@ -105,8 +106,13 @@ export default {
           </div>
           <div class="box" ref="lyricContainer">
             <ul class="lyric" ref="lyric" :style="{ transform: `translateY(-${scrollOffset}px)` }">
-              <li :class="{each:true, choose: (index === lyricIndex)}" v-for="(item, index) in currentLyric" :key="index">
+              <li :class="{each:true, choose: (index === lyricIndex)}"
+                  v-for="(item, index) in currentLyric"
+                  :key="index">
                 {{ item.til }}
+              </li>
+              <li v-if="this.lyrics == null" style="margin-top: 200px; font-size: 60px;">
+                暂时没有歌词哦
               </li>
             </ul>
           </div>
@@ -228,7 +234,7 @@ export default {
       }
     }
     .but{
-      margin-top: 50px;
+      margin-top: 150px;
       .drag{
         .el-slider{
           ::v-deep .el-slider__runway{

@@ -94,9 +94,10 @@ export default {
 
 <style scoped lang="scss">
 .home {
-  margin-left: 20px;
-  margin-top: 20px;
-  min-height: calc(100vh - 100px);
+  padding: 20px 0 60px 20px;
+  //margin-left: 20px;
+  //margin-top: 20px;
+  min-height: calc(100vh - 120px);
   color: var(--text-color);
   > div{
     margin-top: 60px;
@@ -104,7 +105,6 @@ export default {
   .channel{
     width: 100%;
     height: 100%;
-    //background-color: #409EFF;
   }
 }
 </style>

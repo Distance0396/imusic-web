@@ -10,6 +10,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import './assets/iconfont/iconfont.css'
 
 Vue.config.productionTip = false
+Vue.prototype.$EventBus = new Vue()
 
 Vue.use(VueReCaptcha, {
   siteKey: '6LeNfRYqAAAAALtUVfNp5GAyLQJebGTWFU0w6WDQ',

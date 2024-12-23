@@ -348,7 +348,6 @@ export default {
           font-size: 2rem;
           .name {
             color: var(--info-text);
-            //color: #ffffff;
             font-size: 10rem;
           }
         }
@@ -359,7 +358,7 @@ export default {
       }
     }
     .content {
-      min-height: calc(100vh - 40vh - 40px);
+      min-height: calc(100vh - 40vh - 100px);
       .cont-center {
         width: 100%;
         position: relative;

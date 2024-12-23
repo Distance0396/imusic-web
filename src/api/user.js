@@ -9,6 +9,10 @@ export const getUser = (id) => {
   })
 }
 
+export const getUserAndSetting = () => {
+  return request.get('/user/info')
+}
+
 // 登陆
 export const login = (landing, reCAPTCHA) => {
   return request.post('/user/login', {

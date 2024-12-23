@@ -1,6 +1,7 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import replyInput from '@/components/block/replyInput.vue'
+import debounce from 'lodash/debounce'
 
 export default {
   name: 'replyBlock',
@@ -24,6 +25,7 @@ export default {
   },
   methods: {
     ...mapActions('comment', ['updateCommentProperty', 'clear']),
+    ...mapMutations('common', ['setFocus', 'setIsFocus']),
     ...mapMutations('comment', ['setRootId', 'setActionUserId', 'setActionUserName', 'setParent']),
     // 回复父评论
     async reply () {
@@ -86,7 +88,27 @@ export default {
         this.$emit('unlike', { objId: reload.id, objUserId: reload.userInfo.id })
         reload.islike = false
       }
-    }
+    },
+    // 聚焦头像
+    focusAvatar: debounce(function (userInfo, event) {
+      // 获取事件目标（头像元素）
+      const avatarElement = event.target
+
+      // 获取头像元素的位置信息
+      const rect = avatarElement.getBoundingClientRect()
+
+      // 计算头像上方的位置
+      const x = rect.left + rect.width / 2 // 头像中心的水平位置
+      const y = rect.top - 150 // 头像顶部的位置
+
+      // 调用方法设置聚焦效果
+      this.setFocus({ userInfo, x, y: y - 10 }) // 偏移 10px 让其更自然
+      this.setIsFocus(true)
+    }, 200),
+    // 是否聚焦
+    isFocus: debounce(function () {
+      this.setIsFocus(false)
+    }, 200)
   },
   computed: {
     ...mapGetters('comment', ['getCommentProperty']),
@@ -100,7 +122,10 @@ export default {
   <div class="reply">
     <div class="main" style="display: flex;">
       <div class="avatar" @click="$router.push(`/user/${ item.userInfo.id }`)">
-        <el-avatar :src="item.userInfo?.avatar" />
+        <el-avatar :src="item.userInfo?.avatar"
+                   @mouseenter.native="focusAvatar(item.userInfo, $event)"
+                   @mouseleave.native="isFocus"
+        />
       </div>
       <div class="context">
         <span class="user-name" @click="$router.push(`/user/${item.userInfo.id}`)">{{ item.userInfo?.name }}</span>
@@ -125,7 +150,11 @@ export default {
     <div class="child">
       <div class="child-item" style="display: flex;" v-for="children in item.children" :key="'children' + children.id" >
         <div class="avatar" @click="$router.push(`/user/${children.userInfo.id}`)">
-          <el-avatar size="small" :src="children.userInfo?.avatar" />
+          <el-avatar size="small"
+                     :src="children.userInfo?.avatar"
+                     @mouseenter.native="focusAvatar(children.userInfo, $event)"
+                     @mouseleave.native="isFocus"
+          />
         </div>
         <div class="context">
           <div class="reply-content">
@@ -193,7 +222,9 @@ export default {
         cursor: pointer;
         font-size: 15px;
         color: var(--text-color);
-        //color: #61666d;
+        &:hover{
+          text-decoration: underline;
+        }
       }
       .root-reply{
         margin-top: 15px;
@@ -206,7 +237,6 @@ export default {
         }
         .reply-info{
           color: var(--text-color);
-          //color: #9499A0;
           display: flex;
           align-items: center;
           font-size: 13px;
@@ -238,9 +268,11 @@ export default {
           .user-name{
             font-size: 15px;
             color: var(--text-color);
-            //color: #61666d;
             margin-right: 10px;
             cursor: pointer;
+            &:hover{
+              text-decoration: underline;
+            }
           }
           .children-content{
             color: var(--text-color);

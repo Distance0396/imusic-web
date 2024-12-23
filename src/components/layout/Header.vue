@@ -8,7 +8,7 @@
         <slot></slot>
       </div>
       <div class="header-option" v-if="$route.matched[1].path === '/explore'">
-        <div :class="{ 'item-active' : route.path === $route.path }" class="item" v-for="route in childRoutes" :key="route.path">
+        <div :class="{ 'item-active' : route.path === $route.path.split('/')[2] }" class="item" v-for="route in childRoutes" :key="route.path">
           <router-link class="link" :to="route.path">{{ route.meta.title }}</router-link>
         </div>
       </div>

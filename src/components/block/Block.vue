@@ -116,7 +116,7 @@ export default {
   .block-name{
     font-size: 1rem;
     i:hover{
-      text-decoration: underline;
+      text-decoration: underline 2px;
       transition: text-decoration 1s;
     }
   }

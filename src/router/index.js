@@ -33,11 +33,6 @@ const router = new VueRouter({
           component: Home
         },
         {
-          path: 'daily',
-          name: 'dailyCharts',
-          component: () => import('@/views/layout/home/dailyCharts.vue')
-        },
-        {
           path: 'explore',
           name: 'Explore',
           component: ExploreLayout,
@@ -56,6 +51,11 @@ const router = new VueRouter({
               meta: { title: '歌手' }
             }
           ]
+        },
+        {
+          path: 'daily',
+          name: 'dailyCharts',
+          component: () => import('@/views/layout/home/dailyCharts.vue')
         },
         {
           path: 'play',
