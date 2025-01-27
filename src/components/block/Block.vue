@@ -1,6 +1,12 @@
 <script>
 export default {
   name: 'BlockBlock',
+  props: {
+    showDeleteBtn: {
+      type: Boolean,
+      default: false
+    }
+  },
   data () {
     return {
       loading: true
@@ -45,7 +51,7 @@ export default {
       <template>
         <div class="block-img" style="width: 8.5rem;height: 8.5rem;margin-bottom: 10px;position: relative;">
           <span
-            v-if="this.$router.history.current.fullPath === '/explore/search'"
+            v-if="showDeleteBtn"
             @click="delHistory"
             class="del" style="position: absolute; right: -5px; top: -5px;">
             <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M806.4 263.2l-45.6-45.6L512 467.2 263.2 217.6l-45.6 45.6L467.2 512 217.6 760.8l45.6 45.6L512 557.6l248.8 248.8 45.6-45.6L557.6 512z" p-id="5316"></path></svg>
@@ -77,6 +83,14 @@ export default {
   border-radius: 5px;
   justify-content: center;
   cursor: pointer;
+  &:hover{
+    background-color: var(--block-hover);
+    transition: background-color .4s;
+  }
+  &:hover .block-img .btn{
+    opacity: 1;
+    transform: translateY(0); /* 悬停时按钮回到原位 */
+  }
   .block-loading{
     display: inline-flex;
     flex-direction: column;
@@ -87,14 +101,6 @@ export default {
       background-color: var(--collect-item-color);
       transition: background-color .4s;
     }
-  }
-  &:hover{
-    background-color: var(--collect-item-color);
-    transition: background-color .4s;
-  }
-  &:hover .block-img .btn{
-    opacity: 1;
-    transform: translateY(0); /* 悬停时按钮回到原位 */
   }
   .block-img{
     width: 8.5rem;

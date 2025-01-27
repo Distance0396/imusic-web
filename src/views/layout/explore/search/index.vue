@@ -6,16 +6,47 @@ import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import History from '@/views/layout/explore/search/history.vue'
 import { useContextMenu } from '@/utils/useContextMenu'
 import { search } from '@/api/user'
+import Block from '@/components/block/Block.vue'
 
 export default {
   name: 'searchObject',
+  beforeRouteLeave: function (to, from, next) {
+    this.history = getSearchHistory()
+    // 查找本地记录是否存在，存在删除
+    const index = this.history.findIndex(history => history.id === (Number(to.params.id)))
+    const his = this.history[index]
+    if (index !== -1) {
+      this.history.splice(index, 1)
+    }
+    let newHistoryItem = null
+    // 确保是从搜索页进入的歌手页或者专辑页
+    if (from.path === '/explore/search' && to.name === 'Singer') {
+      if (this.singerResult) {
+        newHistoryItem = this.singerResult.find(singer => singer.id === Number(to.params.id))
+      }
+    }
+    if (from.path === '/explore/search' && to.name === 'Album') {
+      if (this.albumResult) {
+        newHistoryItem = this.albumResult.find(album => album.id === Number(to.params.id))
+      }
+    }
+    // 新记录存在就插入，不存在就插入之前的
+    if (newHistoryItem) {
+      this.history.unshift(newHistoryItem)
+    } else if (his) {
+      this.history.unshift(his)
+    }
+    setSearchHistory(this.history)
+    next()
+  },
   components: {
+    Block,
     MusicItem,
     ContextMenu,
     History
   },
   computed: {
-    ...mapGetters('collect', ['getUserMusicForm'])
+    ...mapGetters('user', ['getUserMusicForm'])
   },
   mounted () {
     this.menu[0].menu = this.getUserMusicForm
@@ -50,18 +81,51 @@ export default {
           icon: 'el-icon-info'
         }
       ],
+      // 类型
+      category: [
+        {
+          key: 'all',
+          value: '全部'
+        },
+        {
+          key: 'singer',
+          value: '艺人'
+        },
+        {
+          key: 'music',
+          value: '歌曲'
+        },
+        {
+          key: 'album',
+          value: '专辑'
+        },
+        {
+          key: 'playlist',
+          value: '歌单'
+        }
+      ],
+      // 搜索类型
+      searchCategory: 'all',
       clickInput: false,
       history: getSearchHistory(),
+      // 搜索关键字
       keyword: '',
       timeout: true,
+      // 结果
       result: {},
+      // 是否显示搜索历史
       isShowHistory: true,
       historyElement: null,
       // MusicItem组件省略号位置
       position: {},
       // 选中的歌曲
       pickMusicItem: {},
-      firstSinger: null
+      firstSinger: null,
+      allResult: {},
+      singerResult: [],
+      albumResult: [],
+      playlistResult: [],
+      musicResult: []
     }
   },
   methods: {
@@ -76,8 +140,12 @@ export default {
     async search () {
       if (this.keyword.trim().length > 0) {
         await search(this.keyword).then(res => {
-          this.result = res.data
+          this.allResult = res.data
           this.firstSinger = res.data.singerList?.slice(-1)[0]
+          this.singerResult = res.data.singerList
+          this.musicResult = res.data.musicList
+          this.albumResult = res.data.albumList
+          this.isShowHistory = false
         })
       }
     },
@@ -87,42 +155,6 @@ export default {
     },
     player () {
       // console.log('321')
-    }
-  },
-  beforeRouteLeave: function (to, from, next) {
-    this.history = getSearchHistory()
-    // 查找本地记录是否存在，存在删除
-    const index = this.history.findIndex(history => history.id === (Number(to.params.id)))
-    const his = this.history[index]
-    if (index !== -1) {
-      this.history.splice(index, 1)
-    }
-    let newHistoryItem = null
-    // 确保是从搜索页进入的歌手页或者专辑页
-    if (from.path === '/explore/search' && to.name === 'Singer') {
-      if (this.result.singerList) {
-        newHistoryItem = this.result.singerList.find(singer => singer.id === Number(to.params.id))
-      }
-    }
-    if (from.path === '/explore/search' && to.name === 'Album') {
-      if (this.result.albumList) {
-        newHistoryItem = this.result.albumList.find(album => album.id === Number(to.params.id))
-      }
-    }
-    // 新记录存在就插入，不存在就插入之前的
-    if (newHistoryItem) {
-      this.history.unshift(newHistoryItem)
-    } else if (his) {
-      this.history.unshift(his)
-    }
-    setSearchHistory(this.history)
-    next()
-  },
-  watch: {
-    result: {
-      handler (newVal, oldVal) {
-        this.isShowHistory = false
-      }
     }
   }
 }
@@ -151,38 +183,98 @@ export default {
         <History></History>
       </div>
     </transition>
-    <transition name="el-fade-in">
+    <transition name="el-fade-in" >
       <div class="result" v-if="firstSinger">
-        <div class="singer-card" v-if="firstSinger != null" @click="$router.push(`/detail/singer/${firstSinger.id}`)">
-          <div style="display: flex; flex-direction: column;">
-            <el-image
-              :src="firstSinger.avatar || firstSinger.image"
-              style="border-radius: 50%; width: 100px; height: 100px;"
-            />
-            <div class="card-info">
-              <span style="font-size: 35px;">{{firstSinger.name}}</span>
-              <span class="info-but">
-                <i>艺人</i>
-                <button @click.stop="player" style="color: var(--info-text);" class="btn iconfont icon-icon_play" />
-            </span>
+        <el-row style="margin: 2rem 0;">
+          <el-button
+            v-for="item in category" :key="item.key"
+            @click="searchCategory = item.key"
+            :class="{active: item.key === searchCategory}"
+            size="medium"
+            round
+          >
+            {{item.value}}
+          </el-button>
+        </el-row>
+        <div class="content">
+          <div class="all" v-if="searchCategory === 'all'">
+            <div class="singer-card" @click="$router.push(`/singer/${firstSinger?.id}`)">
+              <div style="display: flex; flex-direction: column;">
+                <el-image
+                  :src="firstSinger?.avatar || firstSinger?.image"
+                  style="border-radius: 50%; width: 100px; height: 100px;"
+                />
+                <div class="card-info">
+                  <span style="font-size: 35px;">{{firstSinger?.name}}</span>
+                  <span class="info-but">
+                    <i>艺人</i>
+                    <button @click.stop="player" style="color: var(--info-text);" class="btn iconfont icon-icon_play" />
+                  </span>
+                </div>
+              </div>
+            </div>
+            <div class="music-card" style="margin-left: 20px;">
+              <ContextMenu
+                :menu="menu"
+                :position="position"
+                @select-menu="pickMenu"
+              >
+                <MusicItem
+                  v-for="(item,index) in musicResult?.slice(0, 4)"
+                  @select-music="pickMusicItem = $event"
+                  @position="position = $event"
+                  :key="item.id"
+                  :music="item"
+                  :index="index+1"
+                />
+              </ContextMenu>
             </div>
           </div>
-        </div>
-        <div class="music-card" style="margin-left: 20px;">
-          <ContextMenu
-            :menu="menu"
-            :position="position"
-            @select-menu="pickMenu"
-          >
-            <MusicItem
-              v-for="(item,index) in result.musicList?.slice(0, 4)"
-              @select-music="pickMusicItem = $event"
-              @position="position = $event"
+          <div class="singer" v-if="searchCategory === 'singer'" style="display: flex; flex-wrap: wrap;">
+            <Block
+              v-for="item in singerResult"
               :key="item.id"
-              :music="item"
-              :index="index+1"
-            />
-          </ContextMenu>
+            >
+              <template #img>
+                <img :src="item.avatar || item.image"
+                     v-if="item.language"
+                     style="width: 100%;
+                   height: 100%;
+                   cursor: pointer;
+                   border-radius: 50%;
+                   object-fit: cover;"
+                     alt=""
+                     @click="$router.push(`/singer/${item.id}`)"
+                >
+              </template>
+              <template #nameOne>
+                <i v-if="item.language" @click="$router.push(`/singer/${item.id}`)">{{item.name}}</i>
+                <i v-else @click="$router.push(`/album/${item.id}`)">{{item.name}}</i>
+              </template>
+              <template #nameTwo>
+                <i v-if="item.language" @click="$router.push(`/singer/${item.id}`)">艺人</i>
+                <i v-else>{{item.singerName}}</i>
+              </template>
+            </Block>
+          </div>
+          <div class="music" v-if="searchCategory === 'music'">
+            <ContextMenu
+              :menu="menu"
+              :position="position"
+              @select-menu="pickMenu"
+            >
+              <MusicItem
+                v-for="(item, index) in musicResult"
+                @select-music="pickMusicItem = $event"
+                @position="position = $event"
+                :key="item.id"
+                :index="index+1"
+                :music="item"
+              />
+            </ContextMenu>
+          </div>
+          <div class="music" v-if="searchCategory === 'album'">
+          </div>
         </div>
       </div>
     </transition>
@@ -190,9 +282,10 @@ export default {
 </template>
 
 <style scoped lang="scss">
+@import "@/assets/scss/index";
 .search {
   width: 100%;
-  height: calc(100vh - 40px);
+  min-height: calc(100vh - $footer);
   padding: 90px 20px 0 20px;
   .search-box {
     border-radius: 30px;
@@ -236,52 +329,64 @@ export default {
   }
   .result {
     margin-top: 20px;
-    display: flex;
     width: 100%;
-    .singer-card{
-      background-color: var(--singer-card-bg);
-      width: 400px;
-      height: 224px;
-      padding: 15px;
-      border-radius: 8px;
-      border: 1px solid var(--block);
-      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-      cursor: pointer;
-      transition: all .2s ease-in-out;
-      position: relative;
-      .card-info{
-        margin-top: 15px;
-        color: var(--text-color);
-        .info-but{
-          display: flex;
-          .btn{
-            position: absolute;
-            bottom: 10px;
-            right: 10px;
-            background-color: #409EFF;
-            transform: translateY(15px); /* 初始状态下，按钮向下移动 */
-            transition: opacity 0.4s ease, transform 0.4s ease; /* 添加过渡效果 */
-            opacity: 0;
-            width: 50px; height: 50px; margin-left: auto; border-radius: 50%;
-          }
-        }
+    .el-row{
+      .active{
+        color: #409EFF;
       }
-      &:hover {
-        background-color: var(--singer-card-bg-h);
-      }
-      &:hover .card-info .btn{
-        opacity: 1;
-        transform: translateY(0); /* 悬停时按钮回到原位 */
+      .el-button{
+        background-color: var(--aside-background-color);
       }
     }
-    .music-card{
-      height: 224px;
-      border-radius: 8px;
-      border: 1px solid var(--block);
-      box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
-      cursor: pointer;
-      transition: all .2s ease-in-out;
-      overflow: hidden;
+    .content{
+      .all{
+        display: flex;
+        .singer-card{
+          background-color: var(--singer-card-bg);
+          width: 400px;
+          height: 224px;
+          padding: 15px;
+          border-radius: 8px;
+          border: 1px solid var(--block);
+          box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+          cursor: pointer;
+          transition: all .2s ease-in-out;
+          position: relative;
+          .card-info{
+            margin-top: 15px;
+            color: var(--text-color);
+            .info-but{
+              display: flex;
+              .btn{
+                position: absolute;
+                bottom: 10px;
+                right: 10px;
+                background-color: #409EFF;
+                transform: translateY(15px); /* 初始状态下，按钮向下移动 */
+                transition: opacity 0.4s ease, transform 0.4s ease; /* 添加过渡效果 */
+                opacity: 0;
+                width: 50px; height: 50px; margin-left: auto; border-radius: 50%;
+              }
+            }
+          }
+          &:hover {
+            background-color: var(--singer-card-bg-h);
+          }
+          &:hover .card-info .btn{
+            opacity: 1;
+            transform: translateY(0); /* 悬停时按钮回到原位 */
+          }
+        }
+        .music-card{
+          height: 224px;
+          border-radius: 8px;
+          border: 1px solid var(--block);
+          box-shadow: 0 2px 12px 0 rgba(0, 0, 0, .1);
+          cursor: pointer;
+          transition: all .2s ease-in-out;
+          overflow: hidden;
+        }
+      }
     }
   }
 }

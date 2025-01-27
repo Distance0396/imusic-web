@@ -1,9 +1,11 @@
 html[data-theme='dark'] {
   --theme-color: #409EFF;
-  --aside-background-color: #151b23;
+  //--aside-background-color: #151b23;
+  --aside-background-color: #11161c;
   //--aside-background-color: #212830;
   //--main-background-color: #151b23;
-  --main-background-color: #141414;
+  //--main-background-color: #141414;
+  --main-background-color: #0f1011;
   --fill-color: #9198a1;
   --fill-no-active: #000;
   --fill-hover-color: #409EFF;
@@ -11,20 +13,36 @@ html[data-theme='dark'] {
   --text-color: #d1d7e0;
   --text-hover-color: #fff;
   --border: #212121;
-  --block: #212830;
   --collect-item-color: #797979;
 
   --playlist-img-fill: #d1d7e0;
   --nav-bg: rgba(83, 85, 89, 0.33);
   --singer-card-bg: #1a212a;
   --singer-card-bg-h: #212830;
+
   --el-input: #212830;
   --el-input-border: #212121;
   --el-input-hover: #409EFF;
-  --info-text: #d1d7e0;
-  --lyric-bg: #151b23;
+  --lyric-bg: rgba(21, 27, 35, 0.5);
 
-  //--collect-item-hover-color:
+
+  --info-text: #ffffff;
+  --block: #212830;
+  --block-hover: #29303c;
+  --border-color: #FFFFFF33;
+
+
+  --label-bg: #61666D;
+  --label-color: ;
+  --active-bg: #1b2735;
+  --article-hover-border: 0 2px 4px rgba(74, 74, 74, 0.1);
+  --article-hover-bg: #202020;
+
+
+  --gradation-color: #0f1011;
+  --login-box-shadow: 0 0 100px -40px #ccc;
+
+  //--follow-item-hover-color:
 
   //#212121
 
@@ -54,7 +72,7 @@ html[data-theme='dark'] {
 
 :root {
   --theme-color: #409EFF;
-  --aside-background-color: #f7f7f7;
+  --aside-background-color: #fcfcfc;
   --main-background-color: #fff;
   --fill-color: #000000;
   --fill-no-active: #dfdfdf;
@@ -63,17 +81,34 @@ html[data-theme='dark'] {
   --text-color: #000;
   --text-hover-color: #fff;
   //--border: #DCDFE6;;
-  --block: #f7f7f7;
   --collect-item-color: #E4E7ED;
 
   --playlist-img-fill: #d1d7e0;
   --nav-bg: #409EFF;
   --singer-card-bg: #f1f1f1;
   --singer-card-bg-h: #e3e3e3;
-  --info-text: #fff;
+
   --el-input-border: #DCDFE6;
   --el-input-hover: #409EFF;
-  --lyric-bg: #a6aab4;
+  --lyric-bg: rgba(166, 170, 180, 0.5);
+
+  --info-text: #fff;
+  --block: #e5e5e5;
+  --block-hover: #f7f7f7;
+  --border-color: #00000033;
+
+
+  --label-bg: #F1F2F3;
+  --label-color: #61666D;
+  --active-bg: #f2f2f2;
+  --article-hover-border: 0 2px 4px rgba(0,0,0,0.1);
+  --article-hover-bg: #f5f5f5;
+
+
+  --login-box-shadow: 0 0 100px -40px #ccc;
+  --gradation-color: #fff;
+
+
 
   --body-color: linear-gradient(90deg, rgba(247, 149, 51, .1), rgba(243, 112, 85, .1) 15%, rgba(239, 78, 123, .1) 30%, rgba(161, 102, 171, .1) 44%, rgba(80, 115, 184, .1) 58%, rgba(16, 152, 173, .1) 72%, rgba(7, 179, 155, .1) 86%, rgba(109, 186, 130, .1));
   --text-color1: #272222;

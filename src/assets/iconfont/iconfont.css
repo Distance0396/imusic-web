@@ -1,8 +1,8 @@
 @font-face {
   font-family: "iconfont"; /* Project id 4702154 */
-  src: url('iconfont.woff2?t=1729355446447') format('woff2'),
-       url('iconfont.woff?t=1729355446447') format('woff'),
-       url('iconfont.ttf?t=1729355446447') format('truetype');
+  src: url('iconfont.woff2?t=1737301819601') format('woff2'),
+       url('iconfont.woff?t=1737301819601') format('woff'),
+       url('iconfont.ttf?t=1737301819601') format('truetype');
 }
 
 .iconfont {
@@ -11,6 +11,98 @@
   font-style: normal;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-more:before {
+  content: "\e612";
+}
+
+.icon-shanchu:before {
+  content: "\e9b4";
+}
+
+.icon-Asong:before {
+  content: "\e678";
+}
+
+.icon-player-prev:before {
+  content: "\e60c";
+}
+
+.icon-weibozhiye-liuhangbang:before {
+  content: "\e68a";
+}
+
+.icon-24gl-expand2:before {
+  content: "\eb6c";
+}
+
+.icon-liuhang:before {
+  content: "\e68e";
+}
+
+.icon-suijibofang3:before {
+  content: "\e6a0";
+}
+
+.icon-fire:before {
+  content: "\e8e6";
+}
+
+.icon-caogaoxiang-:before {
+  content: "\e60b";
+}
+
+.icon-wendang-caogao-F:before {
+  content: "\e61f";
+}
+
+.icon-wendang-caogao-L:before {
+  content: "\e625";
+}
+
+.icon-yongyan:before {
+  content: "\e608";
+}
+
+.icon-fabushijian:before {
+  content: "\e940";
+}
+
+.icon-biaoqian:before {
+  content: "\e63d";
+}
+
+.icon-fabushijian1:before {
+  content: "\e60a";
+}
+
+.icon-shuxie:before {
+  content: "\e611";
+}
+
+.icon-biaoqian1:before {
+  content: "\e61b";
+}
+
+.icon-liulanliang:before {
+  content: "\e68c";
+}
+
+.icon-wodewenzhang:before {
+  content: "\e7d3";
+}
+
+.icon-shequ:before {
+  content: "\e8b8";
+}
+
+.icon-shequ1:before {
+  content: "\e65c";
+}
+
+.icon-tianjiawenzhang:before {
+  content: "\e7b4";
 }
 
 .icon-youjiantou:before {

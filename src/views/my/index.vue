@@ -5,7 +5,7 @@
         <el-upload
           v-loading="loading"
           class="upload"
-          action="http://localhost:8011/common/upload"
+          action="/v2/upload"
           :show-file-list="false"
           :limit="1"
           :disabled="!isMy"
@@ -17,7 +17,8 @@
           <div v-if="!user.avatar" class="error-img-box">
             <i class="el-icon-picture-outline" style="font-size: 80px; color: #b3b3b3;"></i>
             <span v-if="isMy" class="el-upload-list__item-actions change-icon">
-              <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
+              <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path
+                d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
             </span>
           </div>
           <!-- 如果有图片，显示图片及操作图标 -->
@@ -28,14 +29,15 @@
               alt=""
             />
             <span v-if="isMy" class="el-upload-list__item-actions change-icon">
-              <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
+              <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path
+                d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
             </span>
           </div>
         </el-upload>
         <div class="user-info">
           <el-form class="form" :rules="rules" :model="user" label-position="right" label-width="60px">
             <el-form-item label="昵称" prop="name">
-              <span v-if="!isMy">{{user.name}}</span>
+              <span v-if="!isMy">{{ user.name }}</span>
               <el-input
                 v-else
                 size="small"
@@ -43,7 +45,7 @@
               />
             </el-form-item>
             <el-form-item label="电话" prop="phone">
-              <span v-if="userId !== this.$store.state.user.userInfo.id">{{user.phone}}</span>
+              <span v-if="userId !== this.$store.state.user.userInfo.id">{{ user.phone }}</span>
               <el-input
                 v-else
                 size="small"
@@ -51,7 +53,7 @@
               />
             </el-form-item>
             <el-form-item label="邮箱" prop="email">
-              <span v-if="userId !== this.$store.state.user.userInfo.id">{{user.email}}</span>
+              <span v-if="userId !== this.$store.state.user.userInfo.id">{{ user.email }}</span>
               <el-input
                 v-else
                 size="small"
@@ -64,7 +66,7 @@
                   v-for="tag in user.tag"
                   :key="tag"
                 >
-                  {{tag}}
+                  {{ tag }}
                 </el-tag>
               </span>
               <span v-else>
@@ -77,7 +79,7 @@
                   closable
                   effect="dark"
                 >
-                  {{tag}}
+                  {{ tag }}
                 </el-tag>
                 <el-input
                   class="input-new-tag"
@@ -97,11 +99,11 @@
       </div>
       <div class="card-body">
         <div class="card-left">
-          <span v-if="userId !== this.$store.state.user.userInfo.id">{{user.sign}}</span>
+          <span v-if="userId !== this.$store.state.user.userInfo.id">{{ user.sign }}</span>
           <el-input v-else v-model="user.sign" maxlength="50" placeholder="编辑个人签名"></el-input>
         </div>
         <div class="card-right">
-          <i v-if="!isUpdate">By {{userInfo.createTime}}</i>
+          <i v-if="!isUpdate">By {{ user.createTime }}</i>
           <span class="btn" v-if="isUpdate">
             <el-popconfirm
               title="确认修改个人信息吗?"
@@ -119,10 +121,11 @@
         </div>
       </div>
     </el-card>
-    <el-tabs class="tabs" v-if="userId === this.$store.state.user.userInfo.id" v-model="activeName" @tab-click="handleTabClick">
+    <el-tabs class="tabs" v-if="userId === this.$store.state.user.userInfo.id" v-model="activeName"
+             @tab-click="handleTabClick" type="card">
       <el-tab-pane class="form" label="我的歌单" name="first" :lazy="true">
         <div class="my-playlist">
-          <Block v-for="item in this.collect.musicFormList" :key="item.id">
+          <Block v-for="item in this.userFollow.musicFormList" :key="item.id">
             <template #img>
               <el-image
                 v-if="item.image !== undefined"
@@ -133,11 +136,11 @@
                 fit="cover"
                 :lazy="true"
                 alt=""
-                @click="$router.push(`/detail/music-form/${item.id}`)"
+                @click="$router.push(`/music-form/${item.id}`)"
               />
             </template>
             <template #nameOne>
-              <i @click="$router.push(`/detail/music-form/${item.id}`)">{{item.name}}</i>
+              <i @click="$router.push(`/music-form/${item.id}`)">{{ item.name }}</i>
             </template>
             <template #nameTwo>
               歌单
@@ -146,7 +149,7 @@
         </div>
       </el-tab-pane>
       <el-tab-pane class="setting" label="我的设置" name="setting">
-        <Settings />
+        <Settings/>
       </el-tab-pane>
     </el-tabs>
     <el-dialog
@@ -165,18 +168,17 @@
             }]
           }" ref="ruleForm" style="">
         <el-form-item prop="email">
-          <el-input :disabled="true" size="medium" class="input-item" placeholder="请输入邮箱" v-model.trim="sign.email" prefix-icon="el-icon-s-promotion" clearable>
+          <el-input
+            :disabled="true" size="medium" class="input-item" placeholder="请输入邮箱"
+            v-model.trim="sign.email" prefix-icon="el-icon-s-promotion" clearable>
             <template slot="append">
-              <!--                  <span>获取验证码</span>-->
-              <el-link :disabled="isSendCode" type="success" @click="getCode">{{codeName}}</el-link>
-              <!--                  <el-button disabled="true" size="medium" class="input-item" type="primary" @click="getCode">获取验证码</el-button>-->
+              <el-link :disabled="isSendCode" type="success" @click="getCode">{{ codeName }}</el-link>
             </template>
           </el-input>
         </el-form-item>
         <el-form-item prop="password">
-          <el-input size="medium" class="input-item" placeholder="请输入验证码" v-model.trim="sign.code" ></el-input>
+          <el-input size="medium" class="input-item" placeholder="请输入验证码" v-model.trim="sign.code"></el-input>
         </el-form-item>
-<!--        <el-button size="medium" class="input-item" type="primary" @click="getCode">登陆</el-button>-->
       </el-form>
       <span slot="footer" class="dialog-footer">
         <el-button @click="handleCancel">取 消</el-button>
@@ -192,9 +194,13 @@ import { getCodeApi, getUser, updateUserInfo } from '@/api/user'
 import { Notification } from 'element-ui'
 import Block from '@/components/block/Block.vue'
 import Settings from '@/views/my/settings.vue'
+
 export default {
   name: 'myHome',
-  components: { Block, Settings },
+  components: {
+    Block,
+    Settings
+  },
   created () {
     // this.user = { ...this.userInfo }
   },
@@ -213,13 +219,25 @@ export default {
       // 表单正则
       rules: {
         name: [
-          { pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]{3,15}$/, message: '请填写3到15位不包含特殊字符的昵称', trigger: 'blur' }
+          {
+            pattern: /^[\u4e00-\u9fa5a-zA-Z0-9]{3,15}$/,
+            message: '请填写3到15位不包含特殊字符的昵称',
+            trigger: 'blur'
+          }
         ],
         phone: [
-          { pattern: /^1[3-9]\d{9}$/, message: '请填写正确手机号', trigger: 'blur' }
+          {
+            pattern: /^1[3-9]\d{9}$/,
+            message: '请填写正确手机号',
+            trigger: 'blur'
+          }
         ],
         email: [
-          { pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/, message: '请填写正确的邮箱格式', trigger: 'blur' }
+          {
+            pattern: /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/,
+            message: '请填写正确的邮箱格式',
+            trigger: 'blur'
+          }
         ]
       },
       // 控制上传头像loading效果显示
@@ -251,11 +269,14 @@ export default {
     }
   },
   computed: {
-    ...mapState('user', ['userInfo']),
+    ...mapState('user', ['userInfo', 'userFollow']),
     ...mapGetters('user', ['getProperty']),
-    ...mapState('collect', ['collect']),
-    userId () { return +this.$route.params.id },
-    isMy () { return this.user.id === this.userInfo.id }
+    userId () {
+      return +this.$route.params.id
+    },
+    isMy () {
+      return this.user.id === this.userInfo.id
+    }
     // name: {
     //   get () {
     //     return this.getProperty('name')
@@ -336,7 +357,14 @@ export default {
       提交个人修改信息
      */
     async submit () {
-      const { name, email, phone, avatar, sign, tag } = this.user
+      const {
+        name,
+        email,
+        phone,
+        avatar,
+        sign,
+        tag
+      } = this.user
       if (this.userInfo.email !== email || this.userInfo.phone !== phone) {
         const result = await this.showDialog()
         if (!result) {
@@ -344,7 +372,14 @@ export default {
           return
         }
       }
-      await updateUserInfo(name, email, phone, avatar, sign, tag)
+      await updateUserInfo(
+        name,
+        email === this.$store.state.user.userInfo.email ? null : email,
+        phone === this.$store.state.user.userInfo.phone ? null : phone,
+        avatar,
+        sign,
+        tag
+      )
       this.$message({
         message: '恭喜您，修改成功',
         type: 'success'
@@ -487,46 +522,56 @@ export default {
 
 <style scoped lang="scss">
 @import "@/assets/scss/mixin";
-.myHome{
+
+.myHome {
   $wth: 800px;
   margin: 20px;
   min-height: calc(100vh - 80px);
   position: relative;
-  .card{
+
+  .card {
     min-width: $wth;
     background-color: var(--main-background-color);
     border: 1px solid var(--border);
-    ::v-deep .el-card__header{
+
+    ::v-deep .el-card__header {
       border-bottom: 1px solid var(--border);
     }
-    .avatar{
+
+    .avatar {
       display: flex;
       align-items: center;
-      .user-info{
+
+      .user-info {
         display: flex;
         margin-left: 10px;
         width: $wth;
-        .form{
+
+        .form {
           width: 100%;
-          .el-form-item{
+
+          .el-form-item {
             margin-bottom: 12px;
             width: 18rem;
             @include updateInput();
-            &:nth-last-child(1){
+
+            &:nth-last-child(1) {
               width: calc($wth - 200px);
             }
           }
         }
       }
-      .upload{
-        .img{
+
+      .upload {
+        .img {
           border-radius: 5px;
           position: relative;
           width: 100%;
           height: 100%;
           display: block;
         }
-        .change-icon{
+
+        .change-icon {
           border-radius: 5px;
           width: 100%;
           height: 100%;
@@ -538,13 +583,15 @@ export default {
           display: flex;
           align-items: center;
           justify-content: center;
-          .icon{
+
+          .icon {
             width: 50px;
             height: 50px;
             fill: var(--fill-color);
             //fill: #FFFFFF;
           }
-          &:hover{
+
+          &:hover {
             background-color: rgb(0 0 0 / 50%);
             opacity: 1;
             transition: all .2s;
@@ -552,24 +599,29 @@ export default {
         }
       }
     }
-    .card-body{
+
+    .card-body {
       $body-width: calc($wth / 2 + 100px);
       display: flex;
       align-items: center;
-      .card-left{
-        min-width: $body-width ;
+
+      .card-left {
+        min-width: $body-width;
         width: $body-width;
         margin-right: auto;
         @include updateInput();
       }
-      .card-right{
+
+      .card-right {
         margin-left: auto;
-        i{
+
+        i {
           color: var(--text-color);
           //color: #C0C4CC;
           font-size: 14px;
         }
-        .btn{
+
+        .btn {
           button {
             margin: 0 10px 0 0;
           }
@@ -577,23 +629,33 @@ export default {
       }
     }
   }
-  .tabs{
+
+  .el-tabs {
     margin-top: 20px;
-    //height: 100%;
     min-height: calc(100vh - 427px);
-    .my-playlist{
+
+    .my-playlist {
       display: flex;
     }
-    ::v-deep .el-tabs__content{
+    ::v-deep .el-tabs__header {
+      border: none;
+      .el-tabs__item {
+        border: none;
+      }
+      .el-tabs__nav{
+        border: none;
+      }
     }
-    .setting{
-      //overflow: auto;
+
+    .setting {
     }
   }
 }
+
 .el-tag + .el-tag {
   margin-left: 10px;
 }
+
 .button-new-tag {
   margin-left: 10px;
   height: 32px;
@@ -601,6 +663,7 @@ export default {
   padding-top: 0;
   padding-bottom: 0;
 }
+
 .input-new-tag {
   width: 90px;
   margin-left: 10px;

@@ -1,11 +1,10 @@
 <script>
-import Header from '@/components/layout/Header.vue'
 import { mapState, mapGetters } from 'vuex'
 import MusicItem from '@/components/block/MusicItem.vue'
 export default {
   name: 'playList',
   components: {
-    Header, MusicItem
+    MusicItem
   },
   computed: {
     ...mapState('playlist', ['playlist']),
@@ -15,8 +14,7 @@ export default {
 </script>
 
 <template>
-  <div class="playList" v-title data-title="播放队列">
-    <Header></Header>
+  <div class="playList">
     <div class="main" style="color: var(--text-color)">
       <h2>队列</h2>
       <div class="be-play">
@@ -24,7 +22,7 @@ export default {
         <MusicItem :music="this.firstPlayList"></MusicItem>
       </div>
       <div>
-        <i class="title">下一首来自：<i @click="$router.push(`/detail/album/${playlist[0].albumId}`)">{{playlist[0].albumName}}</i></i>
+        <i class="title">下一首来自：<i @click="$router.push(`/album/${playlist[0].albumId}`)">{{playlist[0]?.albumName}}</i></i>
         <MusicItem
           v-for="(item,index) in playlist"
           :key="item.id"
@@ -37,9 +35,18 @@ export default {
 </template>
 
 <style scoped lang="scss">
+.playList::-webkit-scrollbar{
+  display:none
+}
+.playList:hover::-webkit-scrollbar{
+  display:block;
+}
 .playList{
+  height: 100vh;
+  overflow-y: scroll;
+  overflow-x: hidden;
   .main{
-    padding: 60px 20px 20px 20px;
+    padding: 40px 20px 120px 20px;
     .be-play{
       margin-top: 15px;
     }

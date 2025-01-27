@@ -19,8 +19,8 @@ export default {
     }
   },
   methods: {
-    ...mapMutations('player', ['setTotalTime', 'setFirstTime', 'setStatus', 'setIsPlay']),
-    ...mapMutations('playlist', ['nextSong', 'lastSong']),
+    ...mapMutations('player', ['setTotalTime', 'setFirstTime', 'setStatus', 'setIsPlay', 'setCurrentSong']),
+    ...mapMutations('playlist', ['nextSong', 'lastSong', 'setPlayList']),
     ...mapActions('player', ['getLyricAndAudio']),
     // 播放暂停
     play () {
@@ -61,8 +61,8 @@ export default {
     isLoop (e) {
       this.$refs.audio.loop = !this.$refs.audio.loop
       if (this.$refs.audio.loop) {
-        e.target.style.fill = '#409EFF'
-      } else e.target.style.fill = 'currentcolor'
+        e.target.style.color = '#409EFF'
+      } else e.target.style.color = 'currentcolor'
     },
     // 改变音量
     volumeChange (value) {
@@ -123,21 +123,19 @@ export default {
         this.isShow = true
         this.setIsPlay(true)
         this.setStatus(true)
-        this.getLyricAndAudio(this.firstPlayList.id)
-        setTimeout(() => {
+        this.getLyricAndAudio(this.firstPlayList.id).then(res => {
+          this.setCurrentSong(this.firstPlayList)
           this.$refs.audio.play()
-        }, 500)
+        })
       }
     },
     status: {
       // musicItem点击播放暂停修改player播放暂停状态
       handler (newVal) {
         if (newVal) {
-          this.setIsPlay(true)
           // this.isPlay = true
           this.$refs.audio.play()
         } else {
-          this.setIsPlay(false)
           // this.isPlay = false
           this.$refs.audio.pause()
         }
@@ -149,7 +147,7 @@ export default {
 <template>
   <div class="player" v-if="isShow">
     <div class="player-left">
-      <el-image class="image" :src="firstPlayList?.image"></el-image>
+      <el-image @click="toggleFullScreen" class="image" :src="firstPlayList?.image"></el-image>
       <div class="player-left-info">
         <i>{{firstPlayList?.name}}</i>
         <i @click="$router.push(`/detail/singer/${firstPlayList?.singerId}`)">{{firstPlayList?.singerName}}</i>
@@ -167,41 +165,43 @@ export default {
         />
         <div class="contr-top-left direction">
           <button class="btn">
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M753.564731 337.471035c-45.8697 0-160.259984 113.849978-243.789399 194.548928C383.134027 654.383848 263.508509 773.284865 167.764911 773.284865l-58.892295 0c-24.068162 0-43.581588-19.526729-43.581588-43.581588s19.513426-43.581588 43.581588-43.581588l58.892295 0c60.504002 0 183.002964-121.68134 281.432741-216.784348 119.79641-115.744117 223.254713-219.029482 304.368102-219.029482l56.209186 0-59.641355-57.828057c-17.033955-16.993023-17.060561-42.902112-0.057305-59.927881 17.002232-17.030885 44.596707-17.064654 61.631686-0.065492l134.207631 133.874033c8.192589 8.172123 12.794397 19.238157 12.794397 30.803563 0 11.564383-4.601808 22.604834-12.794397 30.776957L811.706943 461.72599c-8.505721 8.486278-19.646456 12.522198-30.78719 12.522198-11.166317 0-22.333658-4.676509-30.844495-13.199627-17.003256-17.025769-16.975627-45.432749 0.057305-62.425771l59.641355-61.151755L753.564731 337.471035zM811.706943 561.66105c-17.034978-16.999163-44.629453-16.972557-61.631686 0.058328-17.003256 17.024745-16.975627 46.257533 0.057305 63.250556l59.641355 61.150732-56.209186 0c-35.793204 0-95.590102-52.946886-154.87637-108.373243-17.576307-16.435321-45.161572-16.3422-61.594847 1.226944-16.444531 17.568121-15.523555 46.393633 2.053776 62.823837 90.322122 84.458577 151.246703 131.484613 214.417441 131.484613l56.209186 0-59.641355 57.824987c-17.033955 16.993023-17.060561 43.736107-0.057305 60.761875 8.511861 8.523117 19.678178 12.369725 30.844495 12.369725 11.140735 0 22.281469-4.453429 30.78719-12.939707L945.914574 757.311055c8.192589-8.173147 12.794397-19.315928 12.794397-30.881334 0-11.564383-4.601808-22.682605-12.794397-30.855752L811.706943 561.66105zM108.871593 337.471035l58.892295 0c45.932122 0 114.40154 58.455343 168.915108 107.942431 8.352225 7.576559 18.832927 12.140505 29.29214 12.140505 11.852956 0 23.673166-4.394077 32.270984-13.857613 16.182564-17.807574 14.859429-46.823422-2.958378-62.998823-85.247546-77.381391-156.561755-130.388652-227.519854-130.388652l-58.892295 0c-24.068162 0-43.581588 19.526729-43.581588 43.581588S84.804455 337.471035 108.871593 337.471035z"></path></svg>
+            <i class="iconfont icon-suijibofang"></i>
           </button>
           <button class="next btn" @click="this.lastSong">
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M101.930375 546.0659L551.347379 872.910689a43.342807 43.342807 0 0 0 68.847075-35.055725L620.194454 695.334509 864.36350799 872.910689a43.364482 43.364482 0 0 0 68.84707601-35.055725l0-653.682354a43.350032 43.350032 0 0 0-68.847076-35.062951L620.194454 326.67138899l0-142.49877899a43.364482 43.364482 0 0 0-68.847075-35.062951l-449.41700401 326.837565a43.342807 43.342807 0 0 0 1e-8 70.118676z" fill=""></path></svg>
+            <i class="iconfont icon-Asong"></i>
           </button>
         </div>
         <button class="contr-play" @click="play">
-          <svg v-if="isPlay" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M426.666667 138.666667v746.666666a53.393333 53.393333 0 0 1-53.333334 53.333334H266.666667a53.393333 53.393333 0 0 1-53.333334-53.333334V138.666667a53.393333 53.393333 0 0 1 53.333334-53.333334h106.666666a53.393333 53.393333 0 0 1 53.333334 53.333334z m330.666666-53.333334H650.666667a53.393333 53.393333 0 0 0-53.333334 53.333334v746.666666a53.393333 53.393333 0 0 0 53.333334 53.333334h106.666666a53.393333 53.393333 0 0 0 53.333334-53.333334V138.666667a53.393333 53.393333 0 0 0-53.333334-53.333334z" fill="#000000"></path></svg>
-          <svg v-if="!isPlay" style="margin-left: 3px" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z" fill="#000000" ></path></svg>
+          <i v-show="isPlay" class="iconfont icon-zanting1" />
+          <i v-show="!isPlay" class="iconfont icon-icon_play" />
+<!--          <svg v-if="isPlay" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M426.666667 138.666667v746.666666a53.393333 53.393333 0 0 1-53.333334 53.333334H266.666667a53.393333 53.393333 0 0 1-53.333334-53.333334V138.666667a53.393333 53.393333 0 0 1 53.333334-53.333334h106.666666a53.393333 53.393333 0 0 1 53.333334 53.333334z m330.666666-53.333334H650.666667a53.393333 53.393333 0 0 0-53.333334 53.333334v746.666666a53.393333 53.393333 0 0 0 53.333334 53.333334h106.666666a53.393333 53.393333 0 0 0 53.333334-53.333334V138.666667a53.393333 53.393333 0 0 0-53.333334-53.333334z" fill="#000000"></path></svg>-->
+<!--          <svg v-if="!isPlay" style="margin-left: 3px" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z" fill="#000000" ></path></svg>-->
         </button>
         <div class="contr-top-right direction">
           <button class="next btn" @click="this.nextSong">
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M922.069625 477.9341L472.652621 151.089311a43.342807 43.342807 0 0 0-68.847075 35.055725V328.665491L159.636492 151.089311a43.364482 43.364482 0 0 0-68.847076 35.055725v653.682354a43.350032 43.350032 0 0 0 68.847076 35.062951L403.805546 697.328611v142.498779a43.364482 43.364482 0 0 0 68.847075 35.062951l449.417004-326.837565a43.342807 43.342807 0 0 0 0-70.118676z" fill=""></path></svg>
+            <i class="iconfont icon-xiayishou"></i>
           </button>
           <button class="btn" @click="isLoop">
-            <svg class="icon" viewBox="0 0 1030 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M930.849 476.655c-19.324 0-32.041 12.883-32.041 32.042v86.71c0 109.171-86.71 199.019-199.02 199.019H202.323l41.785-38.483c6.442-6.441 12.883-16.02 12.883-25.6 0-19.324-16.02-35.344-35.345-35.344-9.579 0-22.461 3.138-28.903 9.58L83.572 804.004c-16.021 12.883-12.883 35.345 0 48.062l109.171 96.29c6.442 6.44 19.324 12.882 28.903 12.882 19.324 0 35.345-12.883 38.483-32.042 0-12.882-6.441-22.462-16.02-28.903l-48.063-44.924H696.65c147.655 0 266.405-118.75 266.405-259.964v-86.71c-0.165-19.158-13.047-32.04-32.206-32.04zM96.454 556.924c19.324 0 32.041-12.883 32.041-32.041v-89.848c0-112.31 89.848-202.158 199.02-205.296H824.98l-41.786 38.483c-6.441 6.441-12.883 16.02-12.883 25.6 0 19.324 16.02 35.344 35.345 35.344 9.58 0 22.462-3.138 28.903-9.579l105.868-99.427c16.021-12.883 12.883-35.345 0-48.062L831.257 75.81c-6.442-6.441-19.324-12.883-28.903-12.883-19.324 0-35.345 12.883-38.483 32.042 0 12.882 6.441 22.462 16.02 28.903l48.063 44.924H330.818C183.164 168.63 64.413 287.38 64.413 438.173v86.71c0 19.158 12.882 32.04 32.041 32.04z m449.239 115.448V351.463H497.63l-80.268 57.807 16.02 41.785 60.945-41.785v263.102h51.365z m0 0" fill=""></path></svg>
+            <i class="iconfont icon-danquxunhuan"></i>
           </button>
         </div>
       </div>
       <div class="contr-bottom">
-        <div class="play-first" style="width: 40px; color: #b3b3b3;">{{this.formatTime(this.firstTime) || '00:00'}}</div>
+        <div class="play-first" style="color: #b3b3b3;">{{this.formatTime(this.firstTime) || '00:00'}}</div>
         <el-slider
           class="progress-bar"
           v-model="sliderValue"
           :show-tooltip="false"
           @change="dragChange"
         />
-        <div class="play-end" style="width: 40px; color: #b3b3b3;">{{ this.formatTime(this.totalTime) || '00:00'}}</div>
+        <div class="play-end" style="color: #b3b3b3;">{{ this.formatTime(this.totalTime) || '00:00'}}</div>
       </div>
     </div>
     <div class="player-right">
       <button>
         <i class="iconfont icon-changge1"></i>
       </button>
-      <button @click="$router.push('/play/playlist')">
+      <button @click="$store.state.common.isShowRightBox = !$store.state.common.isShowRightBox">
         <i class="iconfont icon-duilieguanli"></i>
       </button>
       <button class="volume" >
@@ -215,7 +215,7 @@ export default {
         />
       </button>
       <button @click="toggleFullScreen" style="margin: 0 20px 0 25px">
-        <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M919.272727 46.545455A34.909091 34.909091 0 0 1 954.181818 81.454545v272.104728a34.909091 34.909091 0 1 1-69.818182 0v-187.810909L613.655273 436.433455a34.792727 34.792727 0 0 1-24.669091 10.216727 34.909091 34.909091 0 0 1-24.692364-59.578182L835.025455 116.363636h-187.81091a34.909091 34.909091 0 1 1 0-69.818181H919.272727zM387.072 564.293818a34.909091 34.909091 0 1 1 49.361455 49.361455L165.725091 884.363636h187.857454a34.909091 34.909091 0 1 1 0 69.818182H81.454545A34.909091 34.909091 0 0 1 46.545455 919.272727V647.168a34.909091 34.909091 0 1 1 69.818181 0v187.810909l270.708364-270.661818z" fill="#797979"></path></svg>
+        <i class="iconfont icon-24gl-expand2"></i>
       </button>
     </div>
     <el-dialog
@@ -238,27 +238,45 @@ export default {
 </template>
 
 <style scoped lang="scss">
+@import "@/assets/scss/mixin";
 .iconfont{
   font-size: 20px;
+  &:hover{
+    color: #ffffff;
+  }
 }
 .player{
   position: fixed;
-  //top: 0;
   bottom: 0;
-  width: 100%;
-  z-index: 1000;
-  //min-width: 800px;
-  background-color: #151b23;
-  //background-color: #303133;
-  padding: 10px 20px 10px 20px;
   display: flex;
   justify-content: space-between;
   align-items: center;
+  width: 100%;
+  z-index: 1000;
+  background-color: rgba(21, 27, 35, 0.5);
+  backdrop-filter: blur(30px);
+  -webkit-backdrop-filter: blur(30px);
+  padding: 10px 20px 10px 20px;
+
+  border-top-color: var(--border-color);
+  border-width: 0.0625rem 0 0 0;
+  border-style: solid;
+  @include respond-to('phone'){
+    padding: 10px 5px 10px 10px;
+  }
+  @include respond-to('tv'){
+  }
   .player-left{
     width: 400px;
     display: flex;
     align-items: center;
     margin-bottom: 10px;
+    @include respond-to('phone'){
+      display: none;
+    }
+    @include respond-to('tv'){
+      width: 400px;
+    }
     .image{
       border-radius: 5px;
       width: 50px;
@@ -285,19 +303,28 @@ export default {
     flex-direction: column;
     justify-content: center;
     width: 500px;
+    @include respond-to('phone'){
+    }
+    @include respond-to('tv'){
+      width: 500px;
+    }
     .contr-top{
       display: flex;
       flex-wrap: nowrap;
       align-items: center;
       justify-content: center;
       .contr-play{
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        width: 35px;
-        height: 35px;
-        border-radius: 50%;
-        background-color: #FFFFFF;
+        //display: flex;
+        //justify-content: center;
+        //align-items: center;
+        //width: 35px;
+        //height: 35px;
+        //border-radius: 50%;
+        //background-color: #FFFFFF;
+        background-color: transparent;
+        i{
+          font-size: 36px;
+        }
       }
       .next{
         margin: 0 30px 0 30px;
@@ -316,6 +343,14 @@ export default {
       align-items: center;
       justify-content: space-around;
       width: 100%;
+      @include respond-to('phone'){
+        display: none;
+        //.el-slider{
+        //  margin: 0 8px;
+        //}
+      }
+      @include respond-to('tv'){
+      }
       .progress-bar{
         width: 350px;
         height: 20px;
@@ -329,6 +364,12 @@ export default {
     display: flex;
     align-items: center;
     justify-content: flex-end;
+    @include respond-to('phone'){
+      display: none;
+    }
+    @include respond-to('tv'){
+      width: 400px;
+    }
     button{
       background-color: transparent;
       .iconfont{

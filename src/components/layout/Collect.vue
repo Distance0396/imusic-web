@@ -11,7 +11,7 @@ export default {
     }
   },
   methods: {
-    ...mapActions('collect', ['getCollectForm']),
+    ...mapActions('user', ['getCollectForm']),
     // 添加歌单
     async addMusicForm () {
       if (!this.isLogin) await this.$router.replace('/login')
@@ -25,7 +25,7 @@ export default {
   },
   computed: {
     ...mapGetters('common', ['isBerth']),
-    ...mapState('collect', ['collect']),
+    ...mapState('user', ['userFollow']),
     ...mapState('player', ['currentCol', 'currentSong']),
     // 是否登录
     isLogin () {
@@ -54,37 +54,38 @@ export default {
       </div>
     </div>
     <div class="collect-content">
-      <div class="collect-tips" v-if="isLogin === '' || (this.collect.albumList.length === 0 && this.collect.singerList.length === 0 && this.collect.musicFormList.length === 0)">
+      <div class="collect-tips"
+           v-if="isLogin === '' || (this.userFollow.albumList.length === 0 && this.userFollow.singerList.length === 0 && this.userFollow.musicFormList.length === 0)">
         <span>创建你的第一个歌单</span>
         <span>很简单，我们将祝你一臂之力</span>
         <i class="setUp" @click="addMusicForm">创建歌单</i>
       </div>
       <div v-else >
         <MusicFormItem
-          :class="{active : `/detail/album/${item.id}` === $route.path}"
-          v-for="item in collect.albumList"
-          @click.native="$router.push(`/detail/album/${item.id}`)"
+          :class="{active : `/album/${item.id}` === $route.path}"
+          v-for="item in userFollow?.albumList"
+          @click.native="$router.push(`/album/${item.id}`)"
           :album="item"
           :key="'album'+item.id"
-          :isPlaying="isPlaying(`/detail/album/${item.id}`)"
+          :isPlaying="isPlaying(`/album/${item.id}`)"
         >
         </MusicFormItem>
         <MusicFormItem
-          :class="{active : `/detail/singer/${item.id}` === $route.path}"
-          v-for="item in collect.singerList"
-          @click.native="$router.push(`/detail/singer/${item.id}`)"
+          :class="{active : `/singer/${item.id}` === $route.path}"
+          v-for="item in userFollow?.singerList"
+          @click.native="$router.push(`/singer/${item.id}`)"
           :singer="item"
           :key="'singer'+item.id"
-          :isPlaying="isPlaying(`/detail/singer/${item.id}`)"
+          :isPlaying="isPlaying(`/singer/${item.id}`)"
         >
         </MusicFormItem>
         <MusicFormItem
-          :class="{active : `/detail/music-form/${item.id}` === $route.path}"
-          v-for="item in collect.musicFormList"
-          @click.native="$router.push(`/detail/music-form/${item.id}`)"
+          :class="{active : `/music-form/${item.id}` === $route.path}"
+          v-for="item in userFollow?.musicFormList"
+          @click.native="$router.push(`/music-form/${item.id}`)"
           :music-form="item"
           :key="'form'+item.id"
-          :isPlaying="isPlaying(`/detail/music-form/${item.id}`)"
+          :isPlaying="isPlaying(`/music-form/${item.id}`)"
         >
         </MusicFormItem>
       </div>
@@ -96,6 +97,12 @@ export default {
 .collect{
   text-overflow: ellipsis;
   white-space: nowrap;
+  .collect-content::-webkit-scrollbar{
+    display:none
+  }
+  :hover.collect-content::-webkit-scrollbar{
+    display:block;
+  }
   .menu-list{
     border-radius: 4px;
     display: flex;
@@ -135,12 +142,10 @@ export default {
       }
     }
   }
-  .collect-content::-webkit-scrollbar{
-     display:none
-   }
   .collect-content{
     height: 500px;
     overflow-y: scroll;
+    overflow-x: hidden;
     .active{
       background-color: var(--active-color);
     }

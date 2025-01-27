@@ -3,18 +3,14 @@ import MusicItem from '@/components/block/MusicItem.vue'
 import ActionBar from '@/components/layout/ActionBar.vue'
 import Header from '@/components/layout/Header.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
-import { useContextMenu } from '@/utils/useContextMenu'
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
-import { collect, unfollow } from '@/api/collect'
 import { deleteById, updateMusicForm } from '@/api/muiscForm'
 
 export default {
   name: 'PlayList',
   mounted () {
-    this.menu[0].menu = this.getUserMusicForm
-  },
-  created () {
     this.getMusicForm(this.getMusicFormId)
+    this.menu[0].menu.push(...this.getUserMusicForm)
   },
   components: {
     ActionBar,
@@ -37,15 +33,16 @@ export default {
         { id: 4, label: '跳转至歌手', icon: 'el-icon-s-promotion' },
         { id: 5, label: '分享给好友', icon: 'el-icon-info' }
       ],
-      pickMusicItem: {},
-      /*
-        控制修改歌单弹窗显示
-       */
+      // 控制修改歌单弹窗显示
       dialogVisible: false,
       // MusicItem组件省略号位置
-      position: {},
+      clickMore: {},
       // 上传加载
-      loading: false
+      loading: false,
+      // 选中音乐id
+      selectMusicId: null,
+      // 选中音乐
+      selectMusic: null
     }
   },
   methods: {
@@ -56,41 +53,17 @@ export default {
     /*
       收藏夹
      */
-    ...mapActions('collect', ['getCollectForm']),
+    ...mapActions('user', ['getCollectForm']),
     ...mapMutations('player', ['setCurrentCol']),
     /*
-      播放器
+      播放队列
      */
     ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
-    /*
-      右键菜单选项
-     */
-    pickMenu (e) {
-      useContextMenu(e, this.pickMusicItem, this.getMusicFormId)
-    },
     /*
       点击播放
      */
     submitPlay () {
       this.setPlayList(this.musicList)
-    },
-    // 关注
-    async attention () {
-      if (this.isLogin) {
-        await collect(null, null, this.getMusicFormId).then(res => {
-          this.getCollectForm()
-          this.isMusicFormCollect(this.getMusicFormId)
-        })
-      }
-    },
-    // 取消关注
-    async unfollow () {
-      if (this.isLogin) {
-        await unfollow(null, null, this.getMusicFormId).then(res => {
-          this.getCollectForm()
-          this.isMusicFormCollect(this.getMusicFormId)
-        })
-      }
     },
     /*
       修改歌单 图片上传前
@@ -125,31 +98,48 @@ export default {
       this.loading = false
       this.image = res.data
     },
-    playLocation () {
-      this.setCurrentCol(this.musicForm)
+    /*
+      上传失败
+     */
+    uploadError () {
+      this.$message({
+        message: '上传失败',
+        type: 'warning'
+      })
+      this.loading = false
     },
+    /*
+      删除歌单
+     */
     async delPlaylist () {
       await deleteById(this.musicForm.id)
-      await this.$store.dispatch('collect/getCollectForm')
+      await this.$store.dispatch('user/getCollectForm')
+    },
+    handleSongContextMenu (e, item) {
+      this.selectMusicId = e.currentTarget.dataset.music
+      this.selectMusic = item
+      this.$refs.contextMenu.handleContextMenu(e)
+    },
+    /*
+      右键菜单选项
+     */
+    pickMenu (e) {
+      if (!this.isLogin) return this.$message.error('未登录')
+      const { menu } = e
+      this.$useContextMenu(menu, this.selectMusic, 1)
+      this.$refs.contextMenu.showMenu = false
     }
   },
   computed: {
-    ...mapState('musicForm', ['musicForm', 'musicList']),
     ...mapState('user', ['userInfo']),
+    ...mapGetters('user', ['isMusicFormCollect', 'getUserMusicForm']),
+    ...mapState('musicForm', ['musicForm', 'musicList']),
     ...mapGetters('musicForm', ['getMusicFormProperty']),
-    ...mapGetters('collect', ['isMusicFormCollect', 'getUserMusicForm']),
+    isLogin () { return this.$store.getters.token },
     /*
       获取路由传参中的专辑id
      */
-    getMusicFormId () {
-      return +this.$route.params.id
-    },
-    /*
-      是否登陆
-     */
-    isLogin () {
-      return this.$store.getters.token
-    },
+    getMusicFormId () { return +this.$route.params.id },
     name: {
       get () {
         return this.getMusicFormProperty('name')
@@ -180,18 +170,18 @@ export default {
 
 <template>
   <div class="music-form" v-title data-title="歌单详情">
-    <Header :color="musicForm.color">
+    <Header :color="musicForm?.color">
       <p>{{musicForm.name}}</p>
     </Header>
     <div class="head">
-      <div class="background-color" :style="{'background-color': musicForm.color }"></div>
+      <div class="background-color" :style="{'background-color': musicForm?.color }"></div>
       <div class="background-color shade"></div>
       <el-image
         ref="image"
         style="min-width: 225px; min-height: 225px;"
         class="img"
-        :src="musicForm.image"
-        :preview-src-list="[musicForm.image]"
+        :src="musicForm?.image"
+        :preview-src-list="[musicForm?.image]"
         alt="">
         <div slot="placeholder" style="width: 100%; height: 100%; display: flex; justify-content: center; align-items: center">
           <i class="el-icon-picture-outline" style="font-size: 80px; color: #b3b3b3;"></i>
@@ -202,40 +192,48 @@ export default {
       </el-image>
       <div class="album-detail">
         <span>歌单</span>
-        <span style="font-size: 5rem; font-weight: bold">{{musicForm.name}}</span>
-        <span style="font-size: 10px;">{{musicForm.description}}</span>
-        <span style="margin-top: 10px;">{{musicForm.architect}} · {{musicList.length}}首歌曲</span>
+        <span style="font-size: 5rem; font-weight: bold">{{musicForm?.name}}</span>
+        <span style="font-size: 10px;">{{musicForm?.description}}</span>
+        <span style="margin-top: 10px;">{{musicForm?.architect}} · {{musicList?.length}}首歌曲</span>
       </div>
     </div>
     <div class="context">
-      <div class="gradual-block" :style="{'background-color': musicForm.color }"></div>
+      <div class="gradual-block" :style="{'background-color': musicForm?.color }"></div>
       <div class="album-plank">
         <ActionBar
           @submitPlay="submitPlay"
-          @attention="attention"
-          @unfollow="unfollow"
-          :is-exist="isMusicFormCollect(this.getMusicFormId)"
+          :isShowFollow="false"
+          :isFollow="isMusicFormCollect(this.getMusicFormId)"
         >
-          <div v-if="this.musicForm.architectId === this.userInfo.id" style="display: flex; align-items: center;">
-            <svg @click="dialogVisible = true" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="32" height="32"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
-            <i @click="delPlaylist" style="margin-left: 20px; font-size: 30px;" class="iconfont icon-jianpanshouqi icon"></i>
+          <div v-if="musicForm.architectId === this.userInfo.id" >
+            <span>
+              <i @click="dialogVisible = true" style="font-size: 30px;" class="iconfont icon-xiugai icon" />
+            </span>
+            <el-popconfirm
+              title="确定此歌单删除吗？"
+              @confirm="delPlaylist"
+            >
+              <i slot="reference" style="font-size: 30px;" class="iconfont icon-jianpanshouqi icon" />
+            </el-popconfirm>
           </div>
         </ActionBar>
       </div>
       <div class="musicList">
         <ContextMenu
           :menu="menu"
-          :position="position"
+          :more="clickMore"
           @select-menu="pickMenu"
+          ref="contextMenu"
         >
           <MusicItem
             v-for="(item, index) in musicList"
-            @select-music="pickMusicItem = $event"
-            @position="position = $event"
-            @play="playLocation"
             :key="item.id"
             :index="index+1"
             :music="item"
+            :backup="musicForm?.image"
+            :class="{ active : selectMusicId == item.id }"
+            @click-more="clickMore = $event"
+            @contextmenu.native="handleSongContextMenu($event, item)"
           />
         </ContextMenu>
       </div>
@@ -251,12 +249,13 @@ export default {
         <el-upload
           v-loading="loading"
           class="upload"
-          action="http://localhost:8011/common/upload"
+          action="/v2/upload"
           :show-file-list="false"
           :limit="1"
           :auto-upload="true"
           :before-upload="beforeUpload"
           :on-success="uploadOk"
+          :on-error="uploadError"
         >
           <!-- 如果没有图片，显示加号图标 -->
           <div v-if="!musicForm.image" class="error-img-box" >
@@ -265,7 +264,6 @@ export default {
               <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M994.72 973.44A39.84 39.84 0 0 1 960.8 992H80a39.84 39.84 0 0 1-33.92-18.4 34.4 34.4 0 0 1 0-36.64A40.16 40.16 0 0 1 80 918.24h880a39.84 39.84 0 0 1 34.08 18.4 34.08 34.08 0 0 1 0.64 36.8zM545.44 688a272 272 0 0 1-148 68.64l-96 7.84c-46.24 3.84-71.68 5.92-76.48 5.92a36.96 36.96 0 0 1-26.24-10.72c-12.64-12.48-12.64-12.48-5.12-102.56l8-96a272 272 0 0 1 68.64-148l352-351.2a113.28 113.28 0 0 1 155.84 0l118.88 118.88a109.92 109.92 0 0 1 0 155.36z m299.52-455.2l-118.88-118.88a37.12 37.12 0 0 0-51.84 0l-352 352a195.52 195.52 0 0 0-48 102.24l-8 96-2.56 30.88 30.88-2.56 96-8a196.64 196.64 0 0 0 102.24-48l352-351.04a37.12 37.12 0 0 0 0-51.84z"></path></svg>
             </span>
           </div>
-<!--          <i v-if="!musicForm.image" slot="default" class="el-icon-plus"></i>-->
           <!-- 如果有图片，显示图片及操作图标 -->
           <div v-else style="position: relative; width: 200px; height: 200px">
             <img
@@ -278,7 +276,6 @@ export default {
             </span>
           </div>
         </el-upload>
-
         <!-- 描述输入框 -->
         <div class="context">
           <el-input class="title" v-model="name" placeholder="请输入内容"></el-input>
@@ -293,7 +290,6 @@ export default {
           </el-input>
         </div>
       </div>
-
       <!-- 对话框底部 -->
       <span slot="footer" class="dialog-footer">
         <el-button type="primary" @click="subUpdate">确 定</el-button>
@@ -303,6 +299,7 @@ export default {
 </template>
 
 <style scoped lang="scss">
+@import "@/assets/scss/mixin";
 $min-height: 400px;
 $action-height: 5rem;
 .music-form{
@@ -355,10 +352,11 @@ $action-height: 5rem;
   }
   .context{
     width: 100%;
-    min-height: calc(100vh - $min-height);
+    height: 100%;
+    position: relative;
     .gradual-block{
       height: calc(100vh - $min-height);
-      position: relative;
+      position: absolute;
       z-index: 1;
       float: left;
       width: 100%;
@@ -370,14 +368,14 @@ $action-height: 5rem;
       width: 100%;
       z-index: 10;
       height: $action-height;
-      position: absolute;
+      position: relative;
     }
     .musicList{
       min-height: calc(100vh - $min-height - $action-height - 35px);
       width: 100%;
       padding: 0 20px 0 20px;
-      position: absolute;
-      margin-top: 5rem;
+      position: relative;
+      margin: 1rem 0 5rem 0;
       z-index: 10;
     }
   }
@@ -425,20 +423,9 @@ $action-height: 5rem;
 }
 .context{
   width: 250px;
-  ::v-deep .el-input{
-    .el-input__inner{
-      background-color: var(--aside-background-color);
-      color: var(--text-color);
-    }
-  }
+  @include updateInput();
   .title{
     margin-bottom: 2px;
-  }
-  ::v-deep .description{
-    .el-textarea__inner{
-      color: var(--text-color);
-      background-color: var(--aside-background-color);
-    }
   }
 }
 </style>

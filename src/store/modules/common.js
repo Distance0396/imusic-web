@@ -11,7 +11,8 @@ export default {
       x: 0,
       y: 0,
       focusUser: null,
-      isFocus: false
+      isFocus: false,
+      isShowRightBox: false
       // isBerth: false
     }
   },
@@ -42,7 +43,7 @@ export default {
     async query ({ commit }) {
       await query().then(res => {
         if (res.data == null) return
-        commit('collect/setCollectForm', { ...res.data.collect }, { root: true })
+        // commit('follow/setCollectForm', { ...res.data.follow }, { root: true })
         commit('setSinger', res.data.singer)
         commit('setAlbum', res.data.album)
         commit('setBrowse', res.data.browse)

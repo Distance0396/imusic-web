@@ -9,26 +9,25 @@ export default {
     }
   },
   props: {
-    isExist: Object,
-    isReply: Boolean
+    isFollow: Object,
+    // 是否显示关注
+    isShowFollow: Boolean
   },
   methods: {
+    // 播放按钮
     submit () {
       this.$emit('submitPlay')
     },
-    attention () {
-      this.$emit('attention')
+    // 关注
+    follow () {
+      this.$emit('follow')
     },
+    // 取消关注
     unfollow () {
       this.$emit('unfollow')
     }
   },
   mounted () {
-  },
-  computed: {
-    isLogin () {
-      return this.$store.getters.token
-    }
   }
 }
 </script>
@@ -36,17 +35,15 @@ export default {
 <template>
   <div class="action">
     <span class="play" @click="submit">
-      <svg class="icon" viewBox="0 0 1024 1024"
-           xmlns="http://www.w3.org/2000/svg" width="24" height="24"><path
-        d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z"
-      ></path>
-      </svg>
+      <i class="iconfont icon-icon_play icon" style="font-size: 24px"></i>
     </span>
-    <span v-if="!isExist" class="attention" @click.stop="attention">
+    <span v-if="isShowFollow">
+      <span v-if="!isFollow" class="attention" @click.stop="follow">
       关注
     </span>
-    <span v-else class="attention" @click.stop="unfollow">
+      <span v-else class="attention" @click.stop="unfollow">
       关注中
+    </span>
     </span>
     <span class="follow">
       <slot></slot>
@@ -64,7 +61,7 @@ export default {
     margin-left: 20px;
   }
   .play {
-    fill: #ffffff;
+    color: #ffffff;
     display: flex;
     min-width: 56px;
     min-height: 56px;
@@ -73,8 +70,9 @@ export default {
     justify-content: center;
     align-items: center;
     &:hover{
-      background-color: #3b76ff;
-      transition: background-color .3s;
+      transform: scale(1.1, 1.1);
+      -webkit-transform: scale(1.1, 1.1);
+      -moz-transform: scale(1.1, 1.1);
     }
   }
   .follow {
@@ -87,7 +85,7 @@ export default {
     i{
       font-size: 15px;
     }
-    .icon{
+    .icon, ::v-deep div span .el-popover__reference-wrapper .icon{
       color: #aeaeae;
       fill: #aeaeae;
       transition: all .2s;

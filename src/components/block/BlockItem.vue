@@ -61,6 +61,10 @@ export default {
   background-color: #f7f7f7;
   border-radius: 5px;
   justify-content: center;
+  &:hover{
+    background-color: #d0d0d0;
+    transition: background-color .4s;
+  }
   .block-loading{
     display: inline-flex;
     flex-direction: column;
@@ -71,10 +75,6 @@ export default {
       background-color: #d0d0d0;
       transition: background-color .4s;
     }
-  }
-  &:hover{
-    background-color: #d0d0d0;
-    transition: background-color .4s;
   }
   .block-img{
     width: 9rem;

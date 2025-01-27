@@ -80,7 +80,7 @@ export default {
 <style scoped lang="scss">
 .header{
   padding-left: 20px;
-  z-index: 1000;
+  z-index: 998;
   position: fixed;
   height: 60px;
   display: flex;
@@ -88,7 +88,9 @@ export default {
   align-items: center;
   width: 100%;
   color: var(--text-color);
-  //opacity: .9;
+  //border-bottom-color: var(--border-color);
+  //border-width: 0 0 0.0625rem  0;;
+  //border-style: solid;
   .header-left{
     display: flex;
     align-items: center;
@@ -124,14 +126,6 @@ export default {
       .item-active{
         color: #409EFF;
       }
-      //.item-nav-slip{
-      //  position: absolute;
-      //  bottom: 0;
-      //  height: 3px;
-      //  background-color: rgb(22,93,255);
-      //  right: auto;
-      //  top: auto;
-      //}
     }
   }
 }

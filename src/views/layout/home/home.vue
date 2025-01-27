@@ -2,6 +2,15 @@
   <div class="home" v-title data-title="主页">
     <div class="channel">
       <Recommend @click="$router.push('/daily')" />
+      <div class="Leaderboard" style="width: 400px; height: 250px; background-color: #1b2735; border-radius: 8px;">
+        <div class="title">排行榜</div>
+        <div class="content">
+          <span>10:30的飞机场</span>
+          <span>10:30的飞机场</span>
+          <span>10:30的飞机场</span>
+          <span>10:30的飞机场</span>
+        </div>
+      </div>
     </div>
     <scrollBar>
       <template #title>
@@ -19,14 +28,14 @@
               fit="cover"
               lazy="lazy"
               alt=""
-              @click="$router.push(`/detail/album/${item.id}`)"
+              @click="$router.push(`/album/${item.id}`)"
             />
           </template>
           <template #nameOne>
-            <i @click="$router.push(`/detail/album/${item.id}`)">{{item.name}}</i>
+            <i @click="$router.push(`/album/${item.id}`)">{{item.name}}</i>
           </template>
           <template #nameTwo>
-            <i @click="$router.push(`/detail/singer/${item.singerId}`)">{{item.singerName}}</i>
+            <i @click="$router.push(`/singer/${item.singerId}`)">{{item.singerName}}</i>
           </template>
         </Block>
       </template>
@@ -48,11 +57,11 @@
                fit="cover"
                :lazy="true"
                alt=""
-               @click="$router.push(`/detail/singer/${item.id}`)"
+               @click="$router.push(`/singer/${item.id}`)"
             ></el-image>
           </template>
           <template #nameOne>
-            <i @click="$router.push(`/detail/singer/${item.id}`)">{{item.name}}</i>
+            <i @click="$router.push(`/singer/${item.id}`)">{{item.name}}</i>
           </template>
           <template #nameTwo>
             艺人
@@ -93,11 +102,10 @@ export default {
 </script>
 
 <style scoped lang="scss">
+@import "@/assets/scss/index";
 .home {
   padding: 20px 0 60px 20px;
-  //margin-left: 20px;
-  //margin-top: 20px;
-  min-height: calc(100vh - 120px);
+  min-height: calc(100vh - $footer);
   color: var(--text-color);
   > div{
     margin-top: 60px;
@@ -105,6 +113,27 @@ export default {
   .channel{
     width: 100%;
     height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    > div {
+      margin-right: 3vw;
+    }
+    .Leaderboard{
+      position: relative;
+      padding: 15px;
+      .title{
+        font-size: 30px;
+        position: absolute;
+        right: 20px;
+      }
+      .content{
+        position: absolute;
+        display: flex;
+        flex-direction: column;
+        font-size: 20px;
+      }
+    }
   }
 }
 </style>

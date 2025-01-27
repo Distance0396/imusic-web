@@ -5,12 +5,30 @@ import store from './store'
 import '@/assets/scss/index.scss'
 import '@/assets/scss/theme.scss'
 import ElementUI from 'element-ui'
-import { VueReCaptcha } from 'vue-recaptcha-v3'
-import 'element-ui/lib/theme-chalk/index.css'
 import './assets/iconfont/iconfont.css'
+import VueVirtualScroller from 'vue-virtual-scroller'
+import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import { ElementTiptapPlugin } from 'element-tiptap'
+import 'element-ui/lib/theme-chalk/index.css'
+import 'element-tiptap/lib/index.css'
+import { VueReCaptcha } from 'vue-recaptcha-v3'
+import { useContextMenu } from '@/utils/useContextMenu'
 
+dayjs.extend(relativeTime)
+dayjs.locale('zh-cn')
+
+Vue.prototype.$dayjs = dayjs
+Vue.prototype.$useContextMenu = useContextMenu
+
+Vue.use(VueVirtualScroller)
+Vue.use(ElementUI)
+Vue.use(ElementTiptapPlugin, {
+  lang: 'zh'
+})
 Vue.config.productionTip = false
-Vue.prototype.$EventBus = new Vue()
 
 Vue.use(VueReCaptcha, {
   siteKey: '6LeNfRYqAAAAALtUVfNp5GAyLQJebGTWFU0w6WDQ',
@@ -21,7 +39,6 @@ Vue.use(VueReCaptcha, {
     autoHideBadge: true
   }
 })
-Vue.use(ElementUI)
 
 /**
  * 标签页name

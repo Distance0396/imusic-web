@@ -5,9 +5,8 @@ import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import Header from '@/components/layout/Header.vue'
 import { findSingerById } from '@/api/singer'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
-import { useContextMenu } from '@/utils/useContextMenu'
 import ActionBar from '@/components/layout/ActionBar.vue'
-import { collect, unfollow } from '@/api/collect'
+import { follow, unfollow } from '@/api/follow'
 import ReplyInput from '@/components/block/replyInput.vue'
 import Reply from '@/components/block/reply.vue'
 import { moreComment, saveComment, select } from '@/api/comment'
@@ -17,8 +16,7 @@ export default {
   name: 'singerDetail',
   computed: {
     ...mapState('comment', ['content', 'replyUserId', 'rootId', 'parent']),
-    ...mapGetters('collect', ['getUserMusicForm', 'isSingerCollect']),
-    //  获取路由 歌手id
+    ...mapGetters('user', ['getUserMusicForm', 'isSingerCollect']),
     getSingerId () { return +this.$route.params.id },
     isLogin () { return this.$store.getters.token }
   },
@@ -46,7 +44,7 @@ export default {
     this.menu[0].menu = this.getUserMusicForm
   },
   methods: {
-    ...mapActions('collect', ['getCollectForm']),
+    ...mapActions('user', ['getCollectForm']),
     ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
     ...mapMutations('comment', ['setContent']),
     ...mapMutations('player', ['setStatus']),
@@ -55,7 +53,9 @@ export default {
     // 获取评论
     async getComment () {
       const { data } = await select({
-        objId: +this.$route.params.id,
+        // 歌手id
+        objId: this.getSingerId,
+        // 歌手类型为1
         objType: 1,
         id: 0
       })
@@ -64,6 +64,7 @@ export default {
     },
     // 提交评论
     async submit () {
+      if (!this.isLogin) return this.$message.error('未登录')
       await saveComment({
         ...this.comment,
         replyUserId: this.replyUserId,
@@ -73,11 +74,13 @@ export default {
       })
       await this.clear()
     },
+    // 更多评论
     async more ({ pagination, objId, rootId }) {
       const { data } = await moreComment({ ...pagination, objId: objId, objType: 1, rootId: rootId })
       const find = this.reply.find(item => item.id === rootId)
       if (find) { find.children = data.page }
     },
+    // 滚动处理器
     handleScroll () {
       // 获取滚动距离
       const scrollTop = window.scrollY || document.documentElement.scrollTop || document.body.scrollTop
@@ -86,6 +89,7 @@ export default {
       // 设置颜色和透明度
       this.$refs.background.style.backgroundColor = this.singer.color
       this.$refs.background.style.opacity = opacity.toString()
+      this.$refs.background.style.backgroundImage = 'linear-gradient(var(--gradation-color) 0, rgba(0, 0, 0, 0.4) 0)'
     },
     // 根据id查询歌手
     async getSinger () {
@@ -98,7 +102,19 @@ export default {
     },
     // 右键选中的选项
     pickMenu (e) {
-      useContextMenu(e, this.pickMusicItem, this.getSingerId)
+      if (!this.isLogin) return this.$message.error('未登录')
+      const { menu, sonItem } = e
+      this.$useContextMenu(menu, this.selectMusic, sonItem.id)
+      this.$refs.contextMenu.showMenu = false
+    },
+    // 右键菜单处理器
+    handleSongContextMenu (e, item) {
+      /*
+        告诉菜单点击的PointerEvent
+       */
+      this.$refs.contextMenu.handleContextMenu(e)
+      this.selectMusic = item
+      this.selectMusicId = e.currentTarget.dataset.music
     },
     // 提交播放数据
     submitPlay () {
@@ -107,23 +123,41 @@ export default {
     },
     // 关注
     async attention () {
-      await collect(1, this.getSingerId)
+      if (!this.isLogin) return this.$message.error('未登录')
+      await follow(1, this.getSingerId)
       await this.getCollectForm()
       this.isSingerCollect(this.getSingerId)
     },
     // 取消关注
     async unfollow () {
-      await unfollow(1, this.getSingerId)
+      if (!this.isLogin) return this.$message.error('未登录')
+      await unfollow({
+        objType: 1,
+        objId: this.getSingerId,
+        likeTimestamp: this.$dayjs().format('YYYY-MM-DD HH:mm:ss')
+      })
       await this.getCollectForm()
       this.isSingerCollect(this.getSingerId)
     },
     // 点赞
     async like ({ objId, objUserId }) {
-      await likeApi({ objId, objType: 1, objUserId, likeTimestamp: new Date(), likeAction: 1 })
+      await likeApi({
+        objId: objId,
+        objType: 1,
+        objUserId: objUserId,
+        likeTimestamp: this.$dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        likeAction: 1
+      })
     },
     // 取消点赞
     async unlike ({ objId, objUserId }) {
-      await unlikeApi({ objId, objType: 1, objUserId, likeTimestamp: new Date(), likeAction: 2 })
+      await unlikeApi({
+        objId: objId,
+        objType: 1,
+        objUserId: objUserId,
+        likeTimestamp: this.$dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        likeAction: 2
+      })
     }
   },
   data () {
@@ -150,7 +184,6 @@ export default {
           icon: 'el-icon-info'
         }
       ],
-      isExist: '',
       // 歌手信息
       singer: {},
       // 歌手
@@ -161,10 +194,8 @@ export default {
       controlMusicNumber: 5,
       // 加载
       loading: false,
-      // 选中的歌曲
-      pickMusicItem: {},
-      // MusicItem组件点击省略号时间
-      position: {},
+      // MusicItem组件点击省略号
+      clickMore: {},
       isReply: true,
       comment: {
         objId: +this.$route.params.id,
@@ -172,7 +203,10 @@ export default {
         userId: this.$store.state.user.userInfo.id,
         root: 0,
         parent: 0
-      }
+      },
+      selectMusicId: null,
+      // 选中的歌曲
+      selectMusic: null
     }
   }
 }
@@ -185,13 +219,9 @@ export default {
     </Header>
     <div class="main">
       <div class="background">
-        <div class="public">
-          <el-image
-            ref="image"
-            class="background-img"
-            :src="singer.image"
-            alt=""/>
-          <!--          <img class="background-img" crossorigin="anonymous" alt="" ref="image" :src="this.singer.image  + '?time=' + new Date().valueOf()"/>-->
+        <div class="image public" :style="{'backgroundImage':
+         `linear-gradient(var(--gradation-color) 0, rgba(0, 0, 0, 0.4) 0),
+          url(${singer.image})`}">
         </div>
         <div class="background-black public" ref="background"></div>
         <div class="cont-info">
@@ -204,39 +234,40 @@ export default {
       </div>
       <div class="content">
         <div class="cont-center">
-          <div class="background-active"
-               :style="{'background-color': singer.color}">
+          <div class="background-active" :style="{'background-color': singer.color}">
           </div>
           <div class="cont-works">
             <ActionBar
               @submitPlay="submitPlay"
-              @attention="attention"
+              @follow="attention"
               @unfollow="unfollow"
-              :is-exist="this.isSingerCollect(this.getSingerId)"
+              :isShowFollow="true"
+              :isFollow="isSingerCollect(this.getSingerId)"
             >
-              <span @click="isReply = !isReply" style="fill: #aaaaaa; min-width: 40px; min-height: 40px;">
-                <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path
-                  d="M853.333333 768c35.413333 0 64-20.650667 64-55.978667V170.581333A63.978667 63.978667 0 0 0 853.333333 106.666667H170.666667C135.253333 106.666667 106.666667 135.253333 106.666667 170.581333v541.44C106.666667 747.285333 135.338667 768 170.666667 768h201.173333l110.016 117.44a42.752 42.752 0 0 0 60.586667 0.042667L651.904 768H853.333333z m-219.029333-42.666667h-6.250667l-115.797333 129.962667c-0.106667 0.106667-116.010667-129.962667-116.010667-129.962667H170.666667c-11.776 0-21.333333-1.621333-21.333334-13.312V170.581333A21.205333 21.205333 0 0 1 170.666667 149.333333h682.666666c11.776 0 21.333333 9.536 21.333334 21.248v541.44c0 11.754667-9.472 13.312-21.333334 13.312H634.304zM341.333333 490.666667a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z"></path></svg>
+              <span @click="isReply = !isReply" style="color: #aaaaaa; ">
+                <i class="iconfont icon-wodewenzhang icon" style="font-size: 40px;"></i>
               </span>
             </ActionBar>
-            <div v-if="isReply"
-                 style="min-height: 300px; display: flex; flex-wrap: wrap; flex-direction: column; margin: 0 20px 0 20px;">
+            <div v-if="isReply" style="min-height: 300px; display: flex; flex-wrap: wrap; flex-direction: column; margin: 0 20px 0 20px;">
               <div v-if="musicList.length > 0" class="cont-hot-music">
                 <h2 class="title">热门</h2>
                 <div class="target">
                   <ContextMenu
-                    :menu="menu"
-                    :position="position"
                     @select-menu="pickMenu"
+                    ref="contextMenu"
+                    :more="clickMore"
+                    :menu="menu"
                   >
                     <MusicItem
                       v-for="(item,index) in musicList.slice(0, this.controlMusicNumber)"
-                      @select-music="pickMusicItem = $event"
-                      @position="position = $event"
                       :key="item.id"
                       :music="item"
-                      :index="index+1"
                       :backup="singer?.avatar"
+                      :index="index+1"
+                      :data-music="item.id"
+                      :class="{ active : selectMusicId == item.id }"
+                      @click-more="clickMore = $event"
+                      @contextmenu.native="handleSongContextMenu($event, item)"
                     />
                   </ContextMenu>
                 </div>
@@ -246,25 +277,24 @@ export default {
                 </div>
               </div>
               <div v-if="albumList.length > 0" class="album" style="padding-bottom: 10px">
-                <h2 class="title">唱片专辑</h2>
+                <h2 class="title" style="color: var(--text-color)">唱片专辑</h2>
                 <div class="target">
-                  <!--                  <Block v-for="item in albumList" :key="item.id" :album="item"></Block>-->
                   <Block v-for="item in albumList" :key="item.id">
                     <template #img>
                       <el-image
                         :src="item.avatar || item.image"
                         style="width: 100%;
-                        height: 100%;
-                        cursor: pointer;
-                        border-radius: 3%;"
+                      height: 100%;
+                      cursor: pointer;
+                      border-radius: 3%;"
                         fit="cover"
                         :lazy="true"
                         alt=""
-                        @click="$router.push(`/detail/album/${item.id}`)"
+                        @click="$router.push(`/album/${item.id}`)"
                       ></el-image>
                     </template>
                     <template #nameOne>
-                      <i @click="$router.push(`/detail/album/${item.id}`)">
+                      <i @click="$router.push(`/album/${item.id}`)">
                         {{ item.name }}
                       </i>
                     </template>
@@ -277,13 +307,12 @@ export default {
               <div class="cont-introduce">
               </div>
             </div>
-            <div style="min-height: 300px;" v-if="!isReply" class="replyView">
+            <div v-else-if="!isReply" style="min-height: 300px;"  class="replyView">
               <ul class="nav-bar">
                 <li class="nav-title">
                   <span class="title-text">评论</span>
                   <span class="total-reply">{{ total }}</span>
                 </li>
-                <li></li>
               </ul>
               <ReplyInput @sub="submit" @focus="clear"></ReplyInput>
               <Reply
@@ -309,32 +338,26 @@ export default {
 }
 .detail {
   position: relative;
-  padding-bottom: 40px;
   .main {
     overflow: hidden;
     .background {
       min-height: 40vh;
       position: relative;
       width: 100%;
+      //background-image: linear-gradient(var(--gradation-color) 0, rgba(0, 0, 0, 0.4) 0);
+      .image{
+        background-repeat: no-repeat;
+        background-size: cover;
+        background-position: center;
+      }
       .public {
         height: 40vh;
         width: 100%;
         position: absolute;
         top: 0;
-        ::v-deep .background-img {
-          height: 100%;
-          width: 100%;
-          img {
-            height: 100%;
-            width: 100%;
-            z-index: -5;
-            object-position: 50% 15%;
-            object-fit: cover;
-          }
-        }
       }
       .background-black {
-        //background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
+        //background-image: linear-gradient(var(--gradation-color) 0, rgba(0, 0, 0, 0.4) 0);
       }
       .cont-info {
         position: absolute;
@@ -358,15 +381,13 @@ export default {
       }
     }
     .content {
-      min-height: calc(100vh - 40vh - 100px);
+      min-height: calc(100vh - 40vh );
       .cont-center {
         width: 100%;
         position: relative;
         top: 0;
         .background-active {
-          //background: linear-gradient(transparent 0, rgba(0, 0, 0, .5) 100%);
-          //background-image: linear-gradient(rgba(198, 197, 197, 0.4) 40%, #ffffff 100%);
-          background-image: linear-gradient(rgba(198, 197, 197, 0) 40%, var(--main-background-color) 100%);
+          background-image: linear-gradient(rgba(0, 0, 0, 0.4) 0, var(--gradation-color) 100%);
           min-height: 50vh;
           position: absolute;
           top: 0;
@@ -488,7 +509,6 @@ export default {
 .component-fade-enter-active, .component-fade-leave-active {
   transition: opacity .2s ease;
 }
-
 .component-fade-enter, .component-fade-leave-to {
   opacity: 0;
 }

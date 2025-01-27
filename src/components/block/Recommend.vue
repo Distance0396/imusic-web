@@ -22,7 +22,9 @@ export default {
 </template>
 
 <style scoped lang="scss">
+@import "@/assets/scss/mixin";
 $wth: 450px;
+$wth-phone: 260px;
 .day-block{
   width: $wth;
   height: 250px;
@@ -32,8 +34,12 @@ $wth: 450px;
   overflow: hidden;
   position: relative;
   background-color: var(--singer-card-bg);
-  transition: all .2s ease-in-out;
   cursor: pointer;
+  @include respond-to('phone'){
+    width: $wth-phone;
+  }
+  @include respond-to('tv'){
+  }
   &:hover {
     background-color: var(--singer-card-bg-h);
   }
@@ -42,24 +48,33 @@ $wth: 450px;
     right: 20px;
   }
   .image{
-    min-width: calc($wth / 2);
+    //width: calc($wth / 2);
     height: 100%;
-    margin-right: 30px;
+    //margin-right: 30px;
+    overflow: hidden;
+    transition: width .2s ease-in-out;
+    @include respond-to('phone'){
+      width: calc($wth-phone / 2);
+    }
+    @include respond-to('tv'){
+    }
     .el-image{
       width: calc($wth / 2 + 50px);
       height: 100%;
     }
   }
   .info{
-    margin-top: 30px;
+    //margin-top: 30px;
     display: flex;
     flex-direction: column;
+    margin-left: auto;
     .text{
-      margin-bottom: 30px;
+      margin: 20px 20px;
+      transition: all .2s ease-in-out;
       font-size: 30px;
     }
     .iconfont{
-      transition: all .2s ease-in;
+      transition: all .1s ease-in;
       opacity: 0;
       font-size: 40px;
       position: absolute;

@@ -19,11 +19,11 @@
             :src="item.avatar || item.image"
             style="width: 100%; height: 100%; cursor: pointer; border-radius: 50%;" fit="cover"
             :lazy="true"
-            @click="$router.push(`/detail/singer/${item.id}`)"
+            @click="$router.push(`/singer/${item.id}`)"
           />
         </template>
         <template #nameOne>
-          <i @click="$router.push(`/detail/singer/${item.id}`)">{{item.name}}</i>
+          <i @click="$router.push(`/singer/${item.id}`)">{{item.name}}</i>
         </template>
         <template #nameTwo>
           艺人

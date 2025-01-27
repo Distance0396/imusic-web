@@ -22,12 +22,12 @@ export default {
 </script>
 
 <template>
-<div class="block" :style="{ backgroundImage: `url(${obj.image})` }">
+<div class="block" :style="{ backgroundImage: `url(${obj?.image})` }">
   <div class="info">
-    <div class="name">{{obj.name}}</div>
+    <div class="name">{{obj?.name}}</div>
     <div class="musicInfo">
-      <i @click="() => $router.push(`/detail/singer/${obj.singerId}`)">{{obj.singerName}}</i>·
-      <i @click="() => $router.push(`/detail/album/${obj.albumId}`)">{{obj.albumName}}</i>
+      <i @click="() => $router.push(`/singer/${obj?.singerId}`)">{{obj?.singerName}}</i>·
+      <i @click="() => $router.push(`/album/${obj?.albumId}`)">{{obj?.albumName}}</i>
     </div>
   </div>
   <div class="btn">
@@ -40,15 +40,25 @@ export default {
 <style scoped lang="scss">
 
 .block{
-  //width: 240px;
-  width: 600px;
-  height: 270px;
+  //width: 600px;
+  //width: 300px;
+  height: 360px;
+  min-width: 200px;
+  max-width: 320px;
   background-size: cover; /* 确保背景图片填满容器 */
   background-position: center; /* 图片居中 */
   background-repeat: no-repeat; /* 不重复背景图 */
   position: relative;
-  border-radius: 3px;
   overflow: hidden;
+
+  width: calc(10% - 20px); /* 每行三列布局，减去间距 */
+  flex-grow: 1; /* 子项可以按比例扩展 */
+  display: flex;
+  flex-direction: column; /* 子元素垂直排列 */
+  justify-content: space-between; /* 子内容均匀分布 */
+  background-color: var(--article-table-back-color); /* 示例背景颜色 */
+  border-radius: 8px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
   /* 使用 ::after 伪元素实现背景变暗 */
   &:hover::after {
     content: '';
@@ -57,7 +67,7 @@ export default {
     left: 0;
     right: 0;
     bottom: 0;
-    background: rgba(0, 0, 0, 0.5);  /* 让背景变暗 */
+    background: rgba(0, 0, 0, 0.35);  /* 让背景变暗 */
     z-index: 1;
     transition: background .4s ease-out;
   }

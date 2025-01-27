@@ -34,6 +34,7 @@ export default {
           <Block
             v-for="item in history"
             :key="item.id"
+            :showDeleteBtn="true"
             @del-history="delHistory(item)"
           >
             <template #img>
@@ -45,7 +46,7 @@ export default {
                    border-radius: 50%;
                    object-fit: cover;"
                    alt=""
-                   @click="$router.push(`/detail/singer/${item.id}`)"
+                   @click="$router.push(`/singer/${item.id}`)"
               >
               <img :src="item.avatar || item.image"
                    v-else
@@ -55,15 +56,15 @@ export default {
                    border-radius: 5px;
                    object-fit: cover;"
                    alt=""
-                   @click="$router.push(`/detail/album/${item.id}`)"
+                   @click="$router.push(`/album/${item.id}`)"
               >
             </template>
             <template #nameOne>
-              <i v-if="item.language" @click="$router.push(`/detail/singer/${item.id}`)">{{item.name}}</i>
-              <i v-else @click="$router.push(`/detail/album/${item.id}`)">{{item.name}}</i>
+              <i v-if="item.language" @click="$router.push(`/singer/${item.id}`)">{{item.name}}</i>
+              <i v-else @click="$router.push(`/album/${item.id}`)">{{item.name}}</i>
             </template>
             <template #nameTwo>
-              <i v-if="item.language" @click="$router.push(`/detail/singer/${item.id}`)">艺人</i>
+              <i v-if="item.language" @click="$router.push(`/singer/${item.id}`)">艺人</i>
               <i v-else>{{item.singerName}}</i>
             </template>
           </Block>

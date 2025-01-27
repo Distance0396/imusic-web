@@ -25,7 +25,7 @@ export const login = (landing, reCAPTCHA) => {
 }
 
 // 注册
-export const register = (user) => {
+export const signUp = (user) => {
   return request.post('/user/register', {
     ...user
   })

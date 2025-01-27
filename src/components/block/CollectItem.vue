@@ -24,7 +24,7 @@ export default {
     changeLoad () {
       setTimeout(() => {
         this.loading = false
-      }, 1000)
+      }, 800)
     }
   },
   mounted () {
@@ -55,14 +55,33 @@ export default {
           <i class="el-icon-picture-outline"></i>
         </div>
       </el-image>
-      <div class="musicForm-info" style="width: 100px;
+      <div class="musicForm-info" style="width: 100%;
         margin-left: 10px;
         display: flex;
         flex-direction: column;
-        color: var(--text-color);"
-      >
+        color: var(--text-color);
+      ">
         <span>{{ musicForm.name }}</span>
         <span>歌单·{{ musicForm.architect }}</span>
+      </div>
+      <div></div>
+    </template>
+    <template v-if="album">
+      <el-image class="image" :src="album?.image">
+        <div slot="error" class="image-slot">
+          <i class="el-icon-picture-outline"></i>
+        </div>
+      </el-image>
+      <div class="musicForm-info" style="width: 100%;
+        margin-left: 10px;
+        display: flex;
+        flex-direction: column;
+        color: var(--text-color);
+        overflow: hidden;
+        text-overflow: ellipsis;
+      ">
+        <span>{{ album.name }}</span>
+        <span>专辑·{{ album.singerName }}</span>
       </div>
       <div></div>
     </template>
@@ -81,23 +100,6 @@ export default {
       >
         <span>{{ singer.name }}</span>
         <span>歌手</span>
-      </div>
-      <div></div>
-    </template>
-    <template v-if="album">
-      <el-image class="image" :src="album.image">
-        <div slot="error" class="image-slot">
-          <i class="el-icon-picture-outline"></i>
-        </div>
-      </el-image>
-      <div class="musicForm-info" style="width: 100px;
-        margin-left: 10px;
-        display: flex;
-        flex-direction: column;
-        color: var(--text-color);"
-      >
-        <span>{{ album.name }}</span>
-        <span>专辑·{{ album.singerName }}</span>
       </div>
       <div></div>
     </template>
@@ -121,7 +123,6 @@ export default {
   cursor: pointer;
   margin-bottom: 2px;
   &:hover {
-    //background-color: #E4E7ED;
     background-color: var(--collect-item-color);
     transition: background-color .2s linear;
   }

@@ -1,3 +1,6 @@
+$footer: 60px;
+
+
 // 重置默认样式
 * {
   margin: 0;
@@ -6,26 +9,21 @@
 }
 
 @font-face {
-  font-family: "PingFang SC";
+  font-family: "PingFang";
   src: url("@/style/HarmonyOS_Sans_SC/HarmonyOS_Sans_SC_Medium.ttf");
+  font-display: swap;
 }
 
+@font-face {
+  font-family: "PuHuiTi";
+  src: url("@/style/font/Alibaba_PuHuiTi_2.0_75_SemiBold_75_SemiBold.ttf");
+  font-display: swap;
+}
 
-@media only screen and (max-width: 800px) {
-  html {
-    font-size: 13px;
-  }
-}
-@media only screen and (min-width: 1200px) {
-  html {
-    //font-size: 14px;
-  }
-}
 
 
 html{
-  font-family: PingFang SC;
-  //font-size: 14px;
+  font-family: PuHuiTi;
 }
 
 button{
@@ -40,7 +38,6 @@ li{
 a, input{
   text-decoration: none;
   color: #000000;
-  font-family: PingFang SC;
   cursor: pointer;
 }
 
@@ -78,21 +75,24 @@ i{
 
 /* 修改滚动条宽度 */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  //width: 6px;
+  //height: 6px;
+}
+::-webkit-scrollbar{
+  background-color: #0f1011;
 }
 
 /* 修改滚动条颜色 */
 ::-webkit-scrollbar-thumb {
-  background-color: #7a7d84;
-  background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .4) 100%, transparent 100%, transparent 50%, rgba(255, 255, 255, .4) 50%, rgba(255, 255, 255, .4) 75%, transparent 75%, transparent);
-  -webkit-border-radius: 2em;
-  -moz-border-radius: 2em;
-  border-radius: 2em;
+  background-color: #3f3f44;
+  //background-image: -webkit-linear-gradient(45deg, rgba(255, 255, 255, .4) 100%, transparent 100%, transparent 50%, rgba(255, 255, 255, .4) 50%, rgba(255, 255, 255, .4) 75%, transparent 75%, transparent);
+  //-webkit-border-radius: 2em;
+  //-moz-border-radius: 2em;
+  //border-radius: 2em;
 }
 
 /* 修改滚动条轨道颜色 */
 ::-webkit-scrollbar-track {
-  background-color: #f5f5f5;
-  border-radius: 5px;
+  //background-color: #f5f5f5;
+  //border-radius: 5px;
 }

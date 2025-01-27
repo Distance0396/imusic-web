@@ -26,20 +26,21 @@ export default {
 <template>
 <div class="dailyCharts">
   <div class="main">
-    <div class="title" style=" font-size: 40px; color: var(--text-color);"> 每日推荐 </div>
+    <div class="title" style="font-size: 40px; color: var(--text-color);"> 每日推荐 </div>
     <div class="container" style="display: flex; flex-wrap: wrap;">
-      <RecommBlock class="recommBlock" v-for="item in music" :key="item.id" :obj="item"></RecommBlock>
+      <RecommBlock class="recommBlock" v-for="item in music" :key="item.id" :obj="item" />
     </div>
   </div>
 </div>
 </template>
 
 <style scoped lang="scss">
+@import "@/assets/scss/index";
 .dailyCharts {
   .main {
     width: 100%;
     padding: 40px 20px 0 20px;
-    min-height: calc(100vh - 60px);
+    min-height: calc(100vh - $footer);
     .title {
       font-size: 40px;
       margin-bottom: 60px;
@@ -51,18 +52,19 @@ export default {
       flex-wrap: wrap; /* 子项换行 */
       gap: 20px; /* 设置子项之间的间距 */
       justify-content: space-between; /* 子项均匀分布 */
+      transition: all .1s linear;
     }
 
     .recommBlock {
-      width: calc(33.33% - 20px); /* 每行三列布局，减去间距 */
-      flex-grow: 1; /* 子项可以按比例扩展 */
-      display: flex;
-      flex-direction: column; /* 子元素垂直排列 */
-      justify-content: space-between; /* 子内容均匀分布 */
-      background-color: var(--article-table-back-color); /* 示例背景颜色 */
-      border-radius: 10px;
-      overflow: hidden;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      //width: calc(20% - 20px); /* 每行三列布局，减去间距 */
+      //flex-grow: 1; /* 子项可以按比例扩展 */
+      //display: flex;
+      //flex-direction: column; /* 子元素垂直排列 */
+      //justify-content: space-between; /* 子内容均匀分布 */
+      //background-color: var(--article-table-back-color); /* 示例背景颜色 */
+      //border-radius: 10px;
+      //overflow: hidden;
+      //box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
     }
   }
 

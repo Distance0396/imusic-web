@@ -7,7 +7,7 @@ import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import ReplyInput from '@/components/block/replyInput.vue'
 import { useContextMenu } from '@/utils/useContextMenu'
 import { getAlbumById } from '@/api/album'
-import { collect, unfollow } from '@/api/collect'
+import { follow, unfollow } from '@/api/follow'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { moreComment, saveComment, select } from '@/api/comment'
 import { likeApi, unlikeApi } from '@/api/support'
@@ -15,7 +15,14 @@ import { likeApi, unlikeApi } from '@/api/support'
 export default {
   name: 'albumDetail',
   components: {
-    ContextMenu, ActionBar, MusicItem, Header, Reply, ReplyInput
+    ContextMenu,
+    ActionBar,
+    MusicItem,
+    Header,
+    Reply,
+    ReplyInput
+    // DynamicScroller,
+    // DynamicScrollerItem
   },
   data () {
     return {
@@ -53,7 +60,7 @@ export default {
       },
       musicList: [],
       // MusicItem组件点击省略号时间
-      position: {},
+      clickMore: {},
       pickMusicItem: {},
       // 是否显示评论
       isReply: true,
@@ -78,7 +85,7 @@ export default {
   methods: {
     ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
     ...mapMutations('comment', ['setRootId']),
-    ...mapActions('collect', ['getCollectForm']),
+    ...mapActions('user', ['getCollectForm']),
     ...mapActions('comment', ['updateCommentProperty', 'clear']),
     // 获取专辑
     async getAlbumById () {
@@ -94,14 +101,18 @@ export default {
     },
     // 关注
     async attention () {
-      await collect(2, this.getAlbumId).then(res => {
+      await follow(2, this.getAlbumId).then(res => {
         this.getCollectForm()
         this.isAlbumCollect(this.getAlbumId)
       })
     },
     // 取消关注
     async unfollow () {
-      await unfollow(2, this.getAlbumId).then(res => {
+      await unfollow({
+        objType: 2,
+        objId: this.getAlbumId,
+        likeTimestamp: this.$dayjs().format('YYYY-MM-DD HH:mm:ss')
+      }).then(() => {
         this.getCollectForm()
         this.isAlbumCollect(this.getAlbumId)
       })
@@ -125,7 +136,7 @@ export default {
     },
     async getComment () {
       const { data } = await select({
-        objId: +this.$route.params.id,
+        objId: this.getAlbumId,
         objType: 2,
         id: 0
       })
@@ -141,11 +152,23 @@ export default {
     },
     // 点赞 点赞表1为评论
     async like ({ objId, objUserId }) {
-      await likeApi({ objId, objType: 1, objUserId, likeTimestamp: new Date(), likeAction: 1 })
+      await likeApi({
+        objId: objId,
+        objType: 1,
+        objUserId: objUserId,
+        likeTimestamp: this.$dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        likeAction: 1
+      })
     },
     // 取消点赞
     async unlike ({ objId, objUserId }) {
-      await unlikeApi({ objId, objType: 1, objUserId, likeTimestamp: new Date(), likeAction: 2 })
+      await unlikeApi({
+        objId: objId,
+        objType: 1,
+        objUserId: objUserId,
+        likeTimestamp: this.$dayjs().format('YYYY-MM-DD HH:mm:ss'),
+        likeAction: 2
+      })
     },
     // 加载评论
     async load () {
@@ -164,6 +187,9 @@ export default {
         this.is_end = data.is_end
       }, 1000)
     },
+    handleSongContextMenu (song, e) {
+      this.$refs.contextMenu.handleContextMenu(e, song)
+    },
     // 检测页面触底
     handleScroll () {
       const offset = 21
@@ -172,6 +198,21 @@ export default {
       if (bottomOfWindow) {
         this.load()
       }
+    },
+    scroll () {
+      console.log(111)
+    },
+    update (start, end) {
+      console.log('update')
+    },
+    resize () {
+      console.log('resize')
+    },
+    visible () {
+      console.log('visible')
+    },
+    hidden () {
+      console.log('hidden')
     }
   },
   created () {
@@ -191,7 +232,8 @@ export default {
     getAlbumId () { return +this.$route.params.id },
     // 用户信息
     // isAlbumCollect判断专辑是否收藏 getUserMusicForm返回收藏夹歌单
-    ...mapGetters('collect', ['isAlbumCollect', 'getUserMusicForm']),
+    // ...mapGetters('follow', ['isAlbumCollect', 'getUserMusicForm']),
+    ...mapGetters('user', ['isAlbumCollect', 'getUserMusicForm']),
     ...mapState('comment', ['content', 'replyUserId', 'rootId', 'parent'])
     // disabled () {
     //   return this.replyLoading
@@ -206,7 +248,7 @@ export default {
       <p>{{ album.name }}</p>
     </Header>
     <div class="head">
-      <div class="background-color" :style="{'background-color': album.color }"></div>
+      <div class="background-color" :style="{'background-color': album?.color }"></div>
       <div class="background-color shade"></div>
       <el-skeleton class="skeleton" style="width: 800px; display: flex; align-items: center;" :loading="loading" animated>
         <template slot="template">
@@ -246,7 +288,7 @@ export default {
 <!--            <span>{{ album.singerName }}</span>-->
 <!--            <span style="font-size: 10px;">{{album.description}}</span>-->
             <span style="margin-top: 10px;">
-              <i @click="$router.push(`/detail/singer/${album.singerId}`)">{{ album.singerName }}</i> ·
+              <i @click="$router.push(`/singer/${album.singerId}`)">{{ album.singerName }}</i> ·
               {{ album?.musicList?.length }}首歌曲
             </span>
           </div>
@@ -254,31 +296,33 @@ export default {
       </el-skeleton>
     </div>
     <div class="gradual-block">
-      <div class="background" :style="{'background-color': album.color }"></div>
+      <div class="background" :style="{'background-color': album?.color }"></div>
       <div class="album-plank">
         <ActionBar
           @submitPlay="submitPlay"
-          @attention="attention"
+          @follow="attention"
           @unfollow="unfollow"
-          :isExist="this.isAlbumCollect(this.getAlbumId)"
+          :isShowFollow="true"
+          :isFollow="this.isAlbumCollect(this.getAlbumId)"
         >
-          <span @click="isReply = !isReply" style="fill: #aaaaaa; min-width: 40px; min-height: 40px;">
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M853.333333 768c35.413333 0 64-20.650667 64-55.978667V170.581333A63.978667 63.978667 0 0 0 853.333333 106.666667H170.666667C135.253333 106.666667 106.666667 135.253333 106.666667 170.581333v541.44C106.666667 747.285333 135.338667 768 170.666667 768h201.173333l110.016 117.44a42.752 42.752 0 0 0 60.586667 0.042667L651.904 768H853.333333z m-219.029333-42.666667h-6.250667l-115.797333 129.962667c-0.106667 0.106667-116.010667-129.962667-116.010667-129.962667H170.666667c-11.776 0-21.333333-1.621333-21.333334-13.312V170.581333A21.205333 21.205333 0 0 1 170.666667 149.333333h682.666666c11.776 0 21.333333 9.536 21.333334 21.248v541.44c0 11.754667-9.472 13.312-21.333334 13.312H634.304zM341.333333 490.666667a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z m170.666667 0a42.666667 42.666667 0 1 0 0-85.333334 42.666667 42.666667 0 0 0 0 85.333334z"></path></svg>
+          <span @click="isReply = !isReply" style="color: #aaaaaa;">
+            <i class="iconfont icon-wodewenzhang icon" style="font-size: 40px;"></i>
           </span>
         </ActionBar>
       </div>
       <div v-if="isReply" class="musicList">
         <ContextMenu v-if="isReply"
+          ref="contextMenu"
           :menu="menu"
-          :position="position"
+          :more="clickMore"
           @select-menu="pickMenu"
         >
           <MusicItem v-for="(item, index) in musicList"
+           @click-more="clickMore = $event"
+           @contextmenu.native="handleSongContextMenu(item, $event)"
             :key="item.id"
             :index="index+1"
             :music="item"
-            @select-music="pickMusicItem = $event"
-            @position="position = $event"
           />
         </ContextMenu>
       </div>
@@ -288,7 +332,6 @@ export default {
             <span class="title-text">评论</span>
             <span class="total-reply">{{ total }}</span>
           </li>
-          <li></li>
         </ul>
         <ReplyInput @sub="submit" @focus="clear" />
         <Reply v-for="item in reply" :key=" 'reply' + item.id" :item="item"
@@ -297,7 +340,7 @@ export default {
           @like="like"
           @unlike="unlike"
         />
-        <p style="text-align: center;">
+        <p style="text-align: center; color: var(--text-color); height: 100px;">
           <i v-show="replyLoading" class="loader"></i>
           <i v-show="is_end" class="end"></i>
         </p>
@@ -308,7 +351,6 @@ export default {
 
 <style scoped lang="scss">
 $min-height: 400px;
-$action-height: 5rem;
 
 .album {
   position: relative;
@@ -372,7 +414,7 @@ $action-height: 5rem;
     z-index: -10;
     position: relative;
     width: 100%;
-    min-height: calc(100vh - $min-height - 60px);
+    min-height: calc(100vh - $min-height);
     overflow: hidden;
 
     .background {

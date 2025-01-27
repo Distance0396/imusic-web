@@ -1,7 +1,7 @@
 <template>
-  <div id="app">
+  <div id="app" class="app">
     <router-view />
-    <player v-if="isHidden" />
+    <player v-show="isHidden" />
   </div>
 </template>
 <script>
@@ -37,20 +37,27 @@ export default {
     }
   },
   created () {
-    document.onselectstart = function () {
-      return false
-    }
-    document.oncontextmenu = function () {
-      return false
-    }
-    document.ondragstart = function () {
-      return false
-    }
-    document.onselect = function () {
-      return false
-    }
+    // document.onselectstart = function () {
+    //   return false
+    // }
+    // document.oncontextmenu = function () {
+    //   return false
+    // }
+    // document.ondragstart = function () {
+    //   return false
+    // }
+    // document.onselect = function () {
+    //   return false
+    // }
     this.toggleTheme()
   }
 }
 </script>
-<style lang="scss"></style>
+<style lang="scss">
+html{
+  background-color: var(--main-background-color);
+}
+.app{
+  margin: 0 auto;
+}
+</style>

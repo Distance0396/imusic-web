@@ -125,7 +125,8 @@ export default {
         <el-avatar :src="item.userInfo?.avatar"
                    @mouseenter.native="focusAvatar(item.userInfo, $event)"
                    @mouseleave.native="isFocus"
-        />
+        >
+        </el-avatar>
       </div>
       <div class="context">
         <span class="user-name" @click="$router.push(`/user/${item.userInfo.id}`)">{{ item.userInfo?.name }}</span>
@@ -148,13 +149,13 @@ export default {
       </div>
     </div>
     <div class="child">
-      <div class="child-item" style="display: flex;" v-for="children in item.children" :key="'children' + children.id" >
+      <div class="child-item" style="display: flex;" v-for="children in item?.children" :key="'children' + children.id" >
         <div class="avatar" @click="$router.push(`/user/${children.userInfo.id}`)">
-          <el-avatar size="small"
-                     :src="children.userInfo?.avatar"
+          <el-avatar size="small" :src="children.userInfo?.avatar"
                      @mouseenter.native="focusAvatar(children.userInfo, $event)"
                      @mouseleave.native="isFocus"
-          />
+          >
+          </el-avatar>
         </div>
         <div class="context">
           <div class="reply-content">

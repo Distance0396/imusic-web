@@ -1,17 +1,8 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '@/views/layout/home/home.vue'
-import SingerList from '@/views/layout/explore/all/index.vue'
 import Login from '@/views/login/index.vue'
-import Singer from '@/views/detail/singer/index.vue'
-import Album from '@/views/detail/album/index.vue'
-import SongList from '@/views/detail/playlist/index.vue'
 import Layout from '@/views/layout/index.vue'
-import Search from '@/views/layout/explore/search/index.vue'
-import PlayList from '@/views/layout/play/index.vue'
 import ExploreLayout from '@/views/layout/explore/layout.vue'
-import PlayListLayout from '@/views/layout/play/layout.vue'
-import My from '@/views/my/index.vue'
 Vue.use(VueRouter)
 
 const VueRouterPush = VueRouter.prototype.push
@@ -30,7 +21,7 @@ const router = new VueRouter({
         {
           path: 'home',
           name: 'Home',
-          component: Home
+          component: () => import('@/views/layout/home/home.vue')
         },
         {
           path: 'explore',
@@ -40,63 +31,82 @@ const router = new VueRouter({
           children: [
             {
               path: 'search',
-              name: 'exploreSearch',
-              component: Search,
+              name: 'Search',
+              component: () => import('@/views/layout/explore/search/index.vue'),
               meta: { title: '搜索' }
             },
             {
               path: 'singer',
               name: 'exploreSinger',
-              component: SingerList,
+              component: () => import('@/views/layout/explore/all/index.vue'),
               meta: { title: '歌手' }
             }
           ]
         },
         {
+          path: 'community',
+          name: 'Community',
+          component: () => import('@/views/layout/community/index.vue')
+        },
+        {
+          path: 'test',
+          name: 'test',
+          component: () => import('@/views/layout/community/test.vue')
+        },
+        {
+          path: 'article/:id',
+          name: 'Article',
+          component: () => import('@/views/article/index.vue')
+        },
+        {
           path: 'daily',
-          name: 'dailyCharts',
+          name: 'Daily',
           component: () => import('@/views/layout/home/dailyCharts.vue')
         },
         {
-          path: 'play',
-          name: 'Play',
-          redirect: 'play/playlist',
-          component: PlayListLayout,
-          children: [
-            {
-              path: 'playlist',
-              name: 'PlayList',
-              component: PlayList,
-              meta: { title: '播放队列' }
-            }
-          ]
-        },
-        {
-          path: 'detail/singer/:id',
+          path: 'singer/:id',
           name: 'Singer',
-          component: Singer
+          component: () => import('@/views/detail/singer/index.vue')
         },
         {
-          path: 'detail/album/:id',
+          path: 'album/:id',
           name: 'Album',
-          component: Album
+          component: () => import('@/views/detail/album/index.vue')
         },
         {
-          path: 'detail/music-form/:id',
+          path: 'music-form/:id',
           name: 'MusicForm',
-          component: SongList
+          component: () => import('@/views/detail/playlist/index.vue')
         },
         {
           path: 'user/:id',
           name: 'MyHome',
-          component: My
+          component: () => import('@/views/my/index.vue')
+        },
+        {
+          path: 'editor',
+          name: 'EditorIndex',
+          component: () => import('@/views/layout/community/editor.vue')
         }
       ]
     },
     {
       path: '/login',
       name: 'Login',
-      component: Login
+      redirect: '/login/account',
+      component: Login,
+      children: [
+        {
+          path: 'account',
+          name: 'Account',
+          component: () => import('@/views/login/account/index.vue')
+        },
+        {
+          path: 'email',
+          name: 'Email',
+          component: () => import('@/views/login/email/index.vue')
+        }
+      ]
     },
     {
       path: '/404',
@@ -116,9 +126,9 @@ router.beforeEach((to, from, next) => {
   const token = localStorage.getItem('imusic_token')
   // 如果目标路由需要认证且用户未登录
   if (!token) {
-    if (to.path !== '/login') {
+    if (to.path !== '/login/account' && to.path !== '/login/email') {
       // 重定向到登录页面
-      next({ path: '/login', query: { backUrl: to.fullPath === '/404' ? '/home' : to.fullPath } })
+      next({ path: '/login/account', query: { backUrl: to.fullPath === '/404' ? '/home' : to.fullPath } })
     } else {
       // 如果目标路由是登录页，直接允许访问
       next()

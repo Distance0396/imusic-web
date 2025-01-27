@@ -27,6 +27,8 @@ export default {
   },
   methods: {
     initialize (lyric) {
+      this.lyricIndex = 0
+      this.scrollOffset = 0
       if (lyric == null) return
       // 去掉歌词字符串中的所有 \r\n
       const cleanedLyric = lyric.replace(/\r\n/g, '\n')
@@ -57,6 +59,7 @@ export default {
       // 存储数据，将处理后的歌词数组赋值给 currentLyric 属性
       this.currentLyric = lrcArray
     },
+    // 修改歌词进度
     updateLyricIndex (currentTime) {
       const index = this.currentLyric.findIndex((item, i) => {
         const nextItem = this.currentLyric[i + 1]
@@ -65,6 +68,7 @@ export default {
       this.lyricIndex = index === -1 ? 0 : index
       this.scrollLyrics()
     },
+    // 滚动歌词
     scrollLyrics () {
       const lineHeight = 65 // 每行歌词的高度，可以根据实际情况调整
       const offset = this.lyricIndex * lineHeight
@@ -148,9 +152,8 @@ export default {
     height: 100%;
     background-repeat: no-repeat;
     background-size: cover;
-    background-position: center;
     filter: blur(40px) brightness(1);
-    transform: scale(1.2);
+    transform: scale(2);
     animation: moveBackground 30s infinite alternate;
     &::before {
       content: '';
@@ -159,35 +162,32 @@ export default {
       left: 0;
       width: 100%;
       height: 100%;
-      opacity: 0.8;
+      opacity: 1;
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
       background-color: var(--lyric-bg);
       z-index: 2;
     }
     @keyframes moveBackground {
       0% {
-        transform: scale(1.1) translate(0, 0) rotate(0deg) skew(0deg, 0deg); /* 初始无旋转和扭曲 */
-        opacity: 0.3;
-        filter: blur(45px) brightness(1);
+        transform: scale(2) translate(0, 0) rotate(20deg); /* 初始无旋转和扭曲 */
+        opacity: 0.5;
       }
       25% {
-        transform: scale(1.15) translate(100px, -100px) rotate(10deg) skew(10deg, 5deg); /* 扭曲和旋转幅度增加 */
-        opacity: 0.4;
-        filter: blur(43px) brightness(1.2);
+        transform: scale(2) translate(100px, -100px) rotate(40deg); /* 扭曲和旋转幅度增加 */
+        opacity: 0.6;
       }
       50% {
-        transform: scale(1.2) translate(200px, 0) rotate(-15deg) skew(-15deg, -10deg); /* 更大角度的扭曲和旋转 */
-        opacity: 0.5;
-        filter: blur(54px) brightness(1.4);
+        transform: scale(2) translate(200px, 0) rotate(60deg); /* 更大角度的扭曲和旋转 */
+        opacity: 0.4;
       }
       75% {
-        transform: scale(1.25) translate(100px, 100px) rotate(8deg) skew(8deg, -8deg); /* 保持较大的扭曲效果 */
-        opacity: 0.4;
-        filter: blur(45px) brightness(1.2);
+        transform: scale(2) translate(100px, 100px) rotate(40deg); /* 保持较大的扭曲效果 */
+        opacity: 0.3;
       }
       100% {
-        transform: scale(1.3) translate(0, 200px) rotate(0deg) skew(0deg, 0deg); /* 恢复无旋转和扭曲 */
-        opacity: 0.3;
-        filter: blur(46px) brightness(1);
+        transform: scale(2) translate(0, 200px) rotate(20deg); /* 恢复无旋转和扭曲 */
+        opacity: 0.6;
       }
     }
   }

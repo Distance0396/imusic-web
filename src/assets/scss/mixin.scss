@@ -1,11 +1,49 @@
 @mixin updateInput () {
-  .el-input{
-    ::v-deep .el-input__inner{
+  .el-input, .el-textarea{
+    ::v-deep .el-input__inner, .el-textarea__inner{
       background-color: var(--el-input);
       border: 1px solid var(--el-input-border);
       &:hover{
         border: 1px solid var(--el-input-hover);
       }
+    }
+    ::v-deep .el-textarea__inner{
+      background-color: var(--el-input);
+      border: 1px solid var(--el-input-border);
+      &:hover{
+        border: 1px solid var(--el-input-hover);
+      }
+    }
+  }
+}
+
+
+@mixin updateInput-nodeep () {
+  .el-input, .el-textarea{
+     .el-input__inner, .el-textarea__inner{
+      background-color: var(--el-input);
+      border: 1px solid var(--el-input-border);
+      &:hover{
+        border: 1px solid var(--el-input-hover);
+      }
+    }
+     .el-textarea__inner{
+      background-color: var(--el-input);
+      border: 1px solid var(--el-input-border);
+      &:hover{
+        border: 1px solid var(--el-input-hover);
+      }
+    }
+  }
+}
+
+@mixin updateButton-nodeep ($color, $hoverColor) {
+  .el-button{
+    color: rgb(232, 230, 227);
+    background-color: $color;
+    border: none;
+    &:hover{
+      background-color: $hoverColor;
     }
   }
 }

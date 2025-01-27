@@ -28,7 +28,7 @@ export default {
 
 <template>
   <div class="navbar">
-    <a href="/login"
+    <a href="/login/account"
        class="login"
        v-if="isLogin === ''"
     >
@@ -97,7 +97,17 @@ export default {
               </span>
             </div>
           </a>
-          <collectItem></collectItem>
+          <a @click="$router.push('/community')">
+            <div class="menu-item " :class="{activeItem : '/community' === this.$route.path}">
+              <span class="icon active">
+                <i class="iconfont icon-shequ" :class="{'hover' : this.isBerth}"></i>
+              </span>
+              <span class="title active" v-if="!isBerth">
+                社区
+              </span>
+            </div>
+          </a>
+          <collectItem />
         </div>
       </div>
     </div>

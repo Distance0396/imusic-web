@@ -3,7 +3,6 @@ import Vuex from 'vuex'
 import user from '@/store/modules/user'
 import musicForm from '@/store/modules/musicform'
 import playlist from '@/store/modules/playlist'
-import collect from '@/store/modules/collect'
 import reply from '@/store/modules/reply'
 import common from './modules/common'
 import comment from '@/store/modules/comment'
@@ -18,6 +17,6 @@ export default new Vuex.Store({
   mutations: {},
   actions: {},
   modules: {
-    user, musicForm, playlist, collect, reply, common, comment, player
+    user, musicForm, playlist, reply, common, comment, player
   }
 })
