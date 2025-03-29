@@ -5,10 +5,10 @@ import { removeMusicFormList, removeToken } from '@/utils/storage'
 
 export default {
   name: 'SettingsIndex',
-  created () {
+  created() {
     this.setting = { ...this.settings }
   },
-  data () {
+  data() {
     return {
       setting: {
         id: null,
@@ -18,33 +18,33 @@ export default {
         quality: '',
         emailInform: null,
         createTime: '',
-        updateTime: ''
+        updateTime: '',
       },
       dark: localStorage.getItem('theme'),
       action: true,
       password: '',
-      rewritePassword: ''
+      rewritePassword: '',
     }
   },
   computed: {
-    ...mapState('user', ['settings'])
+    ...mapState('user', ['settings']),
   },
   methods: {
-    switchEmail (e) {
+    switchEmail(e) {
       this.setting.emailInform = e
       this.update()
     },
-    async update () {
+    async update() {
       await updateSettings(this.setting)
     },
-    change () {
+    change() {
       this.action = !this.action
     },
-    async updatePassword () {
+    async updatePassword() {
       if (this.password !== this.rewritePassword) {
         return this.$message({
           message: '密码不相等',
-          type: 'warning'
+          type: 'warning',
         })
       }
       await updateUserInfo(null, null, null, null, null, null, this.password)
@@ -53,32 +53,42 @@ export default {
       removeMusicFormList()
       location.reload()
     },
-    changeDark (e) {
+    changeDark(e) {
       document.documentElement.setAttribute('data-theme', e)
       localStorage.setItem('theme', e)
-    }
-  }
+    },
+  },
 }
 </script>
 
 <template>
-  <el-form ref="form" class="my-form" @change="change" :model="setting" label-position="top" label-width="80px">
+  <el-form
+    ref="form"
+    class="my-form"
+    @change="change"
+    :model="setting"
+    label-position="top"
+    label-width="80px"
+  >
     <el-form-item label="语言">
       <span>选择语言</span>
       <span class="form-right">
         <el-select size="mini" v-model="setting.language" @change="update">
           <el-option
-            v-for="item in [{
-            value: 'zh-CN',
-            label: '中文'
-          },{
-            value: 'en-US',
-            label: 'English'
-          }]"
+            v-for="item in [
+              {
+                value: 'zh-CN',
+                label: '中文',
+              },
+              {
+                value: 'en-US',
+                label: 'English',
+              },
+            ]"
             :key="item.value"
             :label="item.label"
-            :value="item.value">
-          </el-option>
+            :value="item.value"
+          ></el-option>
         </el-select>
       </span>
     </el-form-item>
@@ -87,20 +97,24 @@ export default {
       <span class="form-right">
         <el-select size="mini" v-model="setting.privacyLevel" @change="update">
           <el-option
-            v-for="item in [{
+            v-for="item in [
+              {
                 value: 'public',
-                label: '所有人'
-              },{
+                label: '所有人',
+              },
+              {
                 value: 'friends',
-                label: '好友可见'
-              },{
+                label: '好友可见',
+              },
+              {
                 value: 'private',
-                label: '私密'
-              }]"
+                label: '私密',
+              },
+            ]"
             :key="item.value"
             :label="item.label"
-            :value="item.value">
-          </el-option>
+            :value="item.value"
+          ></el-option>
         </el-select>
       </span>
     </el-form-item>
@@ -109,20 +123,24 @@ export default {
       <span class="form-right">
         <el-select size="mini" v-model="setting.quality" @change="update">
           <el-option
-            v-for="item in [{
-              value: 'low',
-              label: '低'
-            },{
-              value: 'medium',
-              label: '标准'
-            },{
-              value: 'high',
-              label: '高'
-            }]"
+            v-for="item in [
+              {
+                value: 'low',
+                label: '低',
+              },
+              {
+                value: 'medium',
+                label: '标准',
+              },
+              {
+                value: 'high',
+                label: '高',
+              },
+            ]"
             :key="item.value"
             :label="item.label"
-            :value="item.value">
-          </el-option>
+            :value="item.value"
+          ></el-option>
         </el-select>
       </span>
     </el-form-item>
@@ -132,10 +150,9 @@ export default {
         <el-switch
           v-model="setting.emailInform"
           @change="switchEmail"
-          :active-value=0
-          :inactive-value=1
-        >
-        </el-switch>
+          :active-value="0"
+          :inactive-value="1"
+        ></el-switch>
       </span>
     </el-form-item>
     <el-form-item label="主题样式">
@@ -146,8 +163,7 @@ export default {
           @change="changeDark"
           active-value="dark"
           inactive-value="light"
-        >
-        </el-switch>
+        ></el-switch>
       </span>
     </el-form-item>
     <el-form-item label="账号">
@@ -158,48 +174,56 @@ export default {
             <el-input v-model="password" show-password size="mini"></el-input>
           </el-form-item>
           <el-form-item label="确认新密码" style="width: 300px">
-            <el-input v-model="rewritePassword" show-password size="mini"></el-input>
+            <el-input
+              v-model="rewritePassword"
+              show-password
+              size="mini"
+            ></el-input>
           </el-form-item>
-          <el-button type="primary" size="mini" @click="updatePassword">更新密码</el-button>
+          <el-button type="primary" size="mini" @click="updatePassword">
+            更新密码
+          </el-button>
         </el-form>
       </span>
       <span class="form-right" @click="change">
-        <el-button type="primary" size="small" plain>{{ action ? '更改密码' : '隐藏' }}</el-button>
+        <el-button type="primary" size="small" plain>
+          {{ action ? '更改密码' : '隐藏' }}
+        </el-button>
       </span>
     </el-form-item>
   </el-form>
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/scss/mixin";
-.my-form{
+@import '@/assets/scss/mixin';
+.my-form {
   margin-left: 100px;
   width: 800px;
-  ::v-deep .el-form-item{
-    .el-form-item__label{
+  ::v-deep .el-form-item {
+    .el-form-item__label {
       color: var(--text-color);
       font-size: 20px;
     }
-    .el-form-item__content{
+    .el-form-item__content {
       display: flex;
       color: #606266;
-      .form-right{
+      .form-right {
         margin-left: auto;
       }
-      .password{
+      .password {
         font-size: 14px;
         color: var(--text-color);
-        .el-form{
-          .el-form-item{
-            .el-form-item__label{
+        .el-form {
+          .el-form-item {
+            .el-form-item__label {
               font-size: 14px;
             }
-            .el-form-item__content{
-              .el-input{
-                .el-input__inner{
+            .el-form-item__content {
+              .el-input {
+                .el-input__inner {
                   background-color: var(--el-input);
                   border: 1px solid var(--el-input-border);
-                  &:hover{
+                  &:hover {
                     border: 1px solid var(--el-input-hover);
                   }
                 }

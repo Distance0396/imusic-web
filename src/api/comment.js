@@ -1,23 +1,23 @@
-import request from '@/utils/request'
+import request from '@/api/request'
 
-export const select = (dto) => {
+export const select = dto => {
   return request.get('/comment', {
     params: {
-      ...dto
-    }
+      ...dto,
+    },
   })
 }
 
-export const saveComment = (dto) => {
+export const saveComment = dto => {
   return request.post('/comment', {
-    ...dto
+    ...dto,
   })
 }
 
-export const moreComment = (dto) => {
+export const moreComment = dto => {
   return request.get('/comment/more', {
     params: {
-      ...dto
-    }
+      ...dto,
+    },
   })
 }

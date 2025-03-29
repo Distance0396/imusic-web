@@ -1,9 +1,9 @@
-import Request from '@/utils/request'
+import Request from '@/api/request'
 
 /**
  * 根据歌单id查询歌单
  */
-export const getMusicFormById = (id) => {
+export const getMusicFormById = id => {
   return Request.get(`/music-form/${id}`)
 }
 
@@ -20,7 +20,7 @@ export const addMusicForm = () => {
 export const appendMusicForm = (musicFormId, musicId) => {
   return Request.post('/music-form', {
     musicFormId: musicFormId,
-    musicId: musicId
+    musicId: musicId,
   })
 }
 
@@ -31,20 +31,20 @@ export const deleteMusic = (musicFormId, musicId) => {
   return Request.delete('/music-form', {
     data: {
       musicFormId: musicFormId,
-      musicId: musicId
-    }
+      musicId: musicId,
+    },
   })
 }
 
-export const updateMusicForm = (musicForm) => {
+export const updateMusicForm = musicForm => {
   return Request.put('/music-form', {
     id: musicForm.id,
     name: musicForm.name,
     image: musicForm.image,
-    description: musicForm.description
+    description: musicForm.description,
   })
 }
 
-export const deleteById = (id) => {
+export const deleteById = id => {
   return Request.delete(`/music-form/${id}`)
 }

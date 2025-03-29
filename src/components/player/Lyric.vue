@@ -3,30 +3,30 @@ import { mapState } from 'vuex'
 
 export default {
   name: 'LyricView',
-  mounted () {
+  mounted() {
     this.initialize(this.lyrics)
   },
   props: ['music', 'lyrics', 'isPlay'],
   watch: {
-    lyrics (newVal) {
+    lyrics(newVal) {
       this.lyricIndex = 0
       this.scrollOffset = 0
       this.currentLyric = []
       this.initialize(newVal)
     },
-    firstTime (newVal) {
+    firstTime(newVal) {
       this.updateLyricIndex(newVal)
-    }
+    },
   },
-  data () {
+  data() {
     return {
       currentLyric: [],
       lyricIndex: 0,
-      scrollOffset: 0
+      scrollOffset: 0,
     }
   },
   methods: {
-    initialize (lyric) {
+    initialize(lyric) {
       this.lyricIndex = 0
       this.scrollOffset = 0
       if (lyric == null) return
@@ -50,7 +50,7 @@ export default {
         if (arr[1] && arr[1].trim()) {
           lrcArray.push({
             time: timeInSeconds,
-            til: arr[1].trim()
+            til: arr[1].trim(),
           })
         }
       })
@@ -58,93 +58,121 @@ export default {
       this.currentLyric = lrcArray
     },
     // 修改歌词进度
-    updateLyricIndex (currentTime) {
+    updateLyricIndex(currentTime) {
       const index = this.currentLyric.findIndex((item, i) => {
         const nextItem = this.currentLyric[i + 1]
-        return currentTime >= item.time && (!nextItem || currentTime < nextItem.time)
+        return (
+          currentTime >= item.time && (!nextItem || currentTime < nextItem.time)
+        )
       })
       this.lyricIndex = index === -1 ? 0 : index
       this.scrollLyrics()
     },
     // 滚动歌词
-    scrollLyrics () {
+    scrollLyrics() {
       const lineHeight = 65 // 每行歌词的高度，可以根据实际情况调整
       const offset = this.lyricIndex * lineHeight
-      this.scrollOffset = offset - (this.$refs.lyricContainer.clientHeight / 2) + (lineHeight / 2)
+      this.scrollOffset =
+        offset - this.$refs.lyricContainer.clientHeight / 2 + lineHeight / 2
     },
     // 进度条
-    dragChange (value) {
+    dragChange(value) {
       this.$emit('drag', value)
       if (value === 100) {
         this.initialize(this.music)
       }
-    }
+    },
   },
   computed: {
     ...mapState('player', ['totalTime', 'firstTime']),
     sliderValue: {
-      get () {
+      get() {
         return this.$store.state.player.sliderValue
       },
-      set (newVal) {
+      set(newVal) {
         this.$store.commit('player/setSliderValue', newVal)
-      }
-    }
-  }
+      },
+    },
+  },
 }
 </script>
 
 <template>
-  <div class="homepage"  >
-      <div class="blur" :style="{ backgroundImage: `url(${music.image})`}"></div>
-      <div class="content">
-        <div class="top">
-          <div class="info">
-            <el-image :src="music.image" style="border-radius:8px; max-height: 350px; max-width: 350px;"></el-image>
-            <div class="title">
-              <i style="font-size: 24px">{{music.name}}</i>
-              <i style="font-size: 18px; color: #C0C4CC">{{music.singerName}}</i>
-            </div>
-          </div>
-          <div class="box" ref="lyricContainer">
-            <ul class="lyric" ref="lyric" :style="{ transform: `translateY(-${scrollOffset}px)` }">
-              <li :class="{each:true, choose: (index === lyricIndex)}"
-                  v-for="(item, index) in currentLyric"
-                  :key="index">
-                {{ item.til }}
-              </li>
-              <li v-if="this.lyrics == null" style="margin-top: 200px; font-size: 60px;">
-                暂时没有歌词哦
-              </li>
-            </ul>
+  <div class="homepage">
+    <div class="blur" :style="{ backgroundImage: `url(${music.image})` }"></div>
+    <div class="content">
+      <div class="top">
+        <div class="info">
+          <el-image
+            :src="music.image"
+            style="border-radius: 8px; max-height: 350px; max-width: 350px"
+          ></el-image>
+          <div class="title">
+            <i style="font-size: 24px">{{ music.name }}</i>
+            <i style="font-size: 18px; color: #c0c4cc">
+              {{ music.singerName }}
+            </i>
           </div>
         </div>
-        <div class="but">
-          <div class="drag">
-            <el-slider v-model="sliderValue" @change="dragChange" class="progress-bar" :show-tooltip="false"></el-slider>
-          </div>
-          <div class="svg-bar">
-            <i @click.stop="() => $emit('last')" class="iconfont icon-next-fill rotate"></i>
-            <i @click.stop="() => $emit('play')">
-              <i v-show="isPlay" class="iconfont icon-zanting1"></i>
-              <i v-show="!isPlay" class="iconfont icon-icon_play"></i>
-            </i>
-<!--            <i @click.stop="() => $emit('play')" class="iconfont icon-zanting1"></i>-->
-            <i @click.stop="() => $emit('next')" class="iconfont icon-next-fill"></i>
-          </div>
+        <div class="box" ref="lyricContainer">
+          <ul
+            class="lyric"
+            ref="lyric"
+            :style="{ transform: `translateY(-${scrollOffset}px)` }"
+          >
+            <li
+              :class="{ each: true, choose: index === lyricIndex }"
+              v-for="(item, index) in currentLyric"
+              :key="index"
+            >
+              {{ item.til }}
+            </li>
+            <li
+              v-if="this.lyrics == null"
+              style="margin-top: 200px; font-size: 60px"
+            >
+              暂时没有歌词哦
+            </li>
+          </ul>
         </div>
       </div>
+      <div class="but">
+        <div class="drag">
+          <el-slider
+            v-model="sliderValue"
+            @change="dragChange"
+            class="progress-bar"
+            :show-tooltip="false"
+          ></el-slider>
+        </div>
+        <div class="svg-bar">
+          <i
+            @click.stop="() => $emit('last')"
+            class="iconfont icon-next-fill rotate"
+          ></i>
+          <i @click.stop="() => $emit('play')">
+            <i v-show="isPlay" class="iconfont icon-zanting1"></i>
+            <i v-show="!isPlay" class="iconfont icon-icon_play"></i>
+          </i>
+          <!--            <i @click.stop="() => $emit('play')" class="iconfont icon-zanting1"></i>-->
+          <i
+            @click.stop="() => $emit('next')"
+            class="iconfont icon-next-fill"
+          ></i>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <style scoped lang="scss">
-.homepage{
+.homepage {
   color: var(--text-color);
   height: 100vh;
   width: 100%;
   position: relative;
   overflow: hidden;
-  .blur{
+  .blur {
     position: absolute;
     width: 100%;
     height: 100%;
@@ -189,15 +217,15 @@ export default {
       }
     }
   }
-  .content{
+  .content {
     position: relative;
     z-index: 500;
     padding: 10vh 10vw 0 10vw;
-    .top{
+    .top {
       display: flex;
       align-items: center;
       justify-content: center;
-      .info{
+      .info {
         display: flex;
         flex-direction: column;
         .title {
@@ -223,7 +251,7 @@ export default {
             padding: 15px;
           }
           .choose {
-            color: #409EFF;
+            color: #409eff;
             margin: 5px 20px;
             font-size: 40px;
             border-radius: 5px;
@@ -231,42 +259,46 @@ export default {
         }
       }
     }
-    .but{
+    .but {
       margin-top: 150px;
-      .drag{
-        .el-slider{
-          ::v-deep .el-slider__runway{
-            .el-slider__button-wrapper{
-              .el-slider__button{
+      .drag {
+        .el-slider {
+          ::v-deep .el-slider__runway {
+            .el-slider__button-wrapper {
+              .el-slider__button {
                 display: none;
               }
             }
           }
-          &:hover ::v-deep .el-slider__runway .el-slider__button-wrapper .el-slider__button{
+          &:hover
+            ::v-deep
+            .el-slider__runway
+            .el-slider__button-wrapper
+            .el-slider__button {
             display: inline-block;
           }
         }
       }
-      .progress-bar{
+      .progress-bar {
         width: 100%;
         height: 20px;
         display: flex;
         align-items: center;
         margin-bottom: 40px;
-        ::v-deep .el-slider__runway{
-          .el-slider__button-wrapper{
-            .el-slider__button{
+        ::v-deep .el-slider__runway {
+          .el-slider__button-wrapper {
+            .el-slider__button {
               display: none;
             }
           }
         }
       }
-      .svg-bar{
+      .svg-bar {
         display: flex;
         justify-content: space-between;
         width: 265px;
         margin: 0 auto;
-        .iconfont{
+        .iconfont {
           font-size: 50px;
         }
         .rotate {

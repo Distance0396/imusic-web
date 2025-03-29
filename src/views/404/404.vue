@@ -2,18 +2,39 @@
   <div class="wscn-http404-container">
     <div class="wscn-http404">
       <div class="pic-404">
-        <img class="pic-404__parent" src="../../assets/404_images/404.png" alt="404">
-        <img class="pic-404__child left" src="../../assets/404_images/404_cloud.png" alt="404">
-        <img class="pic-404__child mid" src="../../assets/404_images/404_cloud.png" alt="404">
-        <img class="pic-404__child right" src="../../assets/404_images/404_cloud.png" alt="404">
+        <img
+          class="pic-404__parent"
+          src="../../assets/404_images/404.png"
+          alt="404"
+        />
+        <img
+          class="pic-404__child left"
+          src="../../assets/404_images/404_cloud.png"
+          alt="404"
+        />
+        <img
+          class="pic-404__child mid"
+          src="../../assets/404_images/404_cloud.png"
+          alt="404"
+        />
+        <img
+          class="pic-404__child right"
+          src="../../assets/404_images/404_cloud.png"
+          alt="404"
+        />
       </div>
       <div class="bullshit">
         <div class="bullshit__oops">OOPS!</div>
         <div class="bullshit__info">
-<!--          <a style="color:#20a0ff" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>-->
+          <!--          <a style="color:#20a0ff" href="https://wallstreetcn.com" target="_blank">wallstreetcn</a>-->
         </div>
-        <div class="bullshit__headline">{{ message }}</div>
-        <div class="bullshit__info">Please check that the URL you entered is correct, or click the button below to return to the homepage.</div>
+        <div class="bullshit__headline">
+          {{ message }}
+        </div>
+        <div class="bullshit__info">
+          Please check that the URL you entered is correct, or click the button
+          below to return to the homepage.
+        </div>
         <a class="bullshit__return-home" @click="goto">返回主页</a>
       </div>
     </div>
@@ -21,25 +42,26 @@
 </template>
 
 <script>
-
 export default {
   // eslint-disable-next-line vue/multi-word-component-names
   name: 'Page404',
   computed: {
-    message () {
+    message() {
       return '页面不存在, 请重新访问'
-    }
+    },
   },
   methods: {
-    goto () {
-      this.$store.state.user.token ? this.$router.replace('/home') : this.$router.replace('/login')
-    }
-  }
+    goto() {
+      this.$store.state.user.token
+        ? this.$router.replace('/home')
+        : this.$router.replace('/login')
+    },
+  },
 }
 </script>
 
 <style lang="scss" scoped>
-.wscn-http404-container{
+.wscn-http404-container {
   height: 100vh;
   width: 100%;
   background-color: var(--main-background-color);

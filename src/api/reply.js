@@ -1,11 +1,11 @@
-import request from '@/utils/request'
+import request from '@/api/request'
 
 /**
  * 获取音乐评论
  * @param id
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-export const getReplyMusicById = (id) => {
+export const getReplyMusicById = id => {
   return request.get(`/reply/music/${id}`)
 }
 
@@ -14,7 +14,7 @@ export const getReplyMusicById = (id) => {
  * @param id
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-export const getReplyAlbumById = (id) => {
+export const getReplyAlbumById = id => {
   return request.get(`/reply/album/${id}`)
 }
 
@@ -23,7 +23,7 @@ export const getReplyAlbumById = (id) => {
  * @param id
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-export const findPlaylistReplyById = (id) => {
+export const findPlaylistReplyById = id => {
   return request.get(`/reply/playlist/${id}`)
 }
 
@@ -32,7 +32,7 @@ export const findPlaylistReplyById = (id) => {
  * @param id
  * @returns {Promise<axios.AxiosResponse<any>>}
  */
-export const findSingerReplyById = (id) => {
+export const findSingerReplyById = id => {
   return request.get(`/reply/singer/${id}`)
 }
 
@@ -51,6 +51,6 @@ export const insert = (reply, musicId, albumId, singerId, playListId) => {
     musicId: musicId,
     singerId: singerId,
     playListId: playListId,
-    albumId: albumId
+    albumId: albumId,
   })
 }

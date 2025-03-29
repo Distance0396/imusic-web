@@ -1,4 +1,4 @@
-import request from '@/utils/request'
+import request from '@/api/request'
 
 // 获取用户收藏
 export const getUserFollow = () => {
@@ -12,7 +12,7 @@ export const follow = (objType, objId) => {
   return request.post('/follow', {
     objType: objType,
     objId: objId,
-    isDelete: 1
+    isDelete: 1,
   })
 }
 
@@ -23,6 +23,6 @@ export const unfollow = ({ objType, objId, likeTimestamp }) => {
   return request.put('/follow', {
     objType: objType,
     objId: objId,
-    likeTimestamp: likeTimestamp
+    likeTimestamp: likeTimestamp,
   })
 }

@@ -1,6 +1,6 @@
-import request from '@/utils/request'
+import request from '@/api/request'
 
-export const getArticleById = (id) => {
+export const getArticleById = id => {
   return request.get(`/article/${id}`)
 }
 
@@ -17,7 +17,7 @@ export const issueArticle = ({ content, title, category, status, face }) => {
     title: title,
     category: category,
     status: status,
-    face: face
+    face: face,
   })
 }
 
@@ -26,7 +26,7 @@ export const getArticleByCategoryId = ({ categoryId, sortType, id }) => {
     params: {
       categoryId: categoryId,
       sortType: sortType,
-      id: id
-    }
+      id: id,
+    },
   })
 }

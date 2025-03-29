@@ -2,7 +2,7 @@ import { query } from '@/api/user'
 
 export default {
   namespaced: true,
-  state () {
+  state() {
     return {
       singer: null,
       album: null,
@@ -12,34 +12,34 @@ export default {
       y: 0,
       focusUser: null,
       isFocus: false,
-      isShowRightBox: false
+      isShowRightBox: false,
       // isBerth: false
     }
   },
   mutations: {
-    setIsFocus (state, obj) {
+    setIsFocus(state, obj) {
       state.isFocus = obj
     },
-    setFocus (state, { userInfo, x, y }) {
+    setFocus(state, { userInfo, x, y }) {
       state.focusUser = userInfo
       state.x = x
       state.y = y
     },
-    setSinger (state, obj) {
+    setSinger(state, obj) {
       state.singer = obj
     },
-    setAlbum (state, obj) {
+    setAlbum(state, obj) {
       state.album = obj
     },
-    setBrowse (state, obj) {
+    setBrowse(state, obj) {
       state.browse = obj
     },
-    setAsideWidth (state, obj) {
+    setAsideWidth(state, obj) {
       state.asideWidth = obj
-    }
+    },
   },
   actions: {
-    async query ({ commit }) {
+    async query({ commit }) {
       await query().then(res => {
         if (res.data == null) return
         // commit('follow/setCollectForm', { ...res.data.follow }, { root: true })
@@ -47,23 +47,23 @@ export default {
         commit('setAlbum', res.data.album)
         commit('setBrowse', res.data.browse)
       })
-    }
+    },
   },
   getters: {
-    getX (state) {
+    getX(state) {
       return state.x
     },
-    getY (state) {
+    getY(state) {
       return state.y
     },
-    getFocusUser (state) {
+    getFocusUser(state) {
       return state.focusUser
     },
-    getIsFocus (state) {
+    getIsFocus(state) {
       return state.isFocus
     },
-    isBerth (state) {
+    isBerth(state) {
       return state.asideWidth <= 120
-    }
-  }
+    },
+  },
 }

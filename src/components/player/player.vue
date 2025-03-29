@@ -5,9 +5,9 @@ import screenfull from 'screenfull'
 export default {
   name: 'playerItem',
   components: {
-    Lyric
+    Lyric,
   },
-  data () {
+  data() {
     return {
       // 控制播放器显示
       isShow: false,
@@ -15,15 +15,21 @@ export default {
       // 控制播放队列显示
       isDrawer: false,
       dialogVisible: false,
-      iFullScreen: false
+      iFullScreen: false,
     }
   },
   methods: {
-    ...mapMutations('player', ['setTotalTime', 'setFirstTime', 'setStatus', 'setIsPlay', 'setCurrentSong']),
+    ...mapMutations('player', [
+      'setTotalTime',
+      'setFirstTime',
+      'setStatus',
+      'setIsPlay',
+      'setCurrentSong',
+    ]),
     ...mapMutations('playlist', ['nextSong', 'lastSong', 'setPlayList']),
     ...mapActions('player', ['getLyricAndAudio']),
     // 播放暂停
-    play () {
+    play() {
       this.setIsPlay(!this.isPlay)
       if (this.isPlay) {
         this.setStatus(true)
@@ -34,7 +40,7 @@ export default {
       }
     },
     // 播放时
-    current (e) {
+    current(e) {
       const curr = e.target.currentTime
       this.setFirstTime(curr)
       this.sliderValue = (this.firstTime / this.totalTime) * 100
@@ -42,39 +48,39 @@ export default {
       // this.sliderValue = (this.firstTime / this.endTime) * 100
     },
     // 时间转换
-    formatTime (seconds) {
+    formatTime(seconds) {
       const minutes = Math.floor(seconds / 60)
       const secs = Math.floor(seconds % 60)
       return `${minutes}:${secs < 10 ? '0' : ''}${secs}`
     },
     // 进度条
-    dragChange (value) {
+    dragChange(value) {
       const audio = this.$refs.audio
       audio.currentTime = (value / 100) * this.totalTime
     },
     // 加载完成
-    loadMetadata (e) {
+    loadMetadata(e) {
       const duration = e.target.duration
       this.setTotalTime(duration)
     },
     // 是否循环
-    isLoop (e) {
+    isLoop(e) {
       this.$refs.audio.loop = !this.$refs.audio.loop
       if (this.$refs.audio.loop) {
         e.target.style.color = '#409EFF'
       } else e.target.style.color = 'currentcolor'
     },
     // 改变音量
-    volumeChange (value) {
+    volumeChange(value) {
       this.$refs.audio.volume = value * 0.01
     },
     // 播放完
-    overPlay () {
+    overPlay() {
       this.sliderValue = 0
       this.nextSong()
     },
     // 全屏
-    toggleFullScreen () {
+    toggleFullScreen() {
       this.dialogVisible = true
       // 判断当前浏览器是否支持全屏
       if (screenfull.isEnabled) {
@@ -92,33 +98,42 @@ export default {
       }
     },
     // dialog关闭前
-    dialogClose () { screenfull.exit() }
+    dialogClose() {
+      screenfull.exit()
+    },
   },
   computed: {
     ...mapState('playlist', ['playlist']),
-    ...mapState('player', ['totalTime', 'firstTime', 'isPlay', 'status', 'lyric', 'audio']),
+    ...mapState('player', [
+      'totalTime',
+      'firstTime',
+      'isPlay',
+      'status',
+      'lyric',
+      'audio',
+    ]),
     ...mapGetters('playlist', ['firstPlayList']),
     sliderValue: {
-      get () {
+      get() {
         return this.$store.state.player.sliderValue
       },
-      set (newVal) {
+      set(newVal) {
         this.$store.commit('player/setSliderValue', newVal)
-      }
+      },
     },
     volume: {
-      get () {
+      get() {
         return this.$store.state.player.volume
       },
-      set (newVal) {
+      set(newVal) {
         this.$store.commit('player/setVolume', newVal)
-      }
-    }
+      },
+    },
   },
   watch: {
     playlist: {
       // 音乐队列改变触发
-      handler (newVal) {
+      handler(newVal) {
         this.isShow = true
         this.setIsPlay(true)
         this.setStatus(true)
@@ -126,28 +141,34 @@ export default {
           this.setCurrentSong(this.firstPlayList)
           this.$refs.audio.play()
         })
-      }
+      },
     },
     status: {
       // musicItem点击播放暂停修改player播放暂停状态
-      handler (newVal) {
+      handler(newVal) {
         if (newVal) {
           // this.$refs.audio.play()
         } else {
           this.$refs.audio.pause()
         }
-      }
-    }
-  }
+      },
+    },
+  },
 }
 </script>
 <template>
   <div class="player" v-if="isShow">
     <div class="player-left">
-      <el-image @click="toggleFullScreen" class="image" :src="firstPlayList?.image"></el-image>
+      <el-image
+        @click="toggleFullScreen"
+        class="image"
+        :src="firstPlayList?.image"
+      ></el-image>
       <div class="player-left-info">
-        <i>{{firstPlayList?.name}}</i>
-        <i @click="$router.push(`/detail/singer/${firstPlayList?.singerId}`)">{{firstPlayList?.singerName}}</i>
+        <i>{{ firstPlayList?.name }}</i>
+        <i @click="$router.push(`/detail/singer/${firstPlayList?.singerId}`)">
+          {{ firstPlayList?.singerName }}
+        </i>
       </div>
     </div>
     <div class="play-controller">
@@ -171,8 +192,8 @@ export default {
         <button class="contr-play" @click="play">
           <i v-show="isPlay" class="iconfont icon-zanting1" />
           <i v-show="!isPlay" class="iconfont icon-icon_play" />
-<!--          <svg v-if="isPlay" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M426.666667 138.666667v746.666666a53.393333 53.393333 0 0 1-53.333334 53.333334H266.666667a53.393333 53.393333 0 0 1-53.333334-53.333334V138.666667a53.393333 53.393333 0 0 1 53.333334-53.333334h106.666666a53.393333 53.393333 0 0 1 53.333334 53.333334z m330.666666-53.333334H650.666667a53.393333 53.393333 0 0 0-53.333334 53.333334v746.666666a53.393333 53.393333 0 0 0 53.333334 53.333334h106.666666a53.393333 53.393333 0 0 0 53.333334-53.333334V138.666667a53.393333 53.393333 0 0 0-53.333334-53.333334z" fill="#000000"></path></svg>-->
-<!--          <svg v-if="!isPlay" style="margin-left: 3px" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z" fill="#000000" ></path></svg>-->
+          <!--          <svg v-if="isPlay" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M426.666667 138.666667v746.666666a53.393333 53.393333 0 0 1-53.333334 53.333334H266.666667a53.393333 53.393333 0 0 1-53.333334-53.333334V138.666667a53.393333 53.393333 0 0 1 53.333334-53.333334h106.666666a53.393333 53.393333 0 0 1 53.333334 53.333334z m330.666666-53.333334H650.666667a53.393333 53.393333 0 0 0-53.333334 53.333334v746.666666a53.393333 53.393333 0 0 0 53.333334 53.333334h106.666666a53.393333 53.393333 0 0 0 53.333334-53.333334V138.666667a53.393333 53.393333 0 0 0-53.333334-53.333334z" fill="#000000"></path></svg>-->
+          <!--          <svg v-if="!isPlay" style="margin-left: 3px" class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="20" height="20"><path d="M128 138.666667c0-47.232 33.322667-66.666667 74.176-43.562667l663.146667 374.954667c40.96 23.168 40.853333 60.8 0 83.882666L202.176 928.896C161.216 952.064 128 932.565333 128 885.333333v-746.666666z" fill="#000000" ></path></svg>-->
         </button>
         <div class="contr-top-right direction">
           <button class="next btn" @click="this.nextSong">
@@ -184,24 +205,33 @@ export default {
         </div>
       </div>
       <div class="contr-bottom">
-        <div class="play-first" style="color: #b3b3b3;">{{this.formatTime(this.firstTime) || '00:00'}}</div>
+        <div class="play-first" style="color: #b3b3b3">
+          {{ this.formatTime(this.firstTime) || '00:00' }}
+        </div>
         <el-slider
           class="progress-bar"
           v-model="sliderValue"
           :show-tooltip="false"
           @change="dragChange"
         />
-        <div class="play-end" style="color: #b3b3b3;">{{ this.formatTime(this.totalTime) || '00:00'}}</div>
+        <div class="play-end" style="color: #b3b3b3">
+          {{ this.formatTime(this.totalTime) || '00:00' }}
+        </div>
       </div>
     </div>
     <div class="player-right">
       <button>
         <i class="iconfont icon-changge1"></i>
       </button>
-      <button @click="$store.state.common.isShowRightBox = !$store.state.common.isShowRightBox">
+      <button
+        @click="
+          $store.state.common.isShowRightBox =
+            !$store.state.common.isShowRightBox
+        "
+      >
         <i class="iconfont icon-duilieguanli"></i>
       </button>
-      <button class="volume" >
+      <button class="volume">
         <i class="iconfont icon-yinliang-F"></i>
         <i v-show="false" class="iconfont icon-jingyin-F"></i>
         <el-slider
@@ -222,27 +252,28 @@ export default {
       :append-to-body="true"
       @close="dialogClose"
     >
-      <Lyric :music="firstPlayList"
-             :lyrics="this.lyric"
-             :isPlay="isPlay"
-             @play="play"
-             @drag="e => dragChange(e)"
-             @next="this.nextSong"
-             @last="this.lastSong"
+      <Lyric
+        :music="firstPlayList"
+        :lyrics="this.lyric"
+        :isPlay="isPlay"
+        @play="play"
+        @drag="e => dragChange(e)"
+        @next="this.nextSong"
+        @last="this.lastSong"
       />
     </el-dialog>
   </div>
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/scss/mixin";
-.iconfont{
+@import '@/assets/scss/mixin';
+.iconfont {
   font-size: 20px;
-  &:hover{
+  &:hover {
     color: #ffffff;
   }
 }
-.player{
+.player {
   position: fixed;
   bottom: 0;
   display: flex;
@@ -258,59 +289,59 @@ export default {
   border-top-color: var(--border-color);
   border-width: 0.0625rem 0 0 0;
   border-style: solid;
-  @include respond-to('phone'){
+  @include respond-to('phone') {
     padding: 10px 5px 10px 10px;
   }
-  @include respond-to('tv'){
+  @include respond-to('tv') {
   }
-  .player-left{
+  .player-left {
     width: 400px;
     display: flex;
     align-items: center;
     margin-bottom: 10px;
-    @include respond-to('phone'){
+    @include respond-to('phone') {
       display: none;
     }
-    @include respond-to('tv'){
+    @include respond-to('tv') {
       width: 400px;
     }
-    .image{
+    .image {
       border-radius: 5px;
       width: 50px;
       height: 50px;
       margin-right: 10px;
     }
-    .player-left-info{
+    .player-left-info {
       overflow: hidden;
       text-overflow: ellipsis;
       display: flex;
       flex-direction: column;
-      i{
-        color: #FFFFFF;
+      i {
+        color: #ffffff;
         font-size: 16px;
       }
-      i:nth-child(2){
+      i:nth-child(2) {
         font-size: 13px;
         //color: #EBEEF5;
       }
     }
   }
-  .play-controller{
+  .play-controller {
     display: flex;
     flex-direction: column;
     justify-content: center;
     width: 500px;
-    @include respond-to('phone'){
+    @include respond-to('phone') {
     }
-    @include respond-to('tv'){
+    @include respond-to('tv') {
       width: 500px;
     }
-    .contr-top{
+    .contr-top {
       display: flex;
       flex-wrap: nowrap;
       align-items: center;
       justify-content: center;
-      .contr-play{
+      .contr-play {
         //display: flex;
         //justify-content: center;
         //align-items: center;
@@ -319,36 +350,36 @@ export default {
         //border-radius: 50%;
         //background-color: #FFFFFF;
         background-color: transparent;
-        i{
+        i {
           font-size: 36px;
         }
       }
-      .next{
+      .next {
         margin: 0 30px 0 30px;
       }
-      .direction{
-        .btn{
+      .direction {
+        .btn {
           background-color: transparent;
         }
-        .icon{
+        .icon {
           fill: currentcolor;
         }
       }
     }
-    .contr-bottom{
+    .contr-bottom {
       display: flex;
       align-items: center;
       justify-content: space-around;
       width: 100%;
-      @include respond-to('phone'){
+      @include respond-to('phone') {
         display: none;
         //.el-slider{
         //  margin: 0 8px;
         //}
       }
-      @include respond-to('tv'){
+      @include respond-to('tv') {
       }
-      .progress-bar{
+      .progress-bar {
         width: 350px;
         height: 20px;
         display: flex;
@@ -356,55 +387,54 @@ export default {
       }
     }
   }
-  .player-right{
+  .player-right {
     width: 400px;
     display: flex;
     align-items: center;
     justify-content: flex-end;
-    @include respond-to('phone'){
+    @include respond-to('phone') {
       display: none;
     }
-    @include respond-to('tv'){
+    @include respond-to('tv') {
       width: 400px;
     }
-    button{
+    button {
       background-color: transparent;
-      .iconfont{
+      .iconfont {
         fill: currentcolor;
         margin-left: 15px;
       }
-      .dr{
+      .dr {
         z-index: 1;
       }
     }
-    .volume{
+    .volume {
       display: flex;
       align-items: center;
       background-color: transparent;
-      .icon{
+      .icon {
         fill: currentcolor;
         margin-left: 20px;
       }
-      .volume-change{
+      .volume-change {
         margin-left: 20px;
         width: 100px;
       }
     }
   }
 }
-.el-dialog__wrapper{
-  ::v-deep .el-dialog{
+.el-dialog__wrapper {
+  ::v-deep .el-dialog {
     background-color: var(--main-background-color);
-    .el-dialog__header{
+    .el-dialog__header {
       padding: 0;
-      .el-dialog__headerbtn{
+      .el-dialog__headerbtn {
         z-index: 1000;
       }
     }
-    .el-dialog__body{
+    .el-dialog__body {
       padding: 0;
     }
   }
 }
-
 </style>

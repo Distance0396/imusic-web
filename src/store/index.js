@@ -12,11 +12,19 @@ Vue.use(Vuex)
 export default new Vuex.Store({
   state: {},
   getters: {
-    token (state) { return state.user.token }
+    token(state) {
+      return state.user.token
+    },
   },
   mutations: {},
   actions: {},
   modules: {
-    user, musicForm, playlist, reply, common, comment, player
-  }
+    user,
+    musicForm,
+    playlist,
+    reply,
+    common,
+    comment,
+    player,
+  },
 })

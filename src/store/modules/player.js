@@ -1,7 +1,7 @@
 import { playMusic } from '@/api/music'
 export default {
   namespaced: true,
-  state () {
+  state() {
     return {
       // 音量
       volume: 100,
@@ -20,57 +20,56 @@ export default {
       // 当前播放的音乐所在
       currentCol: null,
       audio: '',
-      lyric: ''
+      lyric: '',
     }
   },
   mutations: {
-    setVolume (state, obj) {
+    setVolume(state, obj) {
       state.volume = obj
     },
-    setTotalTime (state, obj) {
+    setTotalTime(state, obj) {
       state.totalTime = obj
     },
-    setFirstTime (state, obj) {
+    setFirstTime(state, obj) {
       state.firstTime = obj
     },
-    setIsPlay (state, obj) {
+    setIsPlay(state, obj) {
       state.isPlay = obj
     },
-    setSliderValue (state, obj) {
+    setSliderValue(state, obj) {
       state.sliderValue = obj
     },
-    setStatus (state, obj) {
+    setStatus(state, obj) {
       state.status = obj
     },
     // 修改当前播放音乐
-    setCurrentSong (state, song) {
+    setCurrentSong(state, song) {
       state.currentSong = song
     },
     // 修改当前播放的音乐所在
-    setCurrentCol (state, obj) {
+    setCurrentCol(state, obj) {
       state.currentCol = obj
     },
-    setAudio (state, obj) {
+    setAudio(state, obj) {
       state.audio = obj
     },
-    setLyric (state, obj) {
+    setLyric(state, obj) {
       state.lyric = obj
-    }
+    },
   },
   actions: {
     // 修改当前播放音乐
-    playSong ({ commit }, song) {
+    playSong({ commit }, song) {
       commit('setCurrentSong', song)
     },
-    playCol ({ commit }, col) {
+    playCol({ commit }, col) {
       commit('setCurrentCol', col)
     },
-    async getLyricAndAudio ({ commit }, id) {
+    async getLyricAndAudio({ commit }, id) {
       const { data } = await playMusic(id)
       commit('setAudio', data.audio)
       commit('setLyric', data.lyric)
-    }
+    },
   },
-  getters: {
-  }
+  getters: {},
 }

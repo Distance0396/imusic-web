@@ -1,12 +1,12 @@
-import request from '@/utils/request'
+import request from '@/api/request'
 
 /**
  * 通过id查询歌曲
  */
-export const playMusic = (id) => {
+export const playMusic = id => {
   return request.get('/music/main', {
     params: {
-      id: id
-    }
+      id: id,
+    },
   })
 }

@@ -6,8 +6,6 @@ import '@/assets/scss/index.scss'
 import '@/assets/scss/theme.scss'
 import ElementUI from 'element-ui'
 import './assets/iconfont/iconfont.css'
-import VueVirtualScroller from 'vue-virtual-scroller'
-import 'vue-virtual-scroller/dist/vue-virtual-scroller.css'
 import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 import relativeTime from 'dayjs/plugin/relativeTime'
@@ -27,12 +25,11 @@ Vue.prototype.$useContextMenu = useContextMenu
 Vue.use(VueLazyload, {
   preLoad: 1,
   loading: require('./assets/loading.gif'),
-  attempt: 1
+  attempt: 1,
 })
-Vue.use(VueVirtualScroller)
 Vue.use(ElementUI)
 Vue.use(ElementTiptapPlugin, {
-  lang: 'zh'
+  lang: 'zh',
 })
 Vue.config.productionTip = false
 
@@ -42,8 +39,8 @@ Vue.use(VueReCaptcha, {
     // google域名替换为recaptcha
     useRecaptchaNet: true,
     // 隐藏reCAPTCHA小图标
-    autoHideBadge: true
-  }
+    autoHideBadge: true,
+  },
 })
 
 /**
@@ -52,11 +49,11 @@ Vue.use(VueReCaptcha, {
 Vue.directive('title', {
   inserted: function (el, binding) {
     document.title = el.dataset.title + ' - ' + '空白的一坪'
-  }
+  },
 })
 
 new Vue({
   router,
   store,
-  render: h => h(App)
+  render: h => h(App),
 }).$mount('#app')

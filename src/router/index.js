@@ -1,12 +1,12 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
 import Login from '@/views/login/index.vue'
-import Layout from '@/views/layout/index.vue'
-import ExploreLayout from '@/views/layout/explore/layout.vue'
+import Layout from '@/layout/index.vue'
+import ExploreLayout from '@/views/explore/layout.vue'
 Vue.use(VueRouter)
 
 const VueRouterPush = VueRouter.prototype.push
-VueRouter.prototype.push = function push (to) {
+VueRouter.prototype.push = function push(to) {
   return VueRouterPush.call(this, to).catch(err => err)
 }
 
@@ -21,7 +21,7 @@ const router = new VueRouter({
         {
           path: 'home',
           name: 'Home',
-          component: () => import('@/views/layout/home/home.vue')
+          component: () => import('@/views/home/home.vue'),
         },
         {
           path: 'explore',
@@ -32,63 +32,63 @@ const router = new VueRouter({
             {
               path: 'search',
               name: 'Search',
-              component: () => import('@/views/layout/explore/search/index.vue'),
-              meta: { title: '搜索' }
+              component: () => import('@/views/explore/search/index.vue'),
+              meta: { title: '搜索' },
             },
             {
               path: 'singer',
               name: 'exploreSinger',
-              component: () => import('@/views/layout/explore/all/index.vue'),
-              meta: { title: '歌手' }
-            }
-          ]
+              component: () => import('@/views/explore/all/index.vue'),
+              meta: { title: '歌手' },
+            },
+          ],
         },
         {
           path: 'community',
           name: 'Community',
-          component: () => import('@/views/layout/community/index.vue')
+          component: () => import('@/views/community/index.vue'),
         },
         {
           path: 'test',
           name: 'test',
-          component: () => import('@/views/layout/community/test.vue')
+          component: () => import('@/views/community/test.vue'),
         },
         {
           path: 'article/:id',
           name: 'Article',
-          component: () => import('@/views/article/index.vue')
+          component: () => import('@/views/article/index.vue'),
         },
         {
           path: 'daily',
           name: 'Daily',
-          component: () => import('@/views/layout/home/dailyCharts.vue')
+          component: () => import('@/views/home/daily.vue'),
         },
         {
           path: 'singer/:id',
           name: 'Singer',
-          component: () => import('@/views/detail/singer/index.vue')
+          component: () => import('@/views/singer/index.vue'),
         },
         {
           path: 'album/:id',
           name: 'Album',
-          component: () => import('@/views/detail/album/index.vue')
+          component: () => import('@/views/album/index.vue'),
         },
         {
           path: 'music-form/:id',
           name: 'MusicForm',
-          component: () => import('@/views/detail/playlist/index.vue')
+          component: () => import('@/views/playlist/index.vue'),
         },
         {
           path: 'user/:id',
           name: 'MyHome',
-          component: () => import('@/views/my/index.vue')
+          component: () => import('@/views/my/index.vue'),
         },
         {
           path: 'editor',
           name: 'EditorIndex',
-          component: () => import('@/views/layout/community/editor.vue')
-        }
-      ]
+          component: () => import('@/views/community/editor.vue'),
+        },
+      ],
     },
     {
       path: '/login',
@@ -99,26 +99,26 @@ const router = new VueRouter({
         {
           path: 'account',
           name: 'Account',
-          component: () => import('@/views/login/account/index.vue')
+          component: () => import('@/views/login/account/index.vue'),
         },
         {
           path: 'email',
           name: 'Email',
-          component: () => import('@/views/login/email/index.vue')
-        }
-      ]
+          component: () => import('@/views/login/email/index.vue'),
+        },
+      ],
     },
     {
       path: '/404',
       component: () => import('@/views/404/404.vue'),
-      hidden: true
+      hidden: true,
     },
     {
       path: '*',
       redirect: '/404',
-      hidden: true
-    }
-  ]
+      hidden: true,
+    },
+  ],
 })
 
 // 全局前置守卫
@@ -128,7 +128,10 @@ router.beforeEach((to, from, next) => {
   if (!token) {
     if (to.path !== '/login/account' && to.path !== '/login/email') {
       // 重定向到登录页面
-      next({ path: '/login/account', query: { backUrl: to.fullPath === '/404' ? '/home' : to.fullPath } })
+      next({
+        path: '/login/account',
+        query: { backUrl: to.fullPath === '/404' ? '/home' : to.fullPath },
+      })
     } else {
       // 如果目标路由是登录页，直接允许访问
       next()

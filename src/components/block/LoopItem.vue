@@ -1,24 +1,24 @@
 <script>
 export default {
   name: 'blockIndex',
-  data () {
+  data() {
     return {
-      loading: true
+      loading: true,
     }
   },
   props: {
-    detail: Object
+    detail: Object,
   },
   methods: {
-    changeLoad () {
+    changeLoad() {
       setTimeout(() => {
         this.loading = false
       }, 1000)
-    }
+    },
   },
-  mounted () {
+  mounted() {
     this.changeLoad()
-  }
+  },
 }
 </script>
 
@@ -27,24 +27,28 @@ export default {
     <template slot="template">
       <div class="block-loading">
         <span class="block-img-garden public">
-        <el-skeleton-item
-          variant="image"
-          style="width: 100%; height: 100%;"/>
-      </span>
+          <el-skeleton-item variant="image" style="width: 100%; height: 100%" />
+        </span>
         <span class="block-name">
-          <el-skeleton-item variant="h3" style="width: 50%;" />
+          <el-skeleton-item variant="h3" style="width: 50%" />
         </span>
         <span class="blockSingerName" style="font-size: 0.75rem">
-          <el-skeleton-item variant="h3" style="width: 100%;" />
+          <el-skeleton-item variant="h3" style="width: 100%" />
         </span>
       </div>
     </template>
     <template>
-      <span class="block-img-garden public"  @click="$router.push(`/detail/singer/${detail.id}`)">
-        <img :src="detail.avatar || detail.image" alt="">
+      <span
+        class="block-img-garden public"
+        @click="$router.push(`/detail/singer/${detail.id}`)"
+      >
+        <img :src="detail.avatar || detail.image" alt="" />
       </span>
-      <span class="block-name" @click="$router.push(`/detail/singer/${detail.id}`)">
-        <i>{{detail.name}}</i>
+      <span
+        class="block-name"
+        @click="$router.push(`/detail/singer/${detail.id}`)"
+      >
+        <i>{{ detail.name }}</i>
       </span>
       <span style="font-size: 0.75rem">艺人</span>
     </template>
@@ -52,7 +56,7 @@ export default {
 </template>
 
 <style scoped lang="scss">
-.block{
+.block {
   padding: 9px 9px;
   margin: 1px;
   display: inline-flex;
@@ -60,22 +64,22 @@ export default {
   background-color: #f7f7f7;
   border-radius: 5px;
   justify-content: center;
-  &:hover{
+  &:hover {
     background-color: #d0d0d0;
-    transition: background-color .4s;
+    transition: background-color 0.4s;
   }
-  .block-loading{
+  .block-loading {
     display: inline-flex;
     flex-direction: column;
     background-color: #f7f7f7;
     border-radius: 5px;
     justify-content: center;
-    &:hover{
+    &:hover {
       background-color: #d0d0d0;
-      transition: background-color .4s;
+      transition: background-color 0.4s;
     }
   }
-  .public{
+  .public {
     //width: 20vh;
     //height: 20vh;
     width: 9rem;
@@ -85,24 +89,23 @@ export default {
     min-width: 120px;
     min-height: 120px;
   }
-  .block-img-garden{
+  .block-img-garden {
     margin-bottom: 10px;
     border-radius: 50%;
     overflow: hidden;
-    img{
+    img {
       width: 100%;
       height: 100%;
       cursor: pointer;
       object-fit: cover;
     }
   }
-  .block-name{
+  .block-name {
     font-size: 1rem;
-    i:hover{
+    i:hover {
       text-decoration: underline;
-      transition: text-decoration .9s;
+      transition: text-decoration 0.9s;
     }
   }
 }
-
 </style>

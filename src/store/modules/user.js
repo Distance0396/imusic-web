@@ -1,10 +1,15 @@
-import { setToken, getToken, getMusicFormList, setMusicFormList } from '@/utils/storage'
+import {
+  setToken,
+  getToken,
+  getMusicFormList,
+  setMusicFormList,
+} from '@/utils/storage'
 import { getUser, getUserAndSetting } from '@/api/user'
 import { getUserFollow } from '@/api/follow'
 import Vue from 'vue'
 export default {
   namespaced: true,
-  state () {
+  state() {
     return {
       // 带token
       token: getToken(),
@@ -19,7 +24,7 @@ export default {
         avatar: '',
         email: '',
         sex: '',
-        createTime: ''
+        createTime: '',
       },
       // 用户设置
       settings: {
@@ -30,87 +35,91 @@ export default {
         quality: '',
         emailInform: '',
         createTime: '',
-        updateTime: ''
-      }
+        updateTime: '',
+      },
     }
   },
   mutations: {
     // 修改用户信息
-    setToken (state, obj) {
+    setToken(state, obj) {
       setToken(obj)
       // state.token = obj
     },
     // 修改用户信息
-    setUserInfo (state, obj) {
+    setUserInfo(state, obj) {
       state.userInfo = obj
     },
-    setProperty (state, { property, value }) {
+    setProperty(state, { property, value }) {
       Vue.set(state.userInfo, property, value)
     },
-    setSettings (state, obj) {
+    setSettings(state, obj) {
       state.settings = obj
     },
     // 修改用户收藏信息
-    setCollectForm (state, obj) {
+    setCollectForm(state, obj) {
       state.userFollow = obj
       // 将用户收藏信息存至会话
       setMusicFormList(obj)
-    }
+    },
   },
   actions: {
     // 获取用户信息
-    async getUser ({ context }, payload) {
+    async getUser({ context }, payload) {
       const { data } = await getUser(payload)
       context.commit('setUserInfo', data)
     },
     // 退出登录
-    logout (context) {
+    logout(context) {
       // 用户信息重置
       context.commit('setUser', {})
       context.commit('setUserInfo', {})
     },
-    updateProperty ({ commit }, payload) {
+    updateProperty({ commit }, payload) {
       commit('setProperty', payload)
     },
     // 获取用户个人信息 收藏和设置数据
-    async getUserAndSetting ({ commit, dispatch }, payload) {
-      const { data: { userInfo, userSetting } } = await getUserAndSetting(payload)
+    async getUserAndSetting({ commit, dispatch }, payload) {
+      const {
+        data: { userInfo, userSetting },
+      } = await getUserAndSetting(payload)
       commit('setUserInfo', userInfo)
       commit('setSettings', userSetting)
       await dispatch('getCollectForm')
     },
     // 查询用户搜藏
-    async getCollectForm ({ commit }) {
+    async getCollectForm({ commit }) {
       await getUserFollow().then(res => {
         if (res.data == null) return
         const { data } = res
         commit('setCollectForm', data)
       })
-    }
+    },
   },
   getters: {
     getProperty: state => property => state.userInfo[property],
     // 返回收藏夹歌单
-    getUserMusicForm (state) {
+    getUserMusicForm(state) {
       return state.userFollow.musicFormList
     },
     // 判断歌手是否收藏
-    isSingerCollect (state) {
-      return (id) => {
+    isSingerCollect(state) {
+      return id => {
         return state.userFollow.singerList.find(singer => singer.id === id)
       }
     },
     // 判断专辑是否收藏
-    isAlbumCollect (state) {
-      return (id) => {
+    isAlbumCollect(state) {
+      return id => {
         return state.userFollow.albumList.find(album => album.id === id)
       }
     },
     // 判断歌单是否收藏
-    isMusicFormCollect (state) {
-      return (id) => {
-        return state.userFollow.musicFormList.find(musicForm => musicForm.id === id)
+    isMusicFormCollect(state) {
+      return id => {
+        return state.userFollow.musicFormList.find(
+          musicForm => musicForm.id === id
+        )
       }
-    }
-  }
+    },
+  },
 }

@@ -6,41 +6,48 @@ export default {
   props: {
     music: Object,
     index: Number,
-    backup: String
+    backup: String,
   },
   methods: {
     ...mapMutations('playlist', ['appoint']),
     ...mapActions('player', ['playSong', 'playCol', 'getLyricAndAudio']),
     ...mapMutations('player', ['setStatus']),
     // 点击播放将歌曲添加至队列
-    play () {
+    play() {
       // 将歌曲信息添加给队列
       this.appoint(this.music)
       this.playSong(this.music)
       this.playCol(this.$router.history.current.fullPath)
     },
     // 点击省略符号
-    clickMore (e) {
+    clickMore(e) {
       // e.preventDefault()
       this.$emit('click-more', { event: e, musicId: this.music?.id })
     },
     // 暂停
-    pause () {
+    pause() {
       this.setStatus(false)
-    }
+    },
   },
   computed: {
     ...mapState('player', ['status', 'currentSong', 'currentCol']),
-    isPlaying () { return this.currentSong?.id === this.music?.id && this.status }
-  }
+    isPlaying() {
+      return this.currentSong?.id === this.music?.id && this.status
+    },
+  },
 }
 </script>
 
 <template>
   <div class="musicItem" ref="music" @dblclick="play">
     <div class="music-index public">
-      <div v-if="isPlaying" class="public ">
-        <img class="index" style="width: 1rem; height: 1rem;" src="@/assets/equaliser.gif" alt="">
+      <div v-if="isPlaying" class="public">
+        <img
+          class="index"
+          style="width: 1rem; height: 1rem"
+          src="@/assets/equaliser.gif"
+          alt=""
+        />
         <button class="player" @click.stop="pause">
           <i class="iconfont icon-zanting1 icon"></i>
         </button>
@@ -58,10 +65,16 @@ export default {
       <el-image :src="music?.image || backup" :lazy="true" class="img" />
       <div style="display: flex; flex-direction: column">
         <i :class="{ activeName: isPlaying }">{{ music?.name }}</i>
-        <i v-if="$route.name !== 'Singer'" class="singer" @click="$router.replace(`/singer/${music?.singerId}`)">{{ music?.singerName }}</i>
+        <i
+          v-if="$route.name !== 'Singer'"
+          class="singer"
+          @click="$router.replace(`/singer/${music?.singerId}`)"
+        >
+          {{ music?.singerName }}
+        </i>
       </div>
     </div>
-    <div class="music-num public" style="margin-right: auto;">
+    <div class="music-num public" style="margin-right: auto">
       <div class="num">
         {{ music?.count?.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') }}
       </div>
@@ -78,12 +91,12 @@ export default {
 </template>
 
 <style scoped lang="scss">
-.active{
+.active {
   background-color: rgba(255, 255, 255, 0.4);
 }
 .musicItem:hover {
   background-color: rgba(167, 167, 167, 0.4);
-  transition: background-color .2s;
+  transition: background-color 0.2s;
   opacity: 1;
 }
 .musicItem:hover .music-index .public .player {
@@ -94,9 +107,9 @@ export default {
 }
 .musicItem:hover .music-more .more {
   opacity: 1;
-  transition: opacity .2s;
+  transition: opacity 0.2s;
 }
-.activeName{
+.activeName {
   color: #1eb754;
 }
 .public {
@@ -116,7 +129,7 @@ export default {
     padding: 0 15px;
   }
   .player {
-    background-color: #FFFFFF00;
+    background-color: #ffffff00;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -146,7 +159,7 @@ export default {
     font-size: 13px;
     &:hover {
       text-decoration: underline;
-      transition: text-decoration .5s linear;
+      transition: text-decoration 0.5s linear;
     }
   }
 }

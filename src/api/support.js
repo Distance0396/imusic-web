@@ -1,12 +1,12 @@
-import request from '@/utils/request'
+import request from '@/api/request'
 
-export const likeApi = (dto) => {
+export const likeApi = dto => {
   return request.post('/support', {
-    ...dto
+    ...dto,
   })
 }
-export const unlikeApi = (dto) => {
+export const unlikeApi = dto => {
   return request.post('/support/unlike', {
-    ...dto
+    ...dto,
   })
 }

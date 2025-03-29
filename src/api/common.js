@@ -1,9 +1,9 @@
-import request from '@/utils/request'
+import request from '@/api/request'
 
-export const reCAPTCHA = (reCAPTCHA) => {
+export const reCAPTCHA = reCAPTCHA => {
   return request.post('/common/reCAPTCHA', null, {
     params: {
-      reCAPTCHA: reCAPTCHA
-    }
+      reCAPTCHA: reCAPTCHA,
+    },
   })
 }

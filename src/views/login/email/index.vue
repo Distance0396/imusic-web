@@ -4,7 +4,7 @@ import { setToken } from '@/utils/storage'
 
 export default {
   name: 'EmailIndex',
-  data () {
+  data() {
     const checkEmail = (rule, value, cb) => {
       // 验证邮箱的正则表达式
       const regEmail = /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/
@@ -26,32 +26,36 @@ export default {
         email: [
           {
             validator: checkEmail,
-            trigger: 'blur'
-          }
-        ]
+            trigger: 'blur',
+          },
+        ],
       },
       signEmail: {
         code: '',
         type: '',
-        email: ''
-      }
+        email: '',
+      },
     }
   },
   methods: {
-    async getCode () {
+    async getCode() {
       // 判断是否填写邮箱
       if (this.signEmail.email === '') {
         return this.$message.error({
           title: '错误',
           message: '邮箱为空',
-          showClose: false
+          showClose: false,
         })
       }
-      if (/^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/.test(this.signEmail.email) === false) {
+      if (
+        /^([a-zA-Z0-9_-])+@([a-zA-Z0-9_-])+(\.[a-zA-Z0-9_-])+/.test(
+          this.signEmail.email
+        ) === false
+      ) {
         return this.$message.error({
           title: '错误',
           message: '邮箱格式错误',
-          showClose: false
+          showClose: false,
         })
       }
       // 人机验证
@@ -72,7 +76,7 @@ export default {
           }, 1000)
           return this.$message({
             message: '邮件发送成功',
-            type: 'success'
+            type: 'success',
           })
         }
         // 响应数据携带数据将token存到vuex
@@ -82,35 +86,72 @@ export default {
           this.$router.replace(url)
         }
       })
-    }
-  }
+    },
+  },
 }
 </script>
 
 <template>
-<div class="email-box">
-  <el-form size="medium" :model="signEmail" :rules="emailRules" class="email public">
-    <el-form-item prop="email" label="邮箱">
-      <el-input :disabled="isSendCode" class="input-item" placeholder="请输入邮箱" v-model.trim="signEmail.email" prefix-icon="el-icon-s-promotion" clearable>
-        <template slot="append">
-          <el-link :disabled="isSendCode" size="success" class="input-item" @click="getCode">{{codeName}}</el-link>
-        </template>
-      </el-input>
-    </el-form-item>
-    <el-form-item prop="code" label="验证码">
-      <el-input class="input-item" placeholder="请输入验证码" v-model.trim="signEmail.code"></el-input>
-    </el-form-item>
-    <el-button :loading="requestLoading" size="medium" type="primary" @click="getCode">登录</el-button>
-  </el-form>
-  <div style="margin: auto 0 20px 0;">
-    <el-divider>其他登陆方式</el-divider>
-    <el-button @click="() => this.$router.push('/login/account')" size="small" class="input-item" plain >账号登录/注册</el-button>
+  <div class="email-box">
+    <el-form
+      size="medium"
+      :model="signEmail"
+      :rules="emailRules"
+      class="email public"
+    >
+      <el-form-item prop="email" label="邮箱">
+        <el-input
+          :disabled="isSendCode"
+          class="input-item"
+          placeholder="请输入邮箱"
+          v-model.trim="signEmail.email"
+          prefix-icon="el-icon-s-promotion"
+          clearable
+        >
+          <template slot="append">
+            <el-link
+              :disabled="isSendCode"
+              size="success"
+              class="input-item"
+              @click="getCode"
+            >
+              {{ codeName }}
+            </el-link>
+          </template>
+        </el-input>
+      </el-form-item>
+      <el-form-item prop="code" label="验证码">
+        <el-input
+          class="input-item"
+          placeholder="请输入验证码"
+          v-model.trim="signEmail.code"
+        ></el-input>
+      </el-form-item>
+      <el-button
+        :loading="requestLoading"
+        size="medium"
+        type="primary"
+        @click="getCode"
+      >
+        登录
+      </el-button>
+    </el-form>
+    <div style="margin: auto 0 20px 0">
+      <el-divider>其他登陆方式</el-divider>
+      <el-button
+        @click="() => this.$router.push('/login/account')"
+        size="small"
+        class="input-item"
+        plain
+      >
+        账号登录/注册
+      </el-button>
+    </div>
   </div>
-</div>
 </template>
 
 <style scoped lang="scss">
-.email-box{
+.email-box {
   width: 100%;
   height: 100%;
 }

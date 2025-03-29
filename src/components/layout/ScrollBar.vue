@@ -1,7 +1,7 @@
 <script>
 export default {
   name: 'scrollBar',
-  data () {
+  data() {
     return {
       num: 0,
       // 单个宽度
@@ -9,18 +9,16 @@ export default {
       // 总宽度
       scrollBarItemWidth: 0,
       // 可滑动距离
-      maxTranslate: 0
+      maxTranslate: 0,
     }
   },
-  created () {
-
-  },
-  mounted () {
+  created() {},
+  mounted() {
     this.updateDimensions()
   },
 
   methods: {
-    updateDimensions () {
+    updateDimensions() {
       // 获取整个滚动条的宽度
       this.scrollBarItemWidth = this.$refs.scrollBarItem.clientWidth
 
@@ -32,23 +30,26 @@ export default {
         this.itemWidth = items[0].clientWidth
       }
       // 计算可滑动距离
-      this.maxTranslate = Math.max(0, items.length * this.itemWidth - this.scrollBarItemWidth)
+      this.maxTranslate = Math.max(
+        0,
+        items.length * this.itemWidth - this.scrollBarItemWidth
+      )
     },
-    rollingLeft () {
+    rollingLeft() {
       this.updateDimensions()
       if (this.num <= 0) return
-      this.num = Math.max(0, this.num - (3 * this.itemWidth))
+      this.num = Math.max(0, this.num - 3 * this.itemWidth)
       // this.$refs.item.style.transform = 'translateX(-' + this.num + 'px)'
       this.$refs.item.scrollLeft = this.num
     },
-    rollingRight () {
+    rollingRight() {
       this.updateDimensions()
       if (this.num >= this.maxTranslate) return
-      this.num = Math.min(this.maxTranslate, this.num + (3 * this.itemWidth))
+      this.num = Math.min(this.maxTranslate, this.num + 3 * this.itemWidth)
       // this.$refs.item.style.transform = 'translateX(-' + this.num + 'px)'
       this.$refs.item.scrollLeft = this.num
-    }
-  }
+    },
+  },
 }
 </script>
 
@@ -58,23 +59,37 @@ export default {
       <slot name="title"></slot>
       <div class="scroll-bar-btn">
         <span class="rolling-left rolling" @click="rollingLeft">
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"
-                 width="15" height="15"><path
+          <svg
+            class="icon"
+            viewBox="0 0 1024 1024"
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+          >
+            <path
               d="M631.168 183.168a42.666667 42.666667 0 0 1 62.826667 57.621333l-2.496 2.709334L423.04 512l268.48 268.501333a42.666667 42.666667 0 0 1 2.496 57.621334l-2.496 2.709333a42.666667 42.666667 0 0 1-57.621333 2.496l-2.709334-2.496-298.666666-298.666667a42.666667 42.666667 0 0 1-2.496-57.621333l2.496-2.709333 298.666666-298.666667z"
-              fill="#000000" ></path>
-            </svg>
-          </span>
+              fill="#000000"
+            ></path>
+          </svg>
+        </span>
         <span class="rolling-right rolling" @click="rollingRight">
-            <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"
-                 width="15" height="15"><path
+          <svg
+            class="icon"
+            viewBox="0 0 1024 1024"
+            xmlns="http://www.w3.org/2000/svg"
+            width="15"
+            height="15"
+          >
+            <path
               d="M631.168 183.168a42.666667 42.666667 0 0 1 62.826667 57.621333l-2.496 2.709334L423.04 512l268.48 268.501333a42.666667 42.666667 0 0 1 2.496 57.621334l-2.496 2.709333a42.666667 42.666667 0 0 1-57.621333 2.496l-2.709334-2.496-298.666666-298.666667a42.666667 42.666667 0 0 1-2.496-57.621333l2.496-2.709333 298.666666-298.666667z"
-              fill="#000000" ></path>
-            </svg>
+              fill="#000000"
+            ></path>
+          </svg>
         </span>
       </div>
     </div>
     <div class="scroll-bar-item" ref="scrollBarItem">
-      <div class="item" ref="item" >
+      <div class="item" ref="item">
         <slot name="body"></slot>
       </div>
     </div>
@@ -82,7 +97,7 @@ export default {
 </template>
 
 <style scoped lang="scss">
-.scroll-bar{
+.scroll-bar {
   min-height: 270px;
   color: var(--text-color);
   .scroll-bar-navbar {

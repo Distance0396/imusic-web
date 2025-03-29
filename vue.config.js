@@ -9,15 +9,15 @@ module.exports = defineConfig({
         // target: 'http://localhost:8011/user', // 后端接口
         changeOrigin: true, // 是否跨域
         pathRewrite: {
-          '^/api': ''
-        }
+          '^/api': '',
+        },
       },
       '/v2': {
         target: 'http://localhost:8011/common',
         changeOrigin: true,
-        pathRewrite: { '^/v2': '' }
-      }
-    }
+        pathRewrite: { '^/v2': '' },
+      },
+    },
   },
   pwa: {
     iconPaths: {
@@ -25,7 +25,7 @@ module.exports = defineConfig({
       favicon16: 'favicon.ico',
       appleTouchIcon: 'favicon.ico',
       maskIcon: 'favicon.ico',
-      msTileImage: 'favicon.ico'
-    }
-  }
+      msTileImage: 'favicon.ico',
+    },
+  },
 })

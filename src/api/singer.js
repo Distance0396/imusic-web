@@ -1,10 +1,10 @@
-import request from '@/utils/request'
+import request from '@/api/request'
 
 export const getSingerList = () => {
   return request.get('/singer/list')
 }
 
-export const findSingerById = (id) => {
+export const findSingerById = id => {
   return request.get(`/singer/${id}`)
 }
 
