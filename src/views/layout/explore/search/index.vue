@@ -4,7 +4,6 @@ import { mapGetters } from 'vuex'
 import MusicItem from '@/components/block/MusicItem.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import History from '@/views/layout/explore/search/history.vue'
-import { useContextMenu } from '@/utils/useContextMenu'
 import { search } from '@/api/user'
 import Block from '@/components/block/Block.vue'
 
@@ -125,7 +124,8 @@ export default {
       singerResult: [],
       albumResult: [],
       playlistResult: [],
-      musicResult: []
+      musicResult: [],
+      selectMusicId: null
     }
   },
   methods: {
@@ -151,7 +151,22 @@ export default {
     },
     // 选中的菜单选项
     pickMenu (e) {
-      useContextMenu(e, this.pickMusicItem, this.getMusicFormId)
+      if (!this.$store.getters.token) return this.$message.error('未登录')
+      const { menu, sonItem } = e
+      this.$useContextMenu({
+        menu: menu,
+        target: this.selectMusic,
+        playList: sonItem?.id
+      })
+    },
+    handleSongContextMenu (e, item) {
+      this.selectMusicId = e.currentTarget.dataset.music
+      this.selectMusic = item
+      this.$refs.contextMenu.handleContextMenu(e)
+    },
+    handleClickMore ({ event, musicId }) {
+      this.selectMusicId = musicId
+      this.$refs.contextMenu.handleContextMenu(event)
     },
     player () {
       // console.log('321')
@@ -215,17 +230,19 @@ export default {
             </div>
             <div class="music-card" style="margin-left: 20px;">
               <ContextMenu
+                ref="contextMenu"
                 :menu="menu"
-                :position="position"
                 @select-menu="pickMenu"
               >
                 <MusicItem
                   v-for="(item,index) in musicResult?.slice(0, 4)"
-                  @select-music="pickMusicItem = $event"
-                  @position="position = $event"
                   :key="item.id"
-                  :music="item"
                   :index="index+1"
+                  :music="item"
+                  :data-music="item.id"
+                  :class="{ active : selectMusicId == item.id }"
+                  @click-more="handleClickMore"
+                  @contextmenu.native="handleSongContextMenu($event, item)"
                 />
               </ContextMenu>
             </div>
@@ -282,10 +299,9 @@ export default {
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/scss/index";
 .search {
   width: 100%;
-  min-height: calc(100vh - $footer);
+  min-height: calc(100vh - 60px);
   padding: 90px 20px 0 20px;
   .search-box {
     border-radius: 30px;
@@ -335,6 +351,7 @@ export default {
         color: #409EFF;
       }
       .el-button{
+        border: none;
         background-color: var(--aside-background-color);
       }
     }

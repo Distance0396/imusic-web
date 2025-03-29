@@ -5,6 +5,7 @@ import Header from '@/components/layout/Header.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import { mapState, mapActions, mapMutations, mapGetters } from 'vuex'
 import { deleteById, updateMusicForm } from '@/api/muiscForm'
+import { getToken } from '@/utils/storage'
 
 export default {
   name: 'PlayList',
@@ -35,14 +36,15 @@ export default {
       ],
       // 控制修改歌单弹窗显示
       dialogVisible: false,
-      // MusicItem组件省略号位置
-      clickMore: {},
       // 上传加载
       loading: false,
       // 选中音乐id
       selectMusicId: null,
       // 选中音乐
-      selectMusic: null
+      selectMusic: null,
+      uploadHeaders: {
+        Token: getToken()
+      }
     }
   },
   methods: {
@@ -125,9 +127,15 @@ export default {
      */
     pickMenu (e) {
       if (!this.isLogin) return this.$message.error('未登录')
-      const { menu } = e
-      this.$useContextMenu(menu, this.selectMusic, 1)
+      const { menu, sonItem } = e
+      this.$useContextMenu({
+        menu: menu, target: this.selectMusic, playList: sonItem?.id
+      })
       this.$refs.contextMenu.showMenu = false
+    },
+    handleClickMore ({ event, musicId }) {
+      this.selectMusicId = musicId
+      this.$refs.contextMenu.handleContextMenu(event)
     }
   },
   computed: {
@@ -221,7 +229,6 @@ export default {
       <div class="musicList">
         <ContextMenu
           :menu="menu"
-          :more="clickMore"
           @select-menu="pickMenu"
           ref="contextMenu"
         >
@@ -230,11 +237,22 @@ export default {
             :key="item.id"
             :index="index+1"
             :music="item"
-            :backup="musicForm?.image"
+            :data-music="item.id"
             :class="{ active : selectMusicId == item.id }"
-            @click-more="clickMore = $event"
+            @click-more="handleClickMore"
             @contextmenu.native="handleSongContextMenu($event, item)"
           />
+          <template #menu-info>
+            <div style="padding: 5px; display: flex; align-items: center;">
+              <div style="min-width: 40px; height: 40px; border-radius: 3px; overflow: hidden;">
+                <img style="width: 100%; height: 100%;" :src="selectMusic?.image || musicForm?.image"  alt=""/>
+              </div>
+              <div style="display: flex; flex-direction: column; margin-left: 10px;">
+                <span>{{selectMusic?.name}}</span>
+                <span>{{selectMusic?.singerName}}</span>
+              </div>
+            </div>
+          </template>
         </ContextMenu>
       </div>
     </div>
@@ -250,6 +268,7 @@ export default {
           v-loading="loading"
           class="upload"
           action="/v2/upload"
+          :headers="uploadHeaders"
           :show-file-list="false"
           :limit="1"
           :auto-upload="true"

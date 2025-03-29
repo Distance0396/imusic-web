@@ -1,6 +1,6 @@
 <template>
   <el-container class="container">
-    <el-aside class="el-aside" ref="aside" :style="{ width: this.asideWidth + 'px' }">
+    <el-aside class="el-aside" ref="aside" :style="{ width: asideWidth + 'px' }">
       <Navbar />
 <!--      <div style="text-align: center; margin-top: auto;">-->
 <!--        <svg class="icon" width="100%" height="80" viewBox="0 0 503 115" fill="none" xmlns="http://www.w3.org/2000/svg">-->
@@ -22,23 +22,27 @@
 <!--      </div>-->
       <div class="resizer" @mousedown="startResize"></div>
     </el-aside>
-    <el-main class="el-main" :style="{ marginLeft: this.asideWidth + 'px', '--width': asideWidth+'px', '--el-aside-right-width': $store.state.common.isShowRightBox ? '320px':'0px' }">
+    <el-main class="el-main" :style="{ marginLeft: asideWidth + 'px', '--width': asideWidth+'px', '--el-aside-right-width': $store.state.common.isShowRightBox ? '320px':'0px' }">
       <keep-alive>
         <router-view :key="key" />
       </keep-alive>
-      <el-footer style="margin-top: 40px;">
+      <el-footer style="margin: 40px 0 0 0;">
         <Footer />
       </el-footer>
-      <div class="UserInfoFloat" :style="{top: `${getY}px`, left: `${getX}px` }" v-show="getIsFocus">
-        <div style="display: flex; margin-bottom: 5px; align-items: center;">
-          <el-avatar :src="focusUser?.avatar"></el-avatar>
-          <p style="margin-left: 10px;">{{focusUser?.name}}</p>
+      <div class="UserInfoFloat"
+             @mouseover="isShowFloatBox"
+             @mouseleave="isHiddenFloatBox"
+             :style="{top: `${getY}px`, left: `${getX}px` }"
+             v-show="getIsFocus">
+          <div style="display: flex; margin-bottom: 5px; align-items: center;">
+            <el-avatar :src="focusUser?.avatar"></el-avatar>
+            <p style="margin-left: 10px;">{{focusUser?.name}}</p>
+          </div>
+          <div style="font-size: 13px; color: #848484; margin-bottom: 10px;">@{{focusUser?.account}}</div>
+          <div>
+            {{focusUser?.sign}}
+          </div>
         </div>
-        <div style="font-size: 13px; color: #848484; margin-bottom: 10px;">@{{focusUser?.account}}</div>
-        <div>
-          {{focusUser?.sign}}
-        </div>
-      </div>
     </el-main>
     <el-aside v-show="isShowRightBox" class="el-aside-right">
       <PlayList />
@@ -68,8 +72,8 @@ export default {
   },
   methods: {
     ...mapActions('user', ['getUserAndSetting']),
-    ...mapMutations('common', ['setAsideWidth']),
-    startResize (event) {
+    ...mapMutations('common', ['setAsideWidth', 'setIsFocus']),
+    startResize () {
       // 开始拖动时设置标记
       this.isResizing = true
       document.addEventListener('mousemove', this.resize)
@@ -97,6 +101,12 @@ export default {
       this.isResizing = false
       document.removeEventListener('mousemove', this.resize)
       document.removeEventListener('mouseup', this.stopResize)
+    },
+    isShowFloatBox () {
+      this.setIsFocus(true)
+    },
+    isHiddenFloatBox () {
+      this.setIsFocus(false)
     }
   },
   mounted () {
@@ -194,8 +204,8 @@ export default {
 .UserInfoFloat{
   width: 300px;
   height: 150px;
-  border: 0 solid black;
-  background-color: black;
+  background-color: var(--aside-background-color);
+  pointer-events: auto;
   position: fixed;
   color: var(--text-color);
   z-index: 10000;

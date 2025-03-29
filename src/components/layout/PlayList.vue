@@ -19,16 +19,16 @@ export default {
       <h2>队列</h2>
       <div class="be-play">
         <i class="title">当前播放</i>
-        <MusicItem :music="this.firstPlayList"></MusicItem>
+        <MusicItem :music="firstPlayList"></MusicItem>
       </div>
       <div>
         <i class="title">下一首来自：<i @click="$router.push(`/album/${playlist[0].albumId}`)">{{playlist[0]?.albumName}}</i></i>
         <MusicItem
-          v-for="(item,index) in playlist"
+          v-for="(item, index) in playlist"
           :key="item.id"
           :music="item"
           :index="index+1"
-        ></MusicItem>
+        />
       </div>
     </div>
   </div>

@@ -21,10 +21,12 @@ export const issueArticle = ({ content, title, category, status, face }) => {
   })
 }
 
-export const getArticleByCategoryId = ({ categoryId }) => {
+export const getArticleByCategoryId = ({ categoryId, sortType, id }) => {
   return request.get('/article', {
     params: {
-      categoryId: categoryId
+      categoryId: categoryId,
+      sortType: sortType,
+      id: id
     }
   })
 }

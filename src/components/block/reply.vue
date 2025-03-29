@@ -1,26 +1,28 @@
 <script>
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import replyInput from '@/components/block/replyInput.vue'
-import debounce from 'lodash/debounce'
+// import debounce from 'lodash/debounce'
+import { moreComment } from '@/api/comment'
 
 export default {
   name: 'replyBlock',
   components: { replyInput },
   props: {
-    item: {}
+    item: {},
+    objId: Number,
+    objType: Number
   },
   data () {
     return {
-      // children: { ...this.item.children },
       isInput: false,
       showPage: false,
-      // total: 0,
       pagination: {
-        pageSize: 10,
+        pageSize: 5,
         page: 1
       },
-      islike: false
-      // islikeChild: false
+      islike: false,
+      child: [],
+      total: 0
     }
   },
   methods: {
@@ -50,65 +52,72 @@ export default {
     },
     // 更多评论
     async moreComment () {
-      this.$emit('more', {
-        pagination: this.pagination,
-        objId: this.item.objId,
-        objType: this.item.objType,
-        rootId: this.item.id
-      })
+      const { data } = await moreComment({ ...this.pagination, objId: this.objId, objType: this.objType, rootId: this.item.id })
+      this.child = [...data.page]
+      this.total = data.total
+      // const find = this.reply.find(item => item.id === rootId)
+      // if (find) { find.children = data.page }
+      // this.$emit('more', {
+      //   pagination: this.pagination,
+      //   objId: this.objId,
+      //   objType: this.objType,
+      //   rootId: this.item.id
+      // })
       this.showPage = true
     },
     currentChange (e) {
       this.pagination.page = e
       this.moreComment()
     },
-    onLike (type, reload) {
-      if (type === 1) {
-        this.$emit('like', {
-          objId: this.item.id,
-          objUserId: this.item.userInfo.id
-        })
-        reload.islike = true
-      }
-      if (type === 2) {
-        this.$emit('like', {
-          objId: reload.id,
-          objUserId: reload.userInfo.id
-        })
-        reload.islike = true
-      }
+    onLike (reload) {
+      this.$emit('like', {
+        objId: reload.id,
+        objUserId: reload.userInfo.id
+      })
+      reload.islike = true
+      reload.likeCount += 1
     },
     // 取消点赞
-    unLike (type, reload) {
-      if (type === 1) {
-        this.$emit('unlike', { objId: this.item.id, objUserId: this.item.userInfo.id })
-        reload.islike = false
-      }
-      if (type === 2) {
-        this.$emit('unlike', { objId: reload.id, objUserId: reload.userInfo.id })
-        reload.islike = false
-      }
+    unLike (reload) {
+      this.$emit('unlike', {
+        objId: reload.id,
+        objUserId: reload.userInfo.id
+      })
+      reload.islike = false
+      reload.likeCount -= 1
     },
     // 聚焦头像
-    focusAvatar: debounce(function (userInfo, event) {
+    focusAvatar (userInfo, event) {
       // 获取事件目标（头像元素）
       const avatarElement = event.target
-
       // 获取头像元素的位置信息
       const rect = avatarElement.getBoundingClientRect()
+      // 视口尺寸检测
+      const viewportHeight = window.innerHeight
+      const floatBoxWidth = 150
 
       // 计算头像上方的位置
-      const x = rect.left + rect.width / 2 // 头像中心的水平位置
-      const y = rect.top - 150 // 头像顶部的位置
+      const x = rect.left // 头像中心的水平位置
+      // const y = rect.top - floatBoxWidth // 头像顶部的位置
+
+      // 智能方向判断
+      let y
+      if (rect.top - floatBoxWidth > 0) { // 上方空间充足
+        y = rect.top - floatBoxWidth // 上方显示（原位置）
+      } else if (viewportHeight - rect.bottom > floatBoxWidth) { // 下方空间充足
+        y = rect.bottom // 下方显示
+      } else { // 上下都不足时贴底显示
+        y = viewportHeight - floatBoxWidth
+      }
 
       // 调用方法设置聚焦效果
-      this.setFocus({ userInfo, x, y: y - 10 }) // 偏移 10px 让其更自然
+      this.setFocus({ userInfo, x: x, y: y }) // 偏移 10px 让其更自然
       this.setIsFocus(true)
-    }, 200),
+    },
     // 是否聚焦
-    isFocus: debounce(function () {
+    isFocus () {
       this.setIsFocus(false)
-    }, 200)
+    }
   },
   computed: {
     ...mapGetters('comment', ['getCommentProperty']),
@@ -135,8 +144,8 @@ export default {
           <div class="reply-info">
             <span class="reply-time">{{ item.createTime }}</span>
             <span class="reply-like" :class="{ like:  item.islike}">
-              <i v-if="!item.islike" @click="onLike(1, item)" class="iconfont icon-dianzan2-copy" />
-              <i v-else @click="unLike(1, item)" class="iconfont icon-dianzan-copy" />
+              <i v-if="!item.islike" @click="onLike(item)" class="iconfont icon-dianzan2-copy" />
+              <i v-else @click="unLike(item)" class="iconfont icon-dianzan-copy" />
 <!--              {{ item.islike ? item.likeCount + 1 : item.likeCount}}-->
               {{ item.likeCount }}
             </span>
@@ -149,7 +158,7 @@ export default {
       </div>
     </div>
     <div class="child">
-      <div class="child-item" style="display: flex;" v-for="children in item?.children" :key="'children' + children.id" >
+      <div class="child-item" style="display: flex;" v-for="children in child" :key="children.id" >
         <div class="avatar" @click="$router.push(`/user/${children.userInfo.id}`)">
           <el-avatar size="small" :src="children.userInfo?.avatar"
                      @mouseenter.native="focusAvatar(children.userInfo, $event)"
@@ -176,8 +185,8 @@ export default {
           <div class="reply-info">
             <span class="reply-time">{{ children.createTime }}</span>
             <span class="reply-like" :class="{ like:  children.islike}">
-              <i v-if="!children.islike" @click="onLike(2, children)" class="iconfont icon-dianzan2-copy" />
-              <i v-else @click="unLike(2, children)" class="iconfont icon-dianzan-copy"/>
+              <i v-if="!children.islike" @click="onLike(children)" class="iconfont icon-dianzan2-copy" />
+              <i v-else @click="unLike(children)" class="iconfont icon-dianzan-copy"/>
 <!--              {{ children.islike ? children.likeCount + 1 : children.likeCount }}-->
               {{ children.likeCount }}
             </span>
@@ -191,12 +200,12 @@ export default {
       <div class="more">
         <div v-if="!showPage && this.item.num > 3">共{{ this.item.num }}条回复，<i @click="moreComment">点击查看</i></div>
         <el-pagination
-          layout="pager"
-          background
+          layout="prev, pager, next"
           v-else
+          :page-size="5"
           :small="true"
           :hide-on-single-page="true"
-          :total="item.num"
+          :total="total"
           @current-change="currentChange"
         />
       </div>
@@ -308,6 +317,14 @@ export default {
       margin-bottom: 20px;
       i:hover{
         color: #409EFF;
+      }
+      ::v-deep .el-pagination{
+        .btn-prev, .btn-next{
+          background: transparent;
+        }
+        .el-pager li{
+          background: transparent;
+        }
       }
     }
   }

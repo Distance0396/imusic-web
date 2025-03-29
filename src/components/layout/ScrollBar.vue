@@ -107,7 +107,6 @@ export default {
         margin-right: 10px;
         border-radius: 50%;
       }
-
       span:nth-child(2) {
         svg {
           transform: rotate(180deg);
@@ -128,7 +127,6 @@ export default {
       overflow: scroll;
       display: inline-flex;
       flex-wrap: nowrap;
-      transition: all 0.1s linear;
       scroll-behavior: smooth; /* 平滑滚动 */
     }
   }

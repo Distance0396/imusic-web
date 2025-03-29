@@ -11,6 +11,7 @@ import ReplyInput from '@/components/block/replyInput.vue'
 import Reply from '@/components/block/reply.vue'
 import { moreComment, saveComment, select } from '@/api/comment'
 import { likeApi, unlikeApi } from '@/api/support'
+import { throttle } from 'lodash/function'
 
 export default {
   name: 'singerDetail',
@@ -32,36 +33,26 @@ export default {
   beforeDestroy () {
     // 关闭滚动事件
     window.removeEventListener('scroll', this.handleScroll)
+    window.removeEventListener('scroll', this.handleScrollBottom)
   },
   created () {
     // 注册滚动事件
     window.addEventListener('scroll', this.handleScroll)
+    window.addEventListener('scroll', this.handleScrollBottom)
     this.getSinger()
     this.getComment()
   },
   mounted () {
     // 将会话中的歌单数据赋值给菜单
-    this.menu[0].menu = this.getUserMusicForm
+    this.menu[0].menu.push(...this.getUserMusicForm)
   },
   methods: {
     ...mapActions('user', ['getCollectForm']),
-    ...mapMutations('playlist', ['pushPlayList', 'setPlayList']),
+    ...mapMutations('playlist', ['pushPlayList', 'setPlayList', 'unshiftPlayList', 'appoint']),
     ...mapMutations('comment', ['setContent']),
     ...mapMutations('player', ['setStatus']),
     ...mapActions('comment', ['clear']),
-    ...mapActions('player', ['playSong']),
-    // 获取评论
-    async getComment () {
-      const { data } = await select({
-        // 歌手id
-        objId: this.getSingerId,
-        // 歌手类型为1
-        objType: 1,
-        id: 0
-      })
-      this.reply = data.comment
-      this.total = data.count
-    },
+    ...mapActions('player', ['playSong', 'playCol']),
     // 提交评论
     async submit () {
       if (!this.isLogin) return this.$message.error('未登录')
@@ -91,6 +82,47 @@ export default {
       this.$refs.background.style.opacity = opacity.toString()
       this.$refs.background.style.backgroundImage = 'linear-gradient(var(--gradation-color) 0, rgba(0, 0, 0, 0.4) 0)'
     },
+    // 检测页面触底
+    handleScrollBottom: throttle(function () {
+      if (this.isEnd) return
+      if (this.$refs.moreReply) {
+        const rect = this.$refs.moreReply.getBoundingClientRect()
+        if ((rect.top >= 0 && rect.top <= window.innerHeight) || (rect.bottom >= 0 && rect.bottom <= window.innerHeight)) {
+          this.load()
+        }
+      }
+    }, 500),
+    // 获取评论
+    async getComment () {
+      const { data } = await select({
+        // 歌手id
+        objId: this.getSingerId,
+        // 歌手类型为1
+        objType: 1,
+        id: 0
+      })
+      this.reply = data.comment
+      this.replyLoading = false
+      this.isEnd = data.isEnd
+      this.total = data.count
+    },
+    // 加载评论
+    async load () {
+      if (this.replyLoading) return
+      if (this.isEnd) return
+      // clearTimeout(this.timeout)
+      // this.timeout = setTimeout(async () => {
+      this.replyLoading = true
+      const { data } = await select({
+        objId: +this.$route.params.id,
+        objType: 1,
+        id: this.reply.slice(-1)[0].id
+      })
+      this.reply.push(...data.comment)
+      this.replyLoading = false
+      this.isEnd = data.isEnd
+      // }, 1000)
+    },
     // 根据id查询歌手
     async getSinger () {
       const { data } = await findSingerById(this.getSingerId)
@@ -104,7 +136,11 @@ export default {
     pickMenu (e) {
       if (!this.isLogin) return this.$message.error('未登录')
       const { menu, sonItem } = e
-      this.$useContextMenu(menu, this.selectMusic, sonItem.id)
+      this.$useContextMenu({
+        menu: menu,
+        target: this.selectMusic,
+        playList: sonItem?.id
+      })
       this.$refs.contextMenu.showMenu = false
     },
     // 右键菜单处理器
@@ -158,6 +194,10 @@ export default {
         likeTimestamp: this.$dayjs().format('YYYY-MM-DD HH:mm:ss'),
         likeAction: 2
       })
+    },
+    handleClickMore ({ event, musicId }) {
+      this.selectMusicId = musicId
+      this.$refs.contextMenu.handleContextMenu(event)
     }
   },
   data () {
@@ -167,22 +207,9 @@ export default {
       // 评论
       reply: {},
       menu: [
-        {
-          id: 1,
-          label: '加入歌单',
-          icon: 'el-icon-folder-checked',
-          menu: []
-        },
-        {
-          id: 2,
-          label: '加入队列',
-          icon: 'el-icon-menu'
-        },
-        {
-          id: 5,
-          label: '分享给好友',
-          icon: 'el-icon-info'
-        }
+        { id: 1, label: '加入歌单', icon: 'el-icon-folder-checked', menu: [] },
+        { id: 2, label: '加入队列', icon: 'el-icon-menu' },
+        { id: 5, label: '分享给好友', icon: 'el-icon-info' }
       ],
       // 歌手信息
       singer: {},
@@ -194,8 +221,6 @@ export default {
       controlMusicNumber: 5,
       // 加载
       loading: false,
-      // MusicItem组件点击省略号
-      clickMore: {},
       isReply: true,
       comment: {
         objId: +this.$route.params.id,
@@ -206,7 +231,9 @@ export default {
       },
       selectMusicId: null,
       // 选中的歌曲
-      selectMusic: null
+      selectMusic: null,
+      replyLoading: false,
+      isEnd: false
     }
   }
 }
@@ -255,20 +282,30 @@ export default {
                   <ContextMenu
                     @select-menu="pickMenu"
                     ref="contextMenu"
-                    :more="clickMore"
                     :menu="menu"
                   >
                     <MusicItem
-                      v-for="(item,index) in musicList.slice(0, this.controlMusicNumber)"
+                      v-for="(item, index) in musicList.slice(0, this.controlMusicNumber)"
                       :key="item.id"
+                      :index="index+1"
                       :music="item"
                       :backup="singer?.avatar"
-                      :index="index+1"
                       :data-music="item.id"
                       :class="{ active : selectMusicId == item.id }"
-                      @click-more="clickMore = $event"
+                      @click-more="handleClickMore"
                       @contextmenu.native="handleSongContextMenu($event, item)"
                     />
+                    <template #menu-info>
+                      <div style="padding: 5px; display: flex; align-items: center;">
+                        <div style="min-width: 40px; height: 40px; border-radius: 3px; overflow: hidden;">
+                          <img style="width: 100%; height: 100%;" :src="selectMusic?.image || singer?.avatar"  alt=""/>
+                        </div>
+                        <div style="display: flex; flex-direction: column; margin-left: 10px; text-overflow: ellipsis; white-space: nowrap; overflow: hidden;">
+                          <span>{{selectMusic?.name}}</span>
+                          <span>{{selectMusic?.singerName}}</span>
+                        </div>
+                      </div>
+                    </template>
                   </ContextMenu>
                 </div>
                 <div class="more">
@@ -279,19 +316,19 @@ export default {
               <div v-if="albumList.length > 0" class="album" style="padding-bottom: 10px">
                 <h2 class="title" style="color: var(--text-color)">唱片专辑</h2>
                 <div class="target">
-                  <Block v-for="item in albumList" :key="item.id">
+                  <Block v-for="item in albumList" :key="item.id" :is-loading="false">
                     <template #img>
                       <el-image
                         :src="item.avatar || item.image"
-                        style="width: 100%;
-                      height: 100%;
-                      cursor: pointer;
-                      border-radius: 3%;"
-                        fit="cover"
+                         style="width: 100%;
+                         height: 100%;
+                         cursor: pointer;
+                         border-radius: 3%;"
+                         fit="cover"
                         :lazy="true"
                         alt=""
                         @click="$router.push(`/album/${item.id}`)"
-                      ></el-image>
+                      />
                     </template>
                     <template #nameOne>
                       <i @click="$router.push(`/album/${item.id}`)">
@@ -319,11 +356,16 @@ export default {
                 v-for="item in reply"
                 :key=" 'singer' + item.id"
                 :item="item"
-                @more="more"
+                :obj-id="comment.objId"
+                :obj-type="comment.objType"
                 @submit="submit"
                 @like="like"
                 @unlike="unlike"
               />
+              <p ref="moreReply" style="text-align: center; color: var(--text-color); height: 100px;">
+                <i v-show="replyLoading" class="loader"></i>
+                <i v-show="isEnd" class="end"></i>
+              </p>
             </div>
           </div>
         </div>

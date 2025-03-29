@@ -23,8 +23,4 @@ export default {
 </template>
 
 <style scoped lang="scss">
-@import "@/assets/scss/index";
-.explore{
-  min-height: calc(100vh - $footer);
-}
 </style>

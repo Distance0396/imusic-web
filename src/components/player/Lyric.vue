@@ -54,8 +54,6 @@ export default {
           })
         }
       })
-
-      // console.log(lrcArray)
       // 存储数据，将处理后的歌词数组赋值给 currentLyric 属性
       this.currentLyric = lrcArray
     },

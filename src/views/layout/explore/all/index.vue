@@ -92,8 +92,7 @@ export default {
 <style scoped lang="scss">
 .explore{
   padding: 60px 20px 0 20px;
-  //max-width: 1200px;
-  min-height: calc(100vh - 40px);
+  //min-height: calc(100vh - 40px);
   .tab{
     display: flex;
     align-items: center;

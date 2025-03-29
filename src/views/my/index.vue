@@ -7,6 +7,7 @@
           class="upload"
           action="/v2/upload"
           :show-file-list="false"
+          :headers="uploadHeaders"
           :limit="1"
           :disabled="!isMy"
           :auto-upload="true"
@@ -194,6 +195,7 @@ import { getCodeApi, getUser, updateUserInfo } from '@/api/user'
 import { Notification } from 'element-ui'
 import Block from '@/components/block/Block.vue'
 import Settings from '@/views/my/settings.vue'
+import { getToken } from '@/utils/storage'
 
 export default {
   name: 'myHome',
@@ -265,7 +267,10 @@ export default {
         type: 'verify'
       },
       // 控制Tabs 标签页
-      activeName: 'first'
+      activeName: 'first',
+      uploadHeaders: {
+        Token: getToken()
+      }
     }
   },
   computed: {

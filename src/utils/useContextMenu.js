@@ -7,13 +7,13 @@ import router from '@/router'
  * @param target 音乐目标
  * @param params 参数1 歌单id
  */
-export const useContextMenu = async (menu, target, params) => {
+export const useContextMenu = async ({ menu, target, playList }) => {
   switch (menu.label) {
     case '加入歌单':
-      await appendMusicForm(params, target.id)
+      await appendMusicForm(playList, target.id)
       break
     case '删除':
-      await deleteMusic(params, target.id)
+      await deleteMusic(playList, target.id)
       break
     case '加入队列':
       // 添加歌曲至队列

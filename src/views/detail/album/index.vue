@@ -5,12 +5,12 @@ import MusicItem from '@/components/block/MusicItem.vue'
 import Header from '@/components/layout/Header.vue'
 import ContextMenu from '@/components/contextMenu/contextMenu.vue'
 import ReplyInput from '@/components/block/replyInput.vue'
-import { useContextMenu } from '@/utils/useContextMenu'
 import { getAlbumById } from '@/api/album'
 import { follow, unfollow } from '@/api/follow'
 import { mapActions, mapGetters, mapMutations, mapState } from 'vuex'
 import { moreComment, saveComment, select } from '@/api/comment'
 import { likeApi, unlikeApi } from '@/api/support'
+import { throttle } from 'lodash/function'
 
 export default {
   name: 'albumDetail',
@@ -21,8 +21,6 @@ export default {
     Header,
     Reply,
     ReplyInput
-    // DynamicScroller,
-    // DynamicScrollerItem
   },
   data () {
     return {
@@ -37,11 +35,6 @@ export default {
           id: 2,
           label: '加入队列',
           icon: 'el-icon-menu'
-        },
-        {
-          id: 3,
-          label: '删除',
-          icon: 'el-icon-delete'
         },
         {
           id: 4,
@@ -59,9 +52,6 @@ export default {
         singerName: ''
       },
       musicList: [],
-      // MusicItem组件点击省略号时间
-      clickMore: {},
-      pickMusicItem: {},
       // 是否显示评论
       isReply: true,
       // // 评论条数
@@ -79,7 +69,10 @@ export default {
       loading: true,
       replyLoading: false,
       timeout: null,
-      is_end: false
+      isEnd: false,
+      selectMusicId: null,
+      // 选中的歌曲
+      selectMusic: null
     }
   },
   methods: {
@@ -117,12 +110,6 @@ export default {
         this.isAlbumCollect(this.getAlbumId)
       })
     },
-    /*
-      右键菜单选项
-    */
-    pickMenu (e) {
-      useContextMenu(e, this.pickMusicItem, this.getMusicFormId)
-    },
     // 提交评论
     async submit () {
       await saveComment({
@@ -134,14 +121,35 @@ export default {
       })
       this.clear()
     },
+    // 获取评论
     async getComment () {
+      this.replyLoading = true
       const { data } = await select({
         objId: this.getAlbumId,
         objType: 2,
         id: 0
       })
-      this.reply = data.comment
       this.total = data.count
+      this.reply = data.comment
+      this.replyLoading = false
+      this.isEnd = data.isEnd
+    },
+    // 加载评论
+    async load () {
+      if (this.isEnd) return
+      if (this.replyLoading) return
+      clearTimeout(this.timeout)
+      this.timeout = setTimeout(async () => {
+        this.replyLoading = true
+        const { data } = await select({
+          objId: +this.$route.params.id,
+          objType: 2,
+          id: this.reply.slice(-1)[0].id
+        })
+        this.reply.push(...data.comment)
+        this.replyLoading = false
+        this.isEnd = data.isEnd
+      }, 1000)
     },
     // 更多评论
     async more ({ pagination, objId, rootId }) {
@@ -170,49 +178,43 @@ export default {
         likeAction: 2
       })
     },
-    // 加载评论
-    async load () {
-      if (this.replyLoading) return
-      if (this.is_end) return
-      this.replyLoading = true
-      clearTimeout(this.timeout)
-      this.timeout = setTimeout(async () => {
-        const { data } = await select({
-          objId: +this.$route.params.id,
-          objType: 2,
-          id: this.reply.slice(-1)[0].id
-        })
-        this.reply.push(...data.comment)
-        this.replyLoading = false
-        this.is_end = data.is_end
-      }, 1000)
+    handleSongContextMenu (e, item) {
+      this.selectMusicId = e.currentTarget.dataset.music
+      this.selectMusic = item
+      this.$refs.contextMenu.handleContextMenu(e)
     },
-    handleSongContextMenu (song, e) {
-      this.$refs.contextMenu.handleContextMenu(e, song)
+    /*
+      右键菜单选项
+    */
+    pickMenu (e) {
+      if (!this.$store.getters.token) return this.$message.error('未登录')
+      const { menu, sonItem } = e
+      this.$useContextMenu({
+        menu: menu,
+        target: this.selectMusic,
+        playList: sonItem?.id
+      })
     },
     // 检测页面触底
-    handleScroll () {
-      const offset = 21
-      const bottomOfWindow = document.documentElement.scrollTop + window.innerHeight >=
-        document.documentElement.offsetHeight - offset
-      if (bottomOfWindow) {
-        this.load()
+    handleScroll: throttle(function () {
+      if (this.isEnd) return
+      console.log(this.$refs.moreReply)
+      if (this.$refs.moreReply) {
+        const rect = this.$refs.moreReply.getBoundingClientRect()
+        if ((rect.top >= 0 && rect.top <= window.innerHeight) || (rect.bottom >= 0 && rect.bottom <= window.innerHeight)) {
+          this.load()
+        }
       }
-    },
-    scroll () {
-      console.log(111)
-    },
-    update (start, end) {
-      console.log('update')
-    },
-    resize () {
-      console.log('resize')
-    },
-    visible () {
-      console.log('visible')
-    },
-    hidden () {
-      console.log('hidden')
+      // const offset = 21
+      // const bottomOfWindow = document.documentElement.scrollTop + window.innerHeight >=
+      //   document.documentElement.offsetHeight - offset
+      // if (bottomOfWindow) {
+      //   this.load()
+      // }
+    }, 500),
+    handleClickMore ({ event, musicId }) {
+      this.selectMusicId = musicId
+      this.$refs.contextMenu.handleContextMenu(event)
     }
   },
   created () {
@@ -221,23 +223,18 @@ export default {
   },
   mounted () {
     // 将会话中的歌单数据赋值给菜单
-    this.menu[0].menu = this.getUserMusicForm
+    this.menu[0].menu.push(...this.getUserMusicForm)
     window.addEventListener('scroll', this.handleScroll)
   },
   beforeDestroy () {
     window.removeEventListener('scroll', this.handleScroll)
   },
   computed: {
-    // isLogin () { return this.$store.getters.token },
     getAlbumId () { return +this.$route.params.id },
     // 用户信息
     // isAlbumCollect判断专辑是否收藏 getUserMusicForm返回收藏夹歌单
-    // ...mapGetters('follow', ['isAlbumCollect', 'getUserMusicForm']),
     ...mapGetters('user', ['isAlbumCollect', 'getUserMusicForm']),
     ...mapState('comment', ['content', 'replyUserId', 'rootId', 'parent'])
-    // disabled () {
-    //   return this.replyLoading
-    // }
   }
 }
 </script>
@@ -285,8 +282,6 @@ export default {
           <div class="album-detail">
             <span>专辑</span>
             <span style="font-size: 5rem; font-weight: bold">{{ album.name }}</span>
-<!--            <span>{{ album.singerName }}</span>-->
-<!--            <span style="font-size: 10px;">{{album.description}}</span>-->
             <span style="margin-top: 10px;">
               <i @click="$router.push(`/singer/${album.singerId}`)">{{ album.singerName }}</i> ·
               {{ album?.musicList?.length }}首歌曲
@@ -310,20 +305,34 @@ export default {
           </span>
         </ActionBar>
       </div>
-      <div v-if="isReply" class="musicList">
-        <ContextMenu v-if="isReply"
+      <div v-show="isReply" class="musicList">
+        <ContextMenu
           ref="contextMenu"
           :menu="menu"
-          :more="clickMore"
           @select-menu="pickMenu"
         >
-          <MusicItem v-for="(item, index) in musicList"
-           @click-more="clickMore = $event"
-           @contextmenu.native="handleSongContextMenu(item, $event)"
-            :key="item.id"
-            :index="index+1"
-            :music="item"
+          <MusicItem
+           v-for="(item, index) in musicList"
+           :key="item.id"
+           :index="index+1"
+           :music="item"
+           :backup="album?.image"
+           :data-music="item.id"
+           :class="{ active : selectMusicId == item.id }"
+           @click-more="handleClickMore"
+           @contextmenu.native="handleSongContextMenu($event, item)"
           />
+          <template #menu-info>
+            <div style="padding: 5px; display: flex; align-items: center;">
+              <div style="min-width: 40px; height: 40px; border-radius: 3px; overflow: hidden;">
+                <img style="width: 100%; height: 100%;" :src="selectMusic?.image || album?.image"  alt=""/>
+              </div>
+              <div style="display: flex; flex-direction: column; margin-left: 10px; text-overflow: ellipsis;">
+                <span>{{selectMusic?.name}}</span>
+                <span>{{selectMusic?.singerName}}</span>
+              </div>
+            </div>
+          </template>
         </ContextMenu>
       </div>
       <div v-if="!isReply" class="replyView">
@@ -334,15 +343,16 @@ export default {
           </li>
         </ul>
         <ReplyInput @sub="submit" @focus="clear" />
-        <Reply v-for="item in reply" :key=" 'reply' + item.id" :item="item"
-          @more="more"
+        <Reply v-for="item in reply" :key="item.id" :item="item"
+          :obj-id="comment.objId"
+          :obj-type="comment.objType"
           @submit="submit"
           @like="like"
           @unlike="unlike"
         />
-        <p style="text-align: center; color: var(--text-color); height: 100px;">
+        <p ref="moreReply" style="text-align: center; color: var(--text-color); height: 100px;">
           <i v-show="replyLoading" class="loader"></i>
-          <i v-show="is_end" class="end"></i>
+          <i v-show="isEnd" class="end"></i>
         </p>
       </div>
     </div>
@@ -350,26 +360,22 @@ export default {
 </template>
 
 <style scoped lang="scss">
-$min-height: 400px;
-
 .album {
   position: relative;
   z-index: 1;
   overflow-x: hidden;
   .head {
-    min-height: $min-height;
+    min-height: 400px;
     width: 100%;
     padding: 0 0 20px 20px;
     display: flex;
     align-items: flex-end;
     z-index: 0;
     position: relative;
-
     .shade {
       z-index: 1;
       background-image: linear-gradient(transparent 0, rgba(0, 0, 0, .3) 100%);
     }
-
     .background-color {
       z-index: -1;
       display: block;
@@ -387,7 +393,6 @@ $min-height: 400px;
         border-radius: 5px;
         cursor: pointer;
         box-shadow: 0 4px 60px rgba(0, 0, 0, .5);
-
         &:hover {
           transform: scale(1.01);
           transition: transform 0.1s ease-out;
@@ -409,14 +414,12 @@ $min-height: 400px;
     }
 
   }
-
   .gradual-block {
     z-index: -10;
     position: relative;
     width: 100%;
-    min-height: calc(100vh - $min-height);
+    min-height: calc(100vh - 400px);
     overflow: hidden;
-
     .background {
       z-index: 1;
       min-height: 20rem;
@@ -424,7 +427,6 @@ $min-height: 400px;
       width: 100%;
       background-image: linear-gradient(rgba(0, 0, 0, .4) 0, var(--main-background-color) 100%);
     }
-
     .album-plank {
       display: flex;
       align-items: center;
@@ -433,7 +435,6 @@ $min-height: 400px;
       height: 5rem;
       position: absolute;
     }
-
     .musicList {
       width: 100%;
       min-height: 15rem;
@@ -443,7 +444,6 @@ $min-height: 400px;
       margin-top: 5rem;
       z-index: 10;
     }
-
     .replyView {
       width: 100%;
       height: 100%;
@@ -459,26 +459,22 @@ $min-height: 400px;
           .title-text {
             margin-right: 5px;
           }
-
           .total-reply {
             height: 100%;
             font-size: 13px;
           }
         }
       }
-
       .reply-tool {
         padding: 20px 0;
         margin-bottom: 10px;
         display: flex;
-
         .input {
           .btn-box {
             display: flex;
             margin-top: 10px;
             height: 32px;
             transition: all .3s ease-in-out;
-
             .btn {
               margin-left: auto;
             }

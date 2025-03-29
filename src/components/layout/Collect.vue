@@ -44,10 +44,10 @@ export default {
   <div class="collect">
     <div class="menu-list">
       <span class="icon">
-        <i class="iconfont icon-kucunguanli" :class="{'hover' : this.isBerth}"></i>
+        <i class="iconfont icon-kucunguanli" :class="{'hover' : isBerth}"></i>
 <!--        <svg :width="this.isBerth ? 22 : 15" :height="isBerth ? 22 : 15" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg"><path d="M488.680727 124.090182a104.727273 104.727273 0 0 1 93.184 0l279.272728 139.636363A104.727273 104.727273 0 0 1 919.272727 357.469091v332.706909a104.727273 104.727273 0 0 1-58.042182 93.696l-279.272727 139.636364a104.727273 104.727273 0 0 1-93.696 0L208.896 783.825455a104.634182 104.634182 0 0 1-57.623273-94.021819V357.469091a104.727273 104.727273 0 0 1 58.042182-93.696L342.574545 197.073455a35.048727 35.048727 0 0 1 5.352728-2.653091z m-267.636363 246.597818v319.348364a34.909091 34.909091 0 0 0 19.130181 31.371636l260.189091 130.094545v-341.178181l-279.272727-139.636364z m628.363636 0l-279.272727 139.636364v340.992l259.956363-129.954909a34.909091 34.909091 0 0 0 19.037091-26.298182l0.325818-4.887273V370.688zM360.913455 266.053818L264.378182 314.274909 535.272727 449.629091l96.442182-48.221091-270.894545-135.447273z m189.905454-79.453091a34.909091 34.909091 0 0 0-30.952727 0l-80.849455 40.401455 270.848 135.400727 96.302546-48.128z"></path></svg>-->
       </span>
-      <div class="title" v-if="!this.isBerth">音乐库
+      <div class="title" v-if="!isBerth">音乐库
         <button class="item-add" @click="addMusicForm" >
           <svg class="icon" viewBox="0 0 1024 1024" xmlns="http://www.w3.org/2000/svg" width="14" height="14"><path d="M992 480H544V32c0-17.7-14.3-32-32-32s-32 14.3-32 32v448H32c-17.7 0-32 14.3-32 32s14.3 32 32 32h448v448c0 17.7 14.3 32 32 32s32-14.3 32-32V544h448c17.7 0 32-14.3 32-32s-14.3-32-32-32z" fill="" ></path></svg>
         </button>
@@ -55,7 +55,8 @@ export default {
     </div>
     <div class="collect-content">
       <div class="collect-tips"
-           v-if="isLogin === '' || (this.userFollow.albumList.length === 0 && this.userFollow.singerList.length === 0 && this.userFollow.musicFormList.length === 0)">
+           v-if="isLogin === ''
+            || (this.userFollow.albumList === [] && this.userFollow.singerList === [] || this.userFollow.musicFormList === null)">
         <span>创建你的第一个歌单</span>
         <span>很简单，我们将祝你一臂之力</span>
         <i class="setUp" @click="addMusicForm">创建歌单</i>

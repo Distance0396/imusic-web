@@ -1,5 +1,4 @@
-import { getMusic } from '@/api/music'
-
+import { playMusic } from '@/api/music'
 export default {
   namespaced: true,
   state () {
@@ -67,8 +66,7 @@ export default {
       commit('setCurrentCol', col)
     },
     async getLyricAndAudio ({ commit }, id) {
-      // console.log('getLyricAndAudio调用')
-      const { data } = await getMusic(id)
+      const { data } = await playMusic(id)
       commit('setAudio', data.audio)
       commit('setLyric', data.lyric)
     }

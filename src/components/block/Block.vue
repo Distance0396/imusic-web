@@ -5,6 +5,10 @@ export default {
     showDeleteBtn: {
       type: Boolean,
       default: false
+    },
+    isLoading: {
+      type: Boolean,
+      default: false
     }
   },
   data () {
@@ -19,7 +23,6 @@ export default {
       }, 1000)
     },
     delHistory () {
-      // console.log('123')
       this.$emit('del-history')
     }
   },
@@ -31,7 +34,7 @@ export default {
 
 <template>
   <div>
-    <el-skeleton :loading="loading" animated class="block">
+    <el-skeleton :loading="isLoading" animated class="block">
       <template slot="template">
         <div class="block-loading">
           <span class="block-img">

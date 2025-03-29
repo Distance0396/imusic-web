@@ -20,8 +20,7 @@ export default {
     setIsFocus (state, obj) {
       state.isFocus = obj
     },
-    setFocus (state, obj) {
-      const { userInfo, x, y } = obj
+    setFocus (state, { userInfo, x, y }) {
       state.focusUser = userInfo
       state.x = x
       state.y = y

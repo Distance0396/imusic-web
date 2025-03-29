@@ -47,8 +47,14 @@
       <template #body>
         <Block v-for="item in singer" :key="item.id">
           <template #img>
+<!--            <img v-lazy="item?.avatar || item?.image" :key="item?.avatar || item?.image"-->
+<!--               style="width: 100%;-->
+<!--               height: 100%;-->
+<!--               cursor: pointer;-->
+<!--               border-radius: 50%;-->
+<!--               object-fit: cover;">-->
             <el-image
-               :src="item.avatar || item.image"
+               :src="item?.avatar || item?.image"
                style="width: 100%;
                height: 100%;
                cursor: pointer;
@@ -58,7 +64,7 @@
                :lazy="true"
                alt=""
                @click="$router.push(`/singer/${item.id}`)"
-            ></el-image>
+            />
           </template>
           <template #nameOne>
             <i @click="$router.push(`/singer/${item.id}`)">{{item.name}}</i>

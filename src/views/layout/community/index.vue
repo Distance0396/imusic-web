@@ -33,223 +33,194 @@ export default {
         }
       ],
       items: [
-        // {
-        //   id: 1,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/cb4ef07a-a2b1-4a0d-8cde-a8a5c528c7c0.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 2,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/747d21ba-ee74-4a6d-a3eb-02074de1adb1.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test测试Test测试Test测试Test测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 3,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/747d21ba-ee74-4a6d-a3eb-02074de1adb1.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test测试Test测试Test测试Test测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 4,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/cb4ef07a-a2b1-4a0d-8cde-a8a5c528c7c0.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 5,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/747d21ba-ee74-4a6d-a3eb-02074de1adb1.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test测试Test测试Test测试Test测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 6,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/cb4ef07a-a2b1-4a0d-8cde-a8a5c528c7c0.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 7,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/747d21ba-ee74-4a6d-a3eb-02074de1adb1.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test测试Test测试Test测试Test测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 8,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/747d21ba-ee74-4a6d-a3eb-02074de1adb1.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test测试Test测试Test测试Test测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 9,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/cb4ef07a-a2b1-4a0d-8cde-a8a5c528c7c0.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 10,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/747d21ba-ee74-4a6d-a3eb-02074de1adb1.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test测试Test测试Test测试Test测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 11,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/cb4ef07a-a2b1-4a0d-8cde-a8a5c528c7c0.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 12,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/747d21ba-ee74-4a6d-a3eb-02074de1adb1.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test测试Test测试Test测试Test测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // },
-        // {
-        //   id: 13,
-        //   image: 'https://distance0.oss-cn-chengdu.aliyuncs.com/music/cb4ef07a-a2b1-4a0d-8cde-a8a5c528c7c0.jpg',
-        //   username: '宇多田',
-        //   userId: 1,
-        //   articleId: 1,
-        //   title: '测试Test',
-        //   likeCount: 153,
-        //   replyCount: 45,
-        //   createTime: '2024-12-1',
-        //   browse: 201
-        // }
       ],
-      categoryId: 1
+      categoryId: 1,
+      sortType: 'time',
+      id: 0,
+      waterfallContainerDom: '', // 瀑布容器 DOM
+      containerDom: '', // 容器 DOM
+      getTextLineHeightCtx: '', // 获取文本行高 ctx
+      gap: 16, // 差距
+      columnWidth: 0, // 列宽
+      domDataList: [], // DOM 数据列表
+      positionList: [], // 位置列表
+      screenOffset: '', // 偏移量
+      renderMap: {}, // 渲染贴图
+      resizeCallback: null, // resize 回调
+      lastOffsetWidth: '', // 上次偏移宽度
+      lastScrollNumY: 0, // 上次滚动距离Y
+      lastScrollNumX: 0, // 上次滚动距离X
+      scrollDirection: 1 // 上次滚动方向 向下 为 1，向上为 -1
     }
   },
   methods: {
-    imgLocation (parent, content) {
-      const cparent = document.querySelector(parent)
-      const ccontent = document.querySelectorAll(content)
 
-      console.log(ccontent)
-      const imgWidth = ccontent[0].offsetWidth
-      console.log('小盒子宽度' + imgWidth)
-
-      const num = Math.floor(cparent.clientWidth / imgWidth)
-      console.log('大盒子宽度' + cparent.clientWidth)
-      cparent.style.width = `${imgWidth * num}px`
-
-      console.log('页面一行能存放图片的张数' + num)
-      const BoxHeightArr = []
-      for (let i = 0; i < ccontent.length; i++) {
-        if (i < num) {
-          // 先将第一行放满
-          ccontent[i].style.position = 'absolute'
-          ccontent[i].style.top = '40px'
-          ccontent[i].style.left = (i * imgWidth + 40) + 'px'
-          // console.log(i * imgWidth)
-          BoxHeightArr[i] = ccontent[i].offsetHeight + 40
-        } else {
-          const minHeight = Math.min.apply(null, BoxHeightArr)
-          const minIndex = BoxHeightArr.indexOf(minHeight)
-
-          ccontent[i].style.position = 'absolute'
-
-          ccontent[i].style.top = (minHeight + 20) + 'px'
-
-          ccontent[i].style.left = ccontent[minIndex].offsetLeft + 'px'
-
-          BoxHeightArr[minIndex] = BoxHeightArr[minIndex] + ccontent[i].offsetHeight + 40
-        }
-      }
-    },
-    async getArticle (categoryId) {
+    async getArticle (categoryId = 1) {
       this.categoryId = categoryId
-      const { data } = await getArticleByCategoryId({ categoryId })
+      const { data } = await getArticleByCategoryId({
+        categoryId: categoryId,
+        sortType: this.sortType,
+        id: this.id
+      })
       this.items = data
       this.$nextTick(() => {
-        this.imgLocation('.content', '.articleItem')
+        // this.imgLocation('.content', '.articleItem')
       })
+    },
+    // 根据容器宽度获取显示列数（自由发挥）
+    getColumnNum (boxWidth) {
+      if (boxWidth >= 1600) return 5
+      else if (boxWidth >= 1200) return 4
+      else if (boxWidth >= 768 && boxWidth < 1200) return 3
+      else return 2
+    },
+    // 计算列宽
+    computeColumnWidth () {
+      const columnNum = this.getColumnNum(this.waterfallContainerDom.innerWidth)
+      const allGapLength = this.gap * (columnNum - 1) // 所有间隙长度
+      this.columnWidth = (this.containerDom.offsetWidth - allGapLength) / columnNum // 列宽
+    },
+    // 重置瀑布流每一列数据
+    initPositionList () {
+      this.positionList = []
+      // 首先计算应呈现的列数
+      for (let i = 0; i < this.getColumnNum(this.waterfallContainerDom.innerWidth); i++) {
+        this.positionList.push({
+          columnIdx: i + 1,
+          columnHeight: 0
+        })
+      }
+    },
+    async getDataRender () {
+      this.computeDomData(await this.getArticle(), 0)
+    },
+    // 计算数据形成 排序表
+    computeDomData (list, startRenderIdx = 0) {
+      const tempDomDataList = []
+      for (let i = 0; i < list.length; i++) {
+        const param = {
+          idx: startRenderIdx + i,
+          img: this.imgList[Math.trunc(Math.random() * 3)],
+          columnIdx: 0,
+          width: this.columnWidth,
+          height: list[i].h * this.columnWidth / list[i].w,
+          left: 0,
+          top: 0,
+          text: this.testList[Math.trunc(Math.random() * 3)],
+          lineHeight: 74// 根据css设置的值计算得到
+        }
+        // 排序，第一项必定是长度最短的一列
+        this.positionList.sort((a, b) => a.columnHeight - b.columnHeight)
+        param.columnIdx = this.positionList[0].columnIdx
+        param.left = (param.columnIdx - 1) * (this.gap + this.columnWidth)
+
+        param.top = this.positionList[0].columnHeight
+
+        const canvas = document.createElement('canvas')
+        this.getTextLineHeightCtx = canvas.getContext('2d')
+        this.getTextLineHeightCtx.font = '16px sans-serif'
+        // css 样式表设置了 纵坐标的12px内边距，要加上
+        param.lineHeight = this.getTextLineHeightCtx.measureText(param.text).width + 24 > this.columnWidth ? 98 : 78
+
+        param.height += param.lineHeight
+        this.positionList[0].columnHeight += param.height + this.gap
+        tempDomDataList.push(param)
+      }
+      this.domDataList = this.domDataList.concat(tempDomDataList)
+
+      // 设置容器高度
+      this.positionList.sort((a, b) => a.columnHeight - b.columnHeight)
+      this.containerDom.style.height = this.positionList[this.positionList.length - 1].columnHeight + 32 + 'px'
+    },
+    // 根据元素列表进行渲染
+    renderDomByDomDataList (startRenderIdx = 0) {
+      if (!this.domDataList.length) return
+      const tempRenderMap = {}
+      let topIdx = startRenderIdx
+      let bottomIdx = startRenderIdx
+
+      // 处于这两条线之间的元素将被渲染进容器
+      for (let i = startRenderIdx; i < this.domDataList.length; i++) {
+        const { idx } = this.domDataList[i]
+        const { overTopLine, underBottomLine } = this.checkIsRender(this.domDataList[i])
+        const dom = this.containerDom.querySelector(`#item_${idx}`)
+        if (overTopLine || underBottomLine) {
+          dom?.remove()
+          continue
+        }
+        topIdx = topIdx < idx ? topIdx : idx
+        bottomIdx = bottomIdx < idx ? idx : bottomIdx
+
+        if (dom) {
+          tempRenderMap[idx] = this.createDom(dom, this.domDataList[i])
+        } else {
+          tempRenderMap[idx] = this.createDom(document.createElement('div'), this.domDataList[i])
+          this.containerDom.append(tempRenderMap[idx])
+        }
+      }
+      const keys = Object.keys(Object.assign(this.renderMap, tempRenderMap))
+      this.startIdx = +keys[0]
+      this.endIdx = +keys[keys.length - 1]
+    },
+    // 计算元素是否符合渲染条件
+    checkIsRender (params) {
+      const { top, height } = params
+      const y = top + height + this.containerTop
+      // 1个视口的数据再快速滚动滚动条时大概率会有加载项，不妨扩大到上下各0.5个视口，共2个视口内的数据，这样就比较丝滑了，这里也是自由发挥
+      const topLine = this.waterfallContainerDom.scrollTop - this.screenOffset
+      const bottomLine = this.waterfallContainerDom.scrollTop + this.waterfallContainerDom.offsetHeight + this.screenOffset
+      // 是否在上线之上
+      const overTopLine = topLine > y
+      // 是否在下线之下
+      const underBottomLine = top > bottomLine
+      return {
+        overTopLine,
+        underBottomLine
+      }
+    },
+    // 创建瀑布流每一项  dom元素
+    createDom (dom, param) {
+      dom.classList.add('waterfall-item')
+      dom.style.width = param.width + 'px'
+      dom.style.height = param.height + 'px'
+      dom.style.transform = `translate(${param.left}px, ${param.top}px)`
+      dom.id = `item_${param.idx}`
+      // <div class="main">${param.idx}</div>
+      // <div class="main">${param.idx}</div>
+      dom.innerHTML = `
+              <image class="main" src="${param.img}" alt=""/>
+              <div class="footer" style="height: ${param.lineHeight}px">
+                <div class="text">${param.idx}--${param.text}</div>
+                <div class="info">@脆脆土豆条 -《蜡笔小新》</div>
+              </div>`
+      return dom
     }
   },
   mounted () {
-  },
-  created () {
-    this.getArticle(this.categoryId)
+    this.waterfallContainerDom = document.querySelector('.community')
+    this.screenOffset = this.waterfallContainerDom.offsetHeight / 2
+    this.containerDom = document.querySelector('.content')
+    // this.loadingDom = document.querySelector('.loading')
+    // this.gotoTopDom = document.querySelector('.to-top')
+    this.lastOffsetWidth = window.innerWidth
+    this.waterfallContainerDom.addEventListener('scroll', () => { // 添加滚动事件监听器
+      console.log('滚动事件触发')
+      this.handleScroll()
+    })
+    window.addEventListener('resize', () => { // 添加滚动事件监听器
+      console.log('视窗大小变化')
+      this.resize()
+    })
+    this.computeColumnWidth()
+    this.initPositionList()
+    this.getDataRender()
   }
 }
 </script>
 
 <template>
   <div class="community" v-title data-title="社区">
-    <div class="content">
+    <div class="content" ref="content">
       <ArticleItem v-for="item in items" :key="item.id" :article="item"/>
     </div>
     <div class="navigation-bar">

@@ -16,6 +16,7 @@ import 'element-ui/lib/theme-chalk/index.css'
 import 'element-tiptap/lib/index.css'
 import { VueReCaptcha } from 'vue-recaptcha-v3'
 import { useContextMenu } from '@/utils/useContextMenu'
+import VueLazyload from 'vue-lazyload'
 
 dayjs.extend(relativeTime)
 dayjs.locale('zh-cn')
@@ -23,6 +24,11 @@ dayjs.locale('zh-cn')
 Vue.prototype.$dayjs = dayjs
 Vue.prototype.$useContextMenu = useContextMenu
 
+Vue.use(VueLazyload, {
+  preLoad: 1,
+  loading: require('./assets/loading.gif'),
+  attempt: 1
+})
 Vue.use(VueVirtualScroller)
 Vue.use(ElementUI)
 Vue.use(ElementTiptapPlugin, {

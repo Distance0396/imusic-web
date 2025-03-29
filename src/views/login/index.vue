@@ -118,7 +118,7 @@ export default {
 <!--    </div>-->
     <div class="login-box">
       <div class="bg-image">
-        <img src="https://cdn.dribbble.com/userupload/12571603/file/original-a178eaac83d810d066174bc039d61682.png" alt="">
+        <img src="https://distance0.oss-cn-chengdu.aliyuncs.com/music/original-a178eaac83d810d066174bc039d61682.webp" alt="">
       </div>
       <div class="workspace">
         <router-view />

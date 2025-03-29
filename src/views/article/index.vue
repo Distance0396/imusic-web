@@ -25,9 +25,7 @@ export default {
     async getArticle () {
       this.loading = true
       const { data } = await getArticleById(this.getArticleId)
-      setTimeout(() => {
-        this.loading = false
-      }, 500)
+      this.loading = false
       this.articleData = data
     }
   },

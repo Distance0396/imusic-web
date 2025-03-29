@@ -17,7 +17,8 @@
         :on-error="uploadError"
         :disabled="uploadLoading"
         :limit="1"
-        action="/v2/upload"
+        :headers="uploadHeaders"
+        action="/v2/upload/article"
         list-type="picture-card"
       >
         <i class="el-icon-plus"></i>
@@ -86,6 +87,7 @@ import {
 } from 'element-tiptap'
 import axios from 'axios'
 import { issueArticle } from '@/api/article'
+import { getToken } from '@/utils/storage'
 export default {
   name: 'EditorIndex',
   data () {
@@ -161,7 +163,14 @@ export default {
       // 标题
       title: '',
       // 封面
-      articleFace: ''
+      articleFace: {
+        face: '',
+        width: '',
+        height: ''
+      },
+      uploadHeaders: {
+        Token: getToken()
+      }
     }
   },
   methods: {
@@ -170,7 +179,7 @@ export default {
       const isImage = file.type === 'image/jpeg' || file.type === 'image/png'
       const isLt10M = file.size / 1024 / 1024 < 10
       if (!isImage) {
-        this.$message.error('上传音频只能是 png/jpg 格式!')
+        this.$message.error('上传图片只能是 png/jpg 格式!')
       }
       if (!isLt10M) {
         this.$message.error('上传图片大小不能超过 10MB!')
@@ -196,11 +205,14 @@ export default {
         content: this.content,
         status: 1,
         category: this.category,
-        face: this.articleFace
+        ...this.articleFace
+      }).then(() => {
+        this.$message.success('发布成功')
+        this.$router.go(-1)
+      }).catch(() => {
+        this.issueLoading = false
       })
-      this.$message.success('发布成功')
       this.issueLoading = false
-      this.$router.go(-1)
     }
   }
 }

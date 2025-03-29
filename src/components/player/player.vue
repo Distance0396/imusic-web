@@ -119,11 +119,10 @@ export default {
     playlist: {
       // 音乐队列改变触发
       handler (newVal) {
-        // console.log('音乐队列改变触发')
         this.isShow = true
         this.setIsPlay(true)
         this.setStatus(true)
-        this.getLyricAndAudio(this.firstPlayList.id).then(res => {
+        this.getLyricAndAudio(this.firstPlayList.id).then(() => {
           this.setCurrentSong(this.firstPlayList)
           this.$refs.audio.play()
         })
@@ -133,10 +132,8 @@ export default {
       // musicItem点击播放暂停修改player播放暂停状态
       handler (newVal) {
         if (newVal) {
-          // this.isPlay = true
-          this.$refs.audio.play()
+          // this.$refs.audio.play()
         } else {
-          // this.isPlay = false
           this.$refs.audio.pause()
         }
       }

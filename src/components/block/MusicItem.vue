@@ -12,25 +12,17 @@ export default {
     ...mapMutations('playlist', ['appoint']),
     ...mapActions('player', ['playSong', 'playCol', 'getLyricAndAudio']),
     ...mapMutations('player', ['setStatus']),
-    formatTime (seconds) {
-      const minutes = Math.floor(seconds / 60)
-      const secs = Math.floor(seconds % 60)
-      return `${minutes}:${secs < 10 ? '0' : ''}${secs}`
-    },
     // 点击播放将歌曲添加至队列
     play () {
       // 将歌曲信息添加给队列
       this.appoint(this.music)
-      // this.setStatus(true)
-      // this.getLyricAndAudio(this.music.id)
       this.playSong(this.music)
       this.playCol(this.$router.history.current.fullPath)
     },
     // 点击省略符号
     clickMore (e) {
-      e.preventDefault()
-      e.stopPropagation()
-      this.$emit('click-more', e)
+      // e.preventDefault()
+      this.$emit('click-more', { event: e, musicId: this.music?.id })
     },
     // 暂停
     pause () {
@@ -38,27 +30,23 @@ export default {
     }
   },
   computed: {
-    ...mapState('player', ['status', 'currentSong', 'currentCol', 'status']),
-    isPlaying () { return music => this.currentSong && this.currentSong.id === music.id }
-  },
-  data () {
-    return {
-    }
+    ...mapState('player', ['status', 'currentSong', 'currentCol']),
+    isPlaying () { return this.currentSong?.id === this.music?.id && this.status }
   }
 }
 </script>
 
 <template>
-  <div class="musicItem" ref="music">
+  <div class="musicItem" ref="music" @dblclick="play">
     <div class="music-index public">
-      <div v-if="isPlaying(music) && status" class="public ">
+      <div v-if="isPlaying" class="public ">
         <img class="index" style="width: 1rem; height: 1rem;" src="@/assets/equaliser.gif" alt="">
         <button class="player" @click.stop="pause">
           <i class="iconfont icon-zanting1 icon"></i>
         </button>
       </div>
       <div v-else class="public">
-        <span class="index text" :class="{ activeName: isPlaying(music) }">
+        <span class="index text" :class="{ activeName: isPlaying }">
           {{ index }}
         </span>
         <button class="player" @click.stop="play">
@@ -67,9 +55,9 @@ export default {
       </div>
     </div>
     <div class="music-info public">
-      <el-image :src="music?.image || backup" alt="" style="" class="img"></el-image>
+      <el-image :src="music?.image || backup" :lazy="true" class="img" />
       <div style="display: flex; flex-direction: column">
-        <i :class="{ activeName: isPlaying(music) }">{{ music?.name }}</i>
+        <i :class="{ activeName: isPlaying }">{{ music?.name }}</i>
         <i v-if="$route.name !== 'Singer'" class="singer" @click="$router.replace(`/singer/${music?.singerId}`)">{{ music?.singerName }}</i>
       </div>
     </div>
@@ -82,7 +70,7 @@ export default {
       <div class="duration">
         {{ music?.duration }}
       </div>
-      <div class="more" @click="clickMore($event)">
+      <div class="more" @click.stop.prevent="clickMore">
         <i class="iconfont icon-more" />
       </div>
     </div>
@@ -90,25 +78,23 @@ export default {
 </template>
 
 <style scoped lang="scss">
-@media (hover: hover) {
-  .musicItem:hover {
-    background-color: rgba(167, 167, 167, 0.4);
-    transition: background-color .2s;
-    opacity: 1;
-  }
-  .musicItem:hover .music-index .public .player {
-    opacity: 1;
-  }
-  .musicItem:hover .music-index .public .index {
-    opacity: 0;
-  }
-  .musicItem:hover .music-more .more {
-    opacity: 1;
-    transition: opacity .2s;
-  }
-}
 .active{
   background-color: rgba(255, 255, 255, 0.4);
+}
+.musicItem:hover {
+  background-color: rgba(167, 167, 167, 0.4);
+  transition: background-color .2s;
+  opacity: 1;
+}
+.musicItem:hover .music-index .public .player {
+  opacity: 1;
+}
+.musicItem:hover .music-index .public .index {
+  opacity: 0;
+}
+.musicItem:hover .music-more .more {
+  opacity: 1;
+  transition: opacity .2s;
 }
 .activeName{
   color: #1eb754;
@@ -125,6 +111,7 @@ export default {
   display: grid;
   grid-template-columns: 0.5fr 650px 150px 4fr;
   max-width: 1200px;
+  overflow: hidden;
   .music-index {
     padding: 0 15px;
   }

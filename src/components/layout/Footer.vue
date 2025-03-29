@@ -18,7 +18,8 @@ export default {
       </span>
       <el-divider direction="vertical"></el-divider>
       <span class="text" >
-        本站访问人数：{{this.$store.state.common.browse || 0}}
+<!--        本站访问人数：{{this.$store.state.common.browse || 0}}-->
+        资源均来自网络如侵权请 联系邮箱：hottype@qq.com
       </span>
     </div>
   </div>
